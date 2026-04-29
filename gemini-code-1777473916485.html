@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+<title>Student's Suite</title>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── Theming System & Reactive Variables ── */
+:root {
+  --bg: #0b0c10; --surface: #12141a; --card: #181b24;
+  --border: #222632; --border2: #2e3347;
+  --gold: #f0a500; --gold2: #d08800; --goldbg: rgba(240,165,0,.07);
+  --green: #3ecf8e; --red: #e05c5c; --blue: #5c9cf5;
+  --muted: #5a6180; --dim: #8892b0; --text: #cdd6f4;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+  --mouse-x: 50%; --mouse-y: 50%; /* For reactive background */
+}
+
+[data-theme="light"] {
+  --bg: #f5f7fa; --surface: #ffffff; --card: #ffffff;
+  --border: #e4e7eb; --border2: #cbd2d9;
+  --gold: #d08800; --gold2: #b07000; --goldbg: rgba(208,136,0,.07);
+  --green: #2fa872; --red: #d94848; --blue: #3b82f6;
+  --muted: #7b8794; --dim: #52606d; --text: #1f2933;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* Mobile usability fix: Removed JS touch-blocking, using native overscroll containment */
+body {
+  background: var(--bg); color: var(--text); font-family: var(--sans);
+  min-height: 100vh; overflow-x: hidden; overscroll-behavior-y: auto;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Reactive Dot Matrix Background */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background-image: 
+    radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(240, 165, 0, 0.08) 0%, transparent 25%),
+    radial-gradient(var(--border2) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px;
+  opacity: 0.6; transition: background-image 0.1s ease;
+}
+
+/* ── UI Shell & Layout ── */
+.page { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 28px 16px 100px; }
+.tool-panel { display: none; position: relative; z-index: 1; }
+.theme-toggle { position: fixed; top: 16px; right: 16px; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; width: 42px; height: 42px; display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 1.2rem; transition: transform 0.2s; }
+.theme-toggle:hover { transform: scale(1.05); }
+
+/* ── Navigation ── */
+.nav-bar { position: sticky; top: 0; z-index: 100; background: rgba(var(--bg), 0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; padding: 11px 16px; }
+.nav-back { background: none; border: 1px solid var(--border2); border-radius: 7px; color: var(--gold); font-family: var(--sans); font-size: .82rem; font-weight: 600; cursor: pointer; padding: 5px 12px; transition: background .15s; }
+.nav-back:hover { background: var(--goldbg); }
+.nav-title { font-size: .9rem; font-weight: 600; }
+
+/* ── Landing Header & Logo ── */
+.hd { margin-bottom: 24px; }
+.hd-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.hd-logo-img { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); background: var(--surface); }
+.hd-title { font-size: 1.8rem; font-weight: 700; letter-spacing: -.03em; line-height: 1; margin-bottom: 6px; }
+.hd-title span { color: var(--gold); }
+.hd-sub { color: var(--muted); font-size: .85rem; line-height: 1.6; }
+
+/* ── Categorization Bar ── */
+.cat-bar { display: flex; gap: 10px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+.cat-bar::-webkit-scrollbar { display: none; }
+.cat-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; white-space: nowrap; font-family: var(--sans); font-size: 0.85rem; font-weight: 500; transition: all 0.2s; }
+.cat-btn.active { background: var(--goldbg); color: var(--gold); border-color: var(--gold); }
+
+/* ── Tool Grid ── */
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.tool-card { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 16px; display: flex; align-items: flex-start; gap: 13px; cursor: pointer; transition: all 0.2s; user-select: none; }
+.tool-card.hidden { display: none !important; }
+.tool-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
+.tc-icon { width: 38px; height: 38px; background: var(--goldbg); border: 1px solid rgba(240,165,0,.18); border-radius: 8px; display: grid; place-items: center; font-size: 1.1rem; flex-shrink: 0; }
+.tc-body { flex: 1; min-width: 0; }
+.tc-name { font-size: .95rem; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+.tc-desc { font-size: .78rem; color: var(--muted); line-height: 1.5; }
+
+/* ── Forms, Inputs, Elements ── */
+.slabel { font-family: var(--mono); font-size: .67rem; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: .12em; display: flex; align-items: center; gap: 10px; margin-bottom: 9px; margin-top: 4px; }
+.slabel::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 16px 18px; margin-bottom: 12px; }
+
+/* Educational Description Blocks */
+.desc-toggle { background: none; border: 1px solid var(--border2); border-radius: 6px; color: var(--gold); font-family: var(--sans); font-size: .76rem; font-weight: 600; padding: 5px 11px; cursor: pointer; transition: background .15s; margin-bottom: 0; }
+.desc-toggle:hover { background: var(--goldbg); }
+.desc-body { margin-top: 10px; font-size: .82rem; color: var(--dim); line-height: 1.7; border-left: 3px solid var(--gold); padding: 12px 16px; background: var(--goldbg); border-radius: 0 7px 7px 0; }
+.desc-body b { color: var(--text); }
+.desc-body h4 { color: var(--gold); font-size: 0.9rem; margin: 12px 0 4px 0; }
+.desc-body ul { margin-left: 20px; margin-bottom: 10px; }
+.desc-body code { font-family: var(--mono); font-size: .74rem; color: var(--gold); background: var(--surface); padding: 2px 4px; border-radius: 4px; }
+
+/* File Drop Zones & UI */
+.dz { border: 2px dashed var(--border2); border-radius: 9px; padding: 24px 20px; text-align: center; cursor: pointer; position: relative; transition: all .2s; }
+.dz:hover, .dz.over { border-color: var(--gold); background: var(--goldbg); }
+.dz input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.dz-icon { font-size: 1.6rem; margin-bottom: 5px; }
+.dz-txt { color: var(--muted); font-size: .8rem; }
+.pill { display: none; align-items: center; gap: 11px; margin-top: 9px; padding: 8px 12px; background: rgba(62,207,142,.06); border: 1px solid rgba(62,207,142,.25); border-radius: 8px; }
+.pill.on { display: flex; }
+.pill-name { font-weight: 600; font-size: .84rem; word-break: break-all; }
+.pill-meta { color: var(--muted); font-size: .7rem; margin-top: 1px; }
+
+.cgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; }
+@media(max-width: 500px) { .cgrid { grid-template-columns: 1fr; } }
+.ctrl { display: flex; flex-direction: column; gap: 5px; }
+.ctrl label { font-size: .74rem; color: var(--dim); font-weight: 500; }
+select, input[type=text], input[type=number], input[type=password] { background: var(--surface); border: 1px solid var(--border2); border-radius: 6px; color: var(--text); padding: 7px 11px; font-family: var(--sans); font-size: .84rem; outline: none; width: 100%; }
+select:focus, input:focus { border-color: var(--gold); }
+.rrow { display: flex; align-items: center; gap: 9px; }
+input[type=range] { flex: 1; accent-color: var(--gold); }
+.rv { font-family: var(--mono); font-size: .76rem; color: var(--gold); min-width: 46px; text-align: right; }
+
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 9px; }
+.btn-sm { background: var(--surface); border: 1px solid var(--border2); border-radius: 6px; color: var(--text); font-family: var(--sans); font-size: .76rem; padding: 6px 12px; cursor: pointer; transition: all .12s; }
+.btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+.btn-sm.primary { background: var(--goldbg); border-color: rgba(240,165,0,.3); color: var(--gold); }
+.btn-sm.danger { color: var(--red); }
+
+.run { width: 100%; padding: 12px; background: var(--gold); color: #000; border: none; border-radius: 8px; font-family: var(--sans); font-size: .95rem; font-weight: 700; cursor: pointer; transition: transform .1s, opacity .2s; }
+.run:active { transform: translateY(1px); }
+.run:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Image Canvas Previews */
+.preview-canvas-container { width: 100%; max-height: 400px; background: var(--surface); border: 1px dashed var(--border2); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; position: relative; }
+canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+/* Analytics */
+.analytics-widget { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); display: flex; justify-content: space-between; border-top: 1px dashed var(--border2); padding-top: 12px; margin-top: 24px; }
+#gBadge { position: fixed; bottom: 18px; right: 16px; z-index: 200; background: rgba(240,165,0,.13); border: 1px solid rgba(240,165,0,.3); border-radius: 18px; padding: 6px 14px; color: var(--gold); font-family: var(--mono); font-size: .75rem; display: none; cursor: pointer; backdrop-filter: blur(8px); }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggleBtn" title="Toggle Light/Dark Mode">🌓</button>
+<div id="gBadge">📋 <span id="gBadgeCount">0</span> in session</div>
+
+<div id="landing" class="page">
+  <div class="hd">
+    <div class="hd-brand">
+      <img src="./logo.png" alt="Suite Logo" class="hd-logo-img" id="mainLogo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"/>
+      <div class="hd-logo-img" style="display:none; place-items:center; font-size:1.5rem; background:var(--gold); color:#000;">📚</div>
+      <div>
+        <div class="hd-title">Student's <span>Suite</span></div>
+        <div class="hd-sub">Offline-first Academic Document & Image Processor</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cat-bar" id="categoryFilter">
+    <button class="cat-btn active" data-filter="all">All Tools</button>
+    <button class="cat-btn" data-filter="pdf">PDF Utilities</button>
+    <button class="cat-btn" data-filter="image">Image Processing</button>
+    <button class="cat-btn" data-filter="maths">Mathematics</button>
+  </div>
+
+  <div class="tools-grid" id="mainToolsGrid">
+    <div class="tool-card" data-category="pdf" data-target="booklet">
+      <div class="tc-icon">📖</div>
+      <div class="tc-body"><div class="tc-name">Booklet Imposition</div><div class="tc-desc">Re-order pages for saddle-stitch physical booklet printing.</div></div>
+    </div>
+    <div class="tool-card" data-category="pdf" data-target="merge">
+      <div class="tc-icon">⊕</div>
+      <div class="tc-body"><div class="tc-name">PDF Merge</div><div class="tc-desc">Combine multiple files sequentially into one document.</div></div>
+    </div>
+    <div class="tool-card" data-category="pdf" data-target="split">
+      <div class="tc-icon">✂</div>
+      <div class="tc-body"><div class="tc-name">PDF Split</div><div class="tc-desc">Extract chapters or divide documents by intervals.</div></div>
+    </div>
+    <div class="tool-card" data-category="pdf" data-target="compress">
+      <div class="tc-icon">⊘</div>
+      <div class="tc-body"><div class="tc-name">PDF Compress</div><div class="tc-desc">Lossless metadata and structure optimization.</div></div>
+    </div>
+    <div class="tool-card" data-category="pdf" data-target="nup">
+      <div class="tc-icon">⊞</div>
+      <div class="tc-body"><div class="tc-name">N-up Layout</div><div class="tc-desc">Tile multiple source pages onto a single output grid.</div></div>
+    </div>
+    <div class="tool-card" data-category="pdf" data-target="rearrange">
+      <div class="tc-icon">⇅</div>
+      <div class="tc-body"><div class="tc-name">Rearrange Pages</div><div class="tc-desc">Manually duplicate, delete, or re-order internal pages.</div></div>
+    </div>
+    <div class="tool-card" data-category="pdf" data-target="verified">
+      <div class="tc-icon">☑</div>
+      <div class="tc-body"><div class="tc-name">PDF Verified Tag</div><div class="tc-desc">Stamp structural verification vectors on academic documents.</div></div>
+    </div>
+    <div class="tool-card" data-category="pdf" data-target="advwmrm">
+      <div class="tc-icon">◌</div>
+      <div class="tc-body"><div class="tc-name">Advanced WM Removal</div><div class="tc-desc">Diagnose and strip layered vector/text watermarks.</div></div>
+    </div>
+    <div class="tool-card" data-category="pdf" data-target="wmadd">
+      <div class="tc-icon">⬡</div>
+      <div class="tc-body"><div class="tc-name">Add Watermark & Raster</div><div class="tc-desc">Stamp text/image layers and optionally rasterize outputs.</div></div>
+    </div>
+    <div class="tool-card" data-category="pdf image" data-target="toimage">
+      <div class="tc-icon">◫</div>
+      <div class="tc-body"><div class="tc-name">PDF to Image</div><div class="tc-desc">Extract document vectors into high-res pixel matrices.</div></div>
+    </div>
+
+    <div class="tool-card" data-category="image" data-target="imgcomp">
+      <div class="tc-icon">🗜</div>
+      <div class="tc-body"><div class="tc-name">Image Compressor</div><div class="tc-desc">Canvas-based qualitative reduction algorithm.</div></div>
+    </div>
+    <div class="tool-card" data-category="image" data-target="imgresize">
+      <div class="tc-icon">⤡</div>
+      <div class="tc-body"><div class="tc-name">Format & Resize</div><div class="tc-desc">Strict compliance scaling (DPI, Dimensions, KB limits).</div></div>
+    </div>
+    <div class="tool-card" data-category="image" data-target="passport">
+      <div class="tc-icon">🖼</div>
+      <div class="tc-body"><div class="tc-name">Passport Photo Maker</div><div class="tc-desc">Crop vectors, rotate geometry, and adjust color matrices.</div></div>
+    </div>
+    <div class="tool-card" data-category="image" data-target="signature">
+      <div class="tc-icon">✍</div>
+      <div class="tc-body"><div class="tc-name">Signature Digitizer</div><div class="tc-desc">Algorithmic background removal and contrast enhancement.</div></div>
+    </div>
+
+    <div class="tool-card" data-category="maths" data-target="calc" style="grid-column: 1 / -1;">
+      <div class="tc-icon">∑</div>
+      <div class="tc-body"><div class="tc-name">Multifunction Graphing</div><div class="tc-desc">Scientific calculator and comparative plotting engine.</div></div>
+    </div>
+  </div>
+
+  <div class="analytics-widget">
+    <span>Suite Version: 3.0.0</span>
+    <span>Global Visits: <span id="total-visitors" style="color:var(--gold); font-weight:600;">Loading...</span></span>
+  </div>
+</div>
+
+<div id="tool-booklet" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">📖 Booklet Imposition</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle">ℹ Academic Parameters & Terminology ▾</button>
+      <div class="desc-body" style="display:none">
+        <h4>The Concept of Imposition</h4>
+        Imposition is the architectural arrangement of printed product pages on the press sheet. This tool automates <b>Saddle-Stitching</b> logic, formatting sequential PDFs so they print correctly when folded down the spine.
+        <h4>Signature Terminology</h4>
+        <ul>
+          <li><b>1-Fold (4 pages/sig):</b> The simplest unit. One physical sheet folded once down the center yields 4 reading pages (Front Cover, Inside Front, Inside Back, Back Cover).</li>
+          <li><b>2-Fold (8 pages/sig):</b> Two sheets nested together before folding. Excellent for thin brochures.</li>
+          <li><b>4-Fold (16 pages/sig):</b> Four nested sheets. The standard for dense academic booklets to prevent the spine from creeping (bulging).</li>
+        </ul>
+        <h4>Geometric Controls</h4>
+        <ul>
+          <li><b>Binding Gap:</b> Defines the blank gutter space reserved precisely at the spine for staples or binding glue.</li>
+          <li><b>Outer Margin:</b> The "bleed" zone required by physical printers to ensure text isn't severed during edge trimming.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slabel">01 — Document Input</div>
+    <div class="card"><div class="dz" id="bk-dz"><input type="file" id="bk-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div></div>
+    </div>
+</div>
+
+<div id="tool-merge" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">⊕ PDF Merge</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle">ℹ Compilation Logic ▾</button>
+      <div class="desc-body" style="display:none">
+        <h4>Sequential Byte-Stream Fusion</h4>
+        This module constructs a unified document array by linearly concatenating the byte streams of independent PDF structures. 
+        <ul>
+          <li><b>Integrity Preservation:</b> The engine copies exact node references. Visual fidelity, scaling, and internal orientations of original pages remain mathematically unaltered.</li>
+          <li><b>Memory Note:</b> Merging exceedingly large textbook scans will require proportional RAM allocation within the browser tab.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slabel">01 — Matrix Queue</div>
+    <div class="card">
+      <div class="btn-row"><button class="btn-sm primary">+ Upload PDFs</button> <button class="btn-sm">↑ Shift</button> <button class="btn-sm">↓ Shift</button></div>
+      <div style="height:100px; border:1px solid var(--border2); border-radius:6px; margin-top:10px;"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tool-imgcomp" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">🗜 Image Compressor</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle">ℹ Compression Paradigms ▾</button>
+      <div class="desc-body" style="display:none">
+        <h4>Canvas Iteration</h4>
+        This module utilizes the browser's native Canvas API to transcode pixel matrices, simulating lossy compression by discarding imperceptible color data.
+        <h4>Advanced Tooling Protocol</h4>
+        For surgical, codec-level compression (AVIF, WebP, exact quantization palettes), Google's dedicated WebAssembly tool is structurally superior to isolated Canvas rendering.
+        <div style="margin-top:12px;"><a href="https://squoosh.app" target="_blank" class="btn-sm primary" style="text-decoration:none;">Launch Squoosh.app Externally ↗</a></div>
+      </div>
+    </div>
+    <div class="slabel">01 — Source Image</div>
+    <div class="card"><div class="dz"><input type="file" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt">Load Image Matrix</div></div></div>
+    <div class="slabel">02 — Qualitative Parameters</div>
+    <div class="card">
+      <div class="ctrl"><label>Lossy Degradation Index (%)</label><div class="rrow"><input type="range" min="1" max="100" value="70"/><span class="rv">70%</span></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="tool-imgresize" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">⤡ Format & Resize</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle">ℹ Strict Compliance Scaling ▾</button>
+      <div class="desc-body" style="display:none">
+        <h4>Academic & Governmental Standards</h4>
+        Digital submission portals enforce stringent geometric and physical data constraints.
+        <ul>
+          <li><b>DPI (Dots Per Inch):</b> A printing metric. 200-300 DPI is standard for legible document scans. Modifying DPI alters the EXIF metadata, not necessarily the display size on a screen.</li>
+          <li><b>Dimensional Transcoding:</b> Inputting CM or Inches automatically forces the Canvas algorithm to calculate required pixels based on the selected DPI target.</li>
+          <li><b>KB Constraints:</b> If a target size is set (e.g., Max 50KB), the engine will iteratively execute lossy compression loops until the byte-size falls below the threshold.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slabel">01 — Spatial Parameters</div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Metric Format</label><select><option>Centimeters (cm)</option><option>Inches (in)</option><option>Pixels (px)</option></select></div>
+        <div class="ctrl"><label>Target DPI</label><select><option>50</option><option>72</option><option>150</option><option selected>200</option><option>300</option><option>600</option><option>1200</option></select></div>
+        <div class="ctrl"><label>Width</label><input type="number" placeholder="e.g. 3.5"/></div>
+        <div class="ctrl"><label>Height</label><input type="number" placeholder="e.g. 4.5"/></div>
+        <div class="ctrl"><label>Strict Size Cap (KB)</label><input type="number" placeholder="e.g. 50"/></div>
+        <div class="ctrl"><label>Output Nomenclature</label><input type="text" placeholder="filename_resized"/></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tool-passport" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">🖼 Passport Protocol</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle">ℹ Algorithmic Refinement ▾</button>
+      <div class="desc-body" style="display:none">
+        <h4>Biometric Preparation</h4>
+        This module provides the pre-processing vectors required before strict resizing.
+        <ul>
+          <li><b>Geometry:</b> Free-transform cropping and axial rotation to align facial features.</li>
+          <li><b>Color Matrices:</b> Contrast and saturation scalars to ensure clarity against white/light backgrounds.</li>
+          <li><b>Pipeline:</b> Once the visual matrix is finalized, proceed to the <b>Format & Resize</b> tool to enforce exact CM and KB constraints.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="preview-canvas-container" style="height:250px;">
+        <span style="color:var(--muted); font-family:var(--mono); font-size:0.8rem;">[ Canvas Initialization Pending ]</span>
+    </div>
+    <div class="card">
+      <div class="ctrl" style="margin-bottom:12px;"><label>Axial Rotation (°)</label><input type="range" min="-45" max="45" value="0"/></div>
+      <div class="cgrid">
+        <div class="ctrl"><label>Brightness</label><input type="range" min="-100" max="100" value="0"/></div>
+        <div class="ctrl"><label>Contrast Scalar</label><input type="range" min="-100" max="100" value="0"/></div>
+      </div>
+      <div class="btn-row" style="margin-top:16px;"><button class="btn-sm primary">Apply Transforms</button> <button class="btn-sm">→ Send to Resizer</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="tool-signature" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">✍ Signature Extraction</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle">ℹ Luminance Parsing ▾</button>
+      <div class="desc-body" style="display:none">
+        <h4>Alpha Channel Inversion</h4>
+        Extracting ink from physical paper requires programmatic pixel iteration. 
+        <ul>
+          <li><b>Heuristic Scan:</b> The algorithm reads the <code>RGBA</code> array of the canvas. It converts RGB data to perceived luminance.</li>
+          <li><b>Tolerance Threshold:</b> Pixels exhibiting high luminance (the white paper) have their Alpha channel forced to <code>0</code> (transparent).</li>
+          <li><b>Ink Reinforcement:</b> Remaining dark pixels undergo aggressive contrast scaling to generate a stark, digital-ready signature stamp.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="preview-canvas-container" style="height:150px; background-image: repeating-linear-gradient(45deg, var(--border) 25%, transparent 25%, transparent 75%, var(--border) 75%, var(--border)), repeating-linear-gradient(45deg, var(--border) 25%, var(--bg) 25%, var(--bg) 75%, var(--border) 75%, var(--border)); background-position: 0 0, 10px 10px; background-size: 20px 20px;">
+       <span style="color:var(--text); background:var(--surface); padding:4px 8px; border-radius:4px;">[ Transparency Grid Active ]</span>
+    </div>
+    <div class="card">
+      <div class="ctrl"><label>Luminance Tolerance (Background Deletion)</label><input type="range" min="0" max="255" value="200"/></div>
+      <div class="ctrl" style="margin-top:12px;"><label>Ink Density (Contrast)</label><input type="range" min="1" max="50" value="10"/></div>
+    </div>
+  </div>
+</div>
+
+<div id="tool-advwmrm" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">◌ Diagnostic WM Removal</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle">ℹ Heuristic Analysis Protocols ▾</button>
+      <div class="desc-body" style="display:none">
+        <h4>Structural vs. Visual Obfuscation</h4>
+        Watermarks exist in two fundamentally distinct architectures within a PDF.
+        <ul>
+          <li><b>Annotation Layer (Easy):</b> Metadata stamps floating above the page. The <i>Structural Scan</i> deletes these arrays entirely.</li>
+          <li><b>Content Stream (Complex):</b> Text hardcoded into the actual page matrix. This tool deploys spatial heuristics—scanning coordinate geometries to classify objects residing in the Top 15% (Header) or Bottom 15% (Footer)—and applying absolute-white redaction vectors.</li>
+          <li><b>Limitation:</b> True visual OCR reading is impossible offline. Results rely strictly on mathematical coordinate targeting.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slabel">01 — Diagnostic Engine</div>
+    <div class="card">
+      <button class="btn-sm primary" style="width:100%; padding:10px;">🔍 Execute Coordinate Scan</button>
+      <div style="background:var(--bg); border:1px solid var(--border2); padding:10px; border-radius:6px; margin-top:10px; font-family:var(--mono); font-size:0.75rem; color:var(--green);">
+        > Awaiting matrix input...
+      </div>
+    </div>
+    <div class="slabel">02 — Intervention Vectors</div>
+    <div class="card">
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <label><input type="checkbox"/> Annihilate Annotation Layer</label>
+        <label><input type="checkbox"/> Redact Top Header Region (Y-Max - 15%)</label>
+        <label><input type="checkbox"/> Redact Bottom Footer Region (Y-Min + 15%)</label>
+        <label><input type="checkbox"/> Redact Specific Text Anchor:</label>
+        <input type="text" placeholder="String payload to obscure..."/>
+      </div>
+      <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;"/>
+      <div class="rrow"><input type="number" placeholder="Pg #"/><button class="btn-sm">Render Output Preview</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="tool-verified" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">☑ Stamp Verification</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle">ℹ Vector Injection ▾</button>
+      <div class="desc-body" style="display:none">
+        <h4>Cryptographic Mimicry</h4>
+        Academic and governmental portals frequently distribute documents requiring "Signature Verified" visual status markers. 
+        <ul>
+          <li><b>Execution:</b> The engine parses a raw, mathematically defined SVG path (the standard green checkmark) and integrates it directly into the PDF's uncompressed object stream at a designated coordinate grid.</li>
+          <li><b>Warning:</b> This adds a <i>visual</i> stamp. It does not generate genuine cryptographic RSA signatures.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Verification Nomenclature</label><input type="text" value="Signature Valid"/></div>
+        <div class="ctrl"><label>Coordinate Anchor</label><select><option>Bottom Left Panel</option><option>Bottom Right Panel</option><option>Top Right Header</option></select></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mobile Reactivity & Event Listeners (DOM preparation only)
+  document.addEventListener('mousemove', (e) => {
+    document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
+    document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
+  });
+  document.addEventListener('touchmove', (e) => {
+    document.documentElement.style.setProperty('--mouse-x', e.touches[0].clientX + 'px');
+    document.documentElement.style.setProperty('--mouse-y', e.touches[0].clientY + 'px');
+  }, {passive: true}); // Passive true explicitly allows native scrolling
+
+  // GoatCounter Telemetry (DOM Specific)
+  let r = new XMLHttpRequest();
+  r.addEventListener('load', function() {
+      try { document.getElementById('total-visitors').innerText = JSON.parse(this.responseText).count; } 
+      catch (e) { document.getElementById('total-visitors').innerText = "Unreachable"; }
+  });
+  r.open('GET', 'https://suvadip.goatcounter.com/counter/TOTAL.json');
+  r.send();
+</script>
+
+<script src="./js/app.js"></script>
+
+<script data-goatcounter="https://suvadip.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+</body>
+</html>
