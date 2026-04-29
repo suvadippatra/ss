@@ -230,4 +230,90 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 
     console.log("Student's Suite: Local execution engine loaded successfully.");
-});
+    };
+
+/* ═════════════════════════════════════════════════════════
+       6. UNIVERSAL FILE INGESTION & DOM BINDING
+    ═════════════════════════════════════════════════════════ */
+
+    window.setupDZ = function(dzId, fiId, pillNameId, pillMetaId, pillId, runId, procId, onLoadCallback) {
+        const dz = document.getElementById(dzId);
+        const fi = document.getElementById(fiId);
+        if (!dz || !fi) return;
+
+        // Handle standard click-to-browse
+        fi.addEventListener('change', (e) => {
+            if (e.target.files[0]) handleFileIngestion(e.target.files[0], pillNameId, pillMetaId, pillId, runId, procId, onLoadCallback);
+        });
+
+        // Handle Drag and Drop
+        dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('over'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+        dz.addEventListener('drop', (e) => {
+            e.preventDefault(); dz.classList.remove('over');
+            if (e.dataTransfer.files[0]) {
+                handleFileIngestion(e.dataTransfer.files[0], pillNameId, pillMetaId, pillId, runId, procId, onLoadCallback);
+            }
+        });
+
+        // Ensure clicking the zone triggers the hidden file input
+        dz.addEventListener('click', (e) => {
+            if (e.target !== fi) fi.click();
+        });
+    };
+
+    async function handleFileIngestion(file, pillNameId, pillMetaId, pillId, runId, procId, onLoadCallback) {
+        const isPDF = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+        const isImg = file.type.startsWith('image/');
+
+        if (!isPDF && !isImg) {
+            alert('Architecture Fault: Invalid format. Please supply a PDF or Image matrix.');
+            return;
+        }
+
+        const buf = await file.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+
+        // Update UI Pills
+        const pName = document.getElementById(pillNameId);
+        const pMeta = document.getElementById(pillMetaId);
+        const pill = document.getElementById(pillId);
+        const runBtn = document.getElementById(runId);
+
+        if(pName) pName.textContent = file.name;
+        if(pMeta) pMeta.textContent = `${(bytes.length / 1024).toFixed(0)} KB`;
+        if(pill) pill.classList.add('on');
+        if(runBtn) runBtn.disabled = false;
+        
+        const procArea = document.getElementById(procId);
+        if(procArea) procArea.style.display = 'block';
+
+        if (isPDF) {
+            try {
+                // Parse PDF to extract page count for the UI metadata
+                const doc = await PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true });
+                if(pMeta) pMeta.textContent += ` · ${doc.getPageCount()} Pages`;
+                if(onLoadCallback) onLoadCallback(bytes, file.name, doc.getPageCount(), file);
+            } catch (e) {
+                alert('Parsing Error: Could not read document architecture. ' + e.message);
+            }
+        } else if (isImg) {
+            if(onLoadCallback) onLoadCallback(bytes, file.name, null, file);
+        }
+    }
+
+    // Shared UI Helpers required by tools
+    window.logMsg = function(boxId, msg, type='li') {
+        const box = document.getElementById(boxId);
+        if(!box) return;
+        const d = document.createElement('div');
+        d.className = type;
+        d.innerHTML = `<span style="opacity:.32">[System]</span> ${msg}`;
+        box.appendChild(d);
+        box.scrollTop = box.scrollHeight;
+    };
+    
+    window.logClear = function(boxId) { const b = document.getElementById(boxId); if(b) b.innerHTML = ''; };
+    window.setP = function(id, pct) { const el = document.getElementById(id); if(el) el.style.width = pct + '%'; };
+    
+    });
