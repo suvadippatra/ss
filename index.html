@@ -18,7 +18,7 @@
   --green: #3ecf8e; --red: #e05c5c; --blue: #5c9cf5;
   --muted: #5a6180; --dim: #8892b0; --text: #cdd6f4;
   --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
-  --mouse-x: 50%; --mouse-y: 50%; /* For reactive background */
+  --mouse-x: 50%; --mouse-y: 50%;
 }
 
 [data-theme="light"] {
@@ -32,7 +32,6 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
-/* Mobile usability fix: Removed JS touch-blocking, using native overscroll containment */
 body {
   background: var(--bg); color: var(--text); font-family: var(--sans);
   min-height: 100vh; overflow-x: hidden; overscroll-behavior-y: auto;
@@ -135,7 +134,7 @@ input[type=range] { flex: 1; accent-color: var(--gold); }
 canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
 
 /* Analytics */
-.analytics-widget { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); display: flex; justify-content: space-between; border-top: 1px dashed var(--border2); padding-top: 12px; margin-top: 24px; }
+.analytics-widget { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); display: flex; justify-content: space-between; border-top: 1px dashed var(--border2); padding-top: 12px; margin-top: 24px; align-items: center; }
 #gBadge { position: fixed; bottom: 18px; right: 16px; z-index: 200; background: rgba(240,165,0,.13); border: 1px solid rgba(240,165,0,.3); border-radius: 18px; padding: 6px 14px; color: var(--gold); font-family: var(--mono); font-size: .75rem; display: none; cursor: pointer; backdrop-filter: blur(8px); }
 </style>
 </head>
@@ -147,7 +146,7 @@ canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
 <div id="landing" class="page">
   <div class="hd">
     <div class="hd-brand">
-      <img src="./logo.png" alt="Suite Logo" class="hd-logo-img" id="mainLogo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"/>
+      <img src="./logo.png" alt="Suite Logo" class="hd-logo-img" id="mainLogo" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"/>
       <div class="hd-logo-img" style="display:none; place-items:center; font-size:1.5rem; background:var(--gold); color:#000;">📚</div>
       <div>
         <div class="hd-title">Student's <span>Suite</span></div>
@@ -230,7 +229,9 @@ canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
 
   <div class="analytics-widget">
     <span>Suite Version: 3.0.0</span>
-    <span>Global Visits: <span id="total-visitors" style="color:var(--gold); font-weight:600;">Loading...</span></span>
+    
+    <span id="visitor-counter-container"></span>
+
   </div>
 </div>
 
@@ -244,20 +245,15 @@ canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
         Imposition is the architectural arrangement of printed product pages on the press sheet. This tool automates <b>Saddle-Stitching</b> logic, formatting sequential PDFs so they print correctly when folded down the spine.
         <h4>Signature Terminology</h4>
         <ul>
-          <li><b>1-Fold (4 pages/sig):</b> The simplest unit. One physical sheet folded once down the center yields 4 reading pages (Front Cover, Inside Front, Inside Back, Back Cover).</li>
-          <li><b>2-Fold (8 pages/sig):</b> Two sheets nested together before folding. Excellent for thin brochures.</li>
-          <li><b>4-Fold (16 pages/sig):</b> Four nested sheets. The standard for dense academic booklets to prevent the spine from creeping (bulging).</li>
-        </ul>
-        <h4>Geometric Controls</h4>
-        <ul>
-          <li><b>Binding Gap:</b> Defines the blank gutter space reserved precisely at the spine for staples or binding glue.</li>
-          <li><b>Outer Margin:</b> The "bleed" zone required by physical printers to ensure text isn't severed during edge trimming.</li>
+          <li><b>1-Fold (4 pages/sig):</b> The simplest unit. One physical sheet folded once down the center yields 4 reading pages.</li>
+          <li><b>2-Fold (8 pages/sig):</b> Two sheets nested together before folding.</li>
+          <li><b>4-Fold (16 pages/sig):</b> Four nested sheets. The standard for dense academic booklets to prevent spine creep.</li>
         </ul>
       </div>
     </div>
     <div class="slabel">01 — Document Input</div>
     <div class="card"><div class="dz" id="bk-dz"><input type="file" id="bk-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div></div>
-    </div>
+  </div>
 </div>
 
 <div id="tool-merge" class="tool-panel">
@@ -268,10 +264,6 @@ canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
       <div class="desc-body" style="display:none">
         <h4>Sequential Byte-Stream Fusion</h4>
         This module constructs a unified document array by linearly concatenating the byte streams of independent PDF structures. 
-        <ul>
-          <li><b>Integrity Preservation:</b> The engine copies exact node references. Visual fidelity, scaling, and internal orientations of original pages remain mathematically unaltered.</li>
-          <li><b>Memory Note:</b> Merging exceedingly large textbook scans will require proportional RAM allocation within the browser tab.</li>
-        </ul>
       </div>
     </div>
     <div class="slabel">01 — Matrix Queue</div>
@@ -291,7 +283,7 @@ canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
         <h4>Canvas Iteration</h4>
         This module utilizes the browser's native Canvas API to transcode pixel matrices, simulating lossy compression by discarding imperceptible color data.
         <h4>Advanced Tooling Protocol</h4>
-        For surgical, codec-level compression (AVIF, WebP, exact quantization palettes), Google's dedicated WebAssembly tool is structurally superior to isolated Canvas rendering.
+        For surgical, codec-level compression (AVIF, WebP, exact quantization palettes), Google's dedicated WebAssembly tool is structurally superior.
         <div style="margin-top:12px;"><a href="https://squoosh.app" target="_blank" class="btn-sm primary" style="text-decoration:none;">Launch Squoosh.app Externally ↗</a></div>
       </div>
     </div>
@@ -312,11 +304,6 @@ canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
       <div class="desc-body" style="display:none">
         <h4>Academic & Governmental Standards</h4>
         Digital submission portals enforce stringent geometric and physical data constraints.
-        <ul>
-          <li><b>DPI (Dots Per Inch):</b> A printing metric. 200-300 DPI is standard for legible document scans. Modifying DPI alters the EXIF metadata, not necessarily the display size on a screen.</li>
-          <li><b>Dimensional Transcoding:</b> Inputting CM or Inches automatically forces the Canvas algorithm to calculate required pixels based on the selected DPI target.</li>
-          <li><b>KB Constraints:</b> If a target size is set (e.g., Max 50KB), the engine will iteratively execute lossy compression loops until the byte-size falls below the threshold.</li>
-        </ul>
       </div>
     </div>
     <div class="slabel">01 — Spatial Parameters</div>
@@ -327,121 +314,6 @@ canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
         <div class="ctrl"><label>Width</label><input type="number" placeholder="e.g. 3.5"/></div>
         <div class="ctrl"><label>Height</label><input type="number" placeholder="e.g. 4.5"/></div>
         <div class="ctrl"><label>Strict Size Cap (KB)</label><input type="number" placeholder="e.g. 50"/></div>
-        <div class="ctrl"><label>Output Nomenclature</label><input type="text" placeholder="filename_resized"/></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="tool-passport" class="tool-panel">
-  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">🖼 Passport Protocol</span></div>
-  <div class="page">
-    <div class="card">
-      <button class="desc-toggle">ℹ Algorithmic Refinement ▾</button>
-      <div class="desc-body" style="display:none">
-        <h4>Biometric Preparation</h4>
-        This module provides the pre-processing vectors required before strict resizing.
-        <ul>
-          <li><b>Geometry:</b> Free-transform cropping and axial rotation to align facial features.</li>
-          <li><b>Color Matrices:</b> Contrast and saturation scalars to ensure clarity against white/light backgrounds.</li>
-          <li><b>Pipeline:</b> Once the visual matrix is finalized, proceed to the <b>Format & Resize</b> tool to enforce exact CM and KB constraints.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="preview-canvas-container" style="height:250px;">
-        <span style="color:var(--muted); font-family:var(--mono); font-size:0.8rem;">[ Canvas Initialization Pending ]</span>
-    </div>
-    <div class="card">
-      <div class="ctrl" style="margin-bottom:12px;"><label>Axial Rotation (°)</label><input type="range" min="-45" max="45" value="0"/></div>
-      <div class="cgrid">
-        <div class="ctrl"><label>Brightness</label><input type="range" min="-100" max="100" value="0"/></div>
-        <div class="ctrl"><label>Contrast Scalar</label><input type="range" min="-100" max="100" value="0"/></div>
-      </div>
-      <div class="btn-row" style="margin-top:16px;"><button class="btn-sm primary">Apply Transforms</button> <button class="btn-sm">→ Send to Resizer</button></div>
-    </div>
-  </div>
-</div>
-
-<div id="tool-signature" class="tool-panel">
-  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">✍ Signature Extraction</span></div>
-  <div class="page">
-    <div class="card">
-      <button class="desc-toggle">ℹ Luminance Parsing ▾</button>
-      <div class="desc-body" style="display:none">
-        <h4>Alpha Channel Inversion</h4>
-        Extracting ink from physical paper requires programmatic pixel iteration. 
-        <ul>
-          <li><b>Heuristic Scan:</b> The algorithm reads the <code>RGBA</code> array of the canvas. It converts RGB data to perceived luminance.</li>
-          <li><b>Tolerance Threshold:</b> Pixels exhibiting high luminance (the white paper) have their Alpha channel forced to <code>0</code> (transparent).</li>
-          <li><b>Ink Reinforcement:</b> Remaining dark pixels undergo aggressive contrast scaling to generate a stark, digital-ready signature stamp.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="preview-canvas-container" style="height:150px; background-image: repeating-linear-gradient(45deg, var(--border) 25%, transparent 25%, transparent 75%, var(--border) 75%, var(--border)), repeating-linear-gradient(45deg, var(--border) 25%, var(--bg) 25%, var(--bg) 75%, var(--border) 75%, var(--border)); background-position: 0 0, 10px 10px; background-size: 20px 20px;">
-       <span style="color:var(--text); background:var(--surface); padding:4px 8px; border-radius:4px;">[ Transparency Grid Active ]</span>
-    </div>
-    <div class="card">
-      <div class="ctrl"><label>Luminance Tolerance (Background Deletion)</label><input type="range" min="0" max="255" value="200"/></div>
-      <div class="ctrl" style="margin-top:12px;"><label>Ink Density (Contrast)</label><input type="range" min="1" max="50" value="10"/></div>
-    </div>
-  </div>
-</div>
-
-<div id="tool-advwmrm" class="tool-panel">
-  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">◌ Diagnostic WM Removal</span></div>
-  <div class="page">
-    <div class="card">
-      <button class="desc-toggle">ℹ Heuristic Analysis Protocols ▾</button>
-      <div class="desc-body" style="display:none">
-        <h4>Structural vs. Visual Obfuscation</h4>
-        Watermarks exist in two fundamentally distinct architectures within a PDF.
-        <ul>
-          <li><b>Annotation Layer (Easy):</b> Metadata stamps floating above the page. The <i>Structural Scan</i> deletes these arrays entirely.</li>
-          <li><b>Content Stream (Complex):</b> Text hardcoded into the actual page matrix. This tool deploys spatial heuristics—scanning coordinate geometries to classify objects residing in the Top 15% (Header) or Bottom 15% (Footer)—and applying absolute-white redaction vectors.</li>
-          <li><b>Limitation:</b> True visual OCR reading is impossible offline. Results rely strictly on mathematical coordinate targeting.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="slabel">01 — Diagnostic Engine</div>
-    <div class="card">
-      <button class="btn-sm primary" style="width:100%; padding:10px;">🔍 Execute Coordinate Scan</button>
-      <div style="background:var(--bg); border:1px solid var(--border2); padding:10px; border-radius:6px; margin-top:10px; font-family:var(--mono); font-size:0.75rem; color:var(--green);">
-        > Awaiting matrix input...
-      </div>
-    </div>
-    <div class="slabel">02 — Intervention Vectors</div>
-    <div class="card">
-      <div style="display:flex; flex-direction:column; gap:8px;">
-        <label><input type="checkbox"/> Annihilate Annotation Layer</label>
-        <label><input type="checkbox"/> Redact Top Header Region (Y-Max - 15%)</label>
-        <label><input type="checkbox"/> Redact Bottom Footer Region (Y-Min + 15%)</label>
-        <label><input type="checkbox"/> Redact Specific Text Anchor:</label>
-        <input type="text" placeholder="String payload to obscure..."/>
-      </div>
-      <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;"/>
-      <div class="rrow"><input type="number" placeholder="Pg #"/><button class="btn-sm">Render Output Preview</button></div>
-    </div>
-  </div>
-</div>
-
-<div id="tool-verified" class="tool-panel">
-  <div class="nav-bar"><button class="nav-back">‹ Suite</button><span class="nav-title">☑ Stamp Verification</span></div>
-  <div class="page">
-    <div class="card">
-      <button class="desc-toggle">ℹ Vector Injection ▾</button>
-      <div class="desc-body" style="display:none">
-        <h4>Cryptographic Mimicry</h4>
-        Academic and governmental portals frequently distribute documents requiring "Signature Verified" visual status markers. 
-        <ul>
-          <li><b>Execution:</b> The engine parses a raw, mathematically defined SVG path (the standard green checkmark) and integrates it directly into the PDF's uncompressed object stream at a designated coordinate grid.</li>
-          <li><b>Warning:</b> This adds a <i>visual</i> stamp. It does not generate genuine cryptographic RSA signatures.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="card">
-      <div class="cgrid">
-        <div class="ctrl"><label>Verification Nomenclature</label><input type="text" value="Signature Valid"/></div>
-        <div class="ctrl"><label>Coordinate Anchor</label><select><option>Bottom Left Panel</option><option>Bottom Right Panel</option><option>Top Right Header</option></select></div>
       </div>
     </div>
   </div>
@@ -456,21 +328,31 @@ canvas.preview { max-width: 100%; max-height: 100%; object-fit: contain; }
   document.addEventListener('touchmove', (e) => {
     document.documentElement.style.setProperty('--mouse-x', e.touches[0].clientX + 'px');
     document.documentElement.style.setProperty('--mouse-y', e.touches[0].clientY + 'px');
-  }, {passive: true}); // Passive true explicitly allows native scrolling
-
-  // GoatCounter Telemetry (DOM Specific)
-  let r = new XMLHttpRequest();
-  r.addEventListener('load', function() {
-      try { document.getElementById('total-visitors').innerText = JSON.parse(this.responseText).count; } 
-      catch (e) { document.getElementById('total-visitors').innerText = "Unreachable"; }
-  });
-  r.open('GET', 'https://suvadip.goatcounter.com/counter/TOTAL.json');
-  r.send();
+  }, {passive: true}); 
 </script>
 
 <script src="./js/app.js"></script>
 
 <script data-goatcounter="https://suvadip.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+<script>
+    // Wait for count.js to load, checking every 100ms
+    var t = setInterval(function() {
+        if (window.goatcounter && window.goatcounter.visit_count) {
+            clearInterval(t); // Stop checking
+            
+            window.goatcounter.visit_count({
+                append: '#visitor-counter-container', // Attaches to the span in the footer
+                path: 'TOTAL', // Forces the widget to show total website visits
+                no_branding: true, // Removes "by GoatCounter" text
+                style: `
+                    #gcvc { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #8892b0; display: inline-flex; align-items: center; gap: 6px; }
+                    #gcvc-views { color: #f0a500; font-weight: 600; }
+                `
+            });
+        }
+    }, 100);
+</script>
 
 </body>
 </html>
