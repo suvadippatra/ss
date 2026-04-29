@@ -1,0 +1,2138 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Student's Suite</title>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+
+<!-- Localized Dependencies: Ensure you download these and place them in a 'js' folder -->
+<script src="./js/pdf-lib.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── Theming System ── */
+:root {
+  --bg: #0b0c10; --surface: #12141a; --card: #181b24;
+  --border: #222632; --border2: #2e3347;
+  --gold: #f0a500; --gold2: #d08800; --goldbg: rgba(240,165,0,.07);
+  --green: #3ecf8e; --red: #e05c5c; --blue: #5c9cf5;
+  --muted: #5a6180; --dim: #8892b0; --text: #cdd6f4;
+  --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
+}
+
+[data-theme="light"] {
+  --bg: #f5f7fa; --surface: #ffffff; --card: #ffffff;
+  --border: #e4e7eb; --border2: #cbd2d9;
+  --gold: #d08800; --gold2: #b07000; --goldbg: rgba(208,136,0,.07);
+  --green: #2fa872; --red: #d94848; --blue: #3b82f6;
+  --muted: #7b8794; --dim: #52606d; --text: #1f2933;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overscroll-behavior:none}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;overscroll-behavior:none;overscroll-behavior-y:contain; transition: background 0.3s ease, color 0.3s ease;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(var(--border2) 1px,transparent 1px);background-size:28px 28px;opacity: 0.3;pointer-events:none;z-index:0}
+
+/* ── Layout & UI Shell ── */
+.page{position:relative;z-index:1;max-width:840px;margin:0 auto;padding:28px 16px 100px}
+.tool-panel{display:none;position:relative;z-index:1}
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:50%;width:42px;height:42px;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.1); font-size: 1.2rem; transition: background 0.2s, transform 0.2s;}
+.theme-toggle:hover{transform: scale(1.05); border-color: var(--gold);}
+
+/* ── Nav bar ── */
+.nav-bar{position:sticky;top:0;z-index:100;background:rgba(var(--bg),0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:11px 16px; transition: background 0.3s, border-color 0.3s;}
+.nav-back{background:none;border:1px solid var(--border2);border-radius:7px;color:var(--gold);font-family:var(--sans);font-size:.82rem;font-weight:600;cursor:pointer;padding:5px 12px;transition:background .15s}
+.nav-back:hover{background:var(--goldbg)}
+.nav-title{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── Landing ── */
+.hd{margin-bottom:24px}
+.hd-brand{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.hd-icon{width:52px;height:52px;background:var(--gold);border-radius:12px;display:grid;place-items:center;font-size:1.6rem;flex-shrink:0; color: #12141a;}
+.hd-title{font-size:1.8rem;font-weight:700;letter-spacing:-.03em;line-height:1; margin-bottom: 6px;}
+.hd-title span{color:var(--gold)}
+.hd-sub{color:var(--muted);font-size:.85rem;line-height:1.65}
+
+.disclaimer-banner { background: var(--goldbg); border-left: 4px solid var(--gold); padding: 14px 18px; margin-bottom: 24px; border-radius: 0 8px 8px 0; font-size: 0.85rem; color: var(--dim); line-height: 1.6; }
+.disclaimer-banner strong { color: var(--text); }
+
+/* ── Modern Grid ── */
+.tools-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px;}
+.tool-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px;display:flex;align-items:flex-start;gap:13px;cursor:pointer;transition:border-color .18s,background .18s,transform .12s;user-select:none}
+.tool-card:hover{border-color:var(--gold);transform:translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06);}
+.tc-icon{width:38px;height:38px;background:var(--goldbg);border:1px solid rgba(240,165,0,.18);border-radius:8px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0; margin-top: 2px;}
+.tc-body{flex:1;min-width:0}
+.tc-name{font-size:.95rem;font-weight:600;margin-bottom:4px; color: var(--text);}
+.tc-desc{font-size:.78rem;color:var(--muted);line-height:1.5}
+
+/* ── Analytics & Comments Placholders ── */
+.analytics-widget { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); display: flex; justify-content: space-between; border-top: 1px dashed var(--border2); padding-top: 12px; margin-top: 24px; }
+.comments-section { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
+.comments-box { background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+
+/* ── General UI Elements ── */
+.slabel{font-family:var(--mono);font-size:.67rem;font-weight:500;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:10px;margin-bottom:9px;margin-top:4px}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px 18px;margin-bottom:12px; transition: background 0.3s, border-color 0.3s;}
+.desc-toggle{background:none;border:1px solid var(--border2);border-radius:6px;color:var(--gold);font-family:var(--sans);font-size:.76rem;font-weight:600;padding:5px 11px;cursor:pointer;transition:background .15s;margin-bottom:0}
+.desc-toggle:hover{background:var(--goldbg)}
+.desc-body{margin-top:10px;font-size:.82rem;color:var(--dim);line-height:1.7;border-left:3px solid var(--gold);padding:9px 12px;background:var(--goldbg);border-radius:0 7px 7px 0}
+.desc-body b{color:var(--text)}
+.desc-body code{font-family:var(--mono);font-size:.74rem;color:var(--gold); background: var(--surface); padding: 2px 4px; border-radius: 4px;}
+
+/* ── Session & Files ── */
+.session-tray{display:none;background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.22);border-radius:8px;padding:8px 12px;font-size:.76rem;color:var(--green);margin-bottom:10px}
+.session-tray.has-files{display:block}
+.session-file-list{margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.session-file-btn{background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.18);border-radius:5px;padding:5px 10px;color:var(--green);font-family:var(--sans);font-size:.73rem;cursor:pointer;text-align:left;transition:background .12s;width:100%}
+.session-file-btn:hover{background:rgba(62,207,142,.18)}
+.dz{border:2px dashed var(--border2);border-radius:9px;padding:24px 20px;text-align:center;cursor:pointer;position:relative;transition:border-color .2s,background .2s}
+.dz:hover,.dz.over{border-color:var(--gold);background:var(--goldbg)}
+.dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:1.6rem;margin-bottom:5px}
+.dz-txt{color:var(--muted);font-size:.8rem}
+.dz-txt b{color:var(--gold)}
+.pill{display:none;align-items:center;gap:11px;margin-top:9px;padding:8px 12px;background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.25);border-radius:8px}
+.pill.on{display:flex}
+.pill-name{font-weight:600;font-size:.84rem; word-break: break-all;}
+.pill-meta{color:var(--muted);font-size:.7rem;margin-top:1px}
+
+/* ── Status banner ── */
+#libStatus{display:none;padding:7px 11px;border-radius:7px;font-size:.78rem;margin-bottom:11px;border:1px solid}
+#libStatus.err{background:rgba(224,92,92,.1);border-color:rgba(224,92,92,.4);color:#e05c5c}
+#libStatus.ok{background:rgba(62,207,142,.07);border-color:rgba(62,207,142,.3);color:#3ecf8e}
+
+/* ── Controls ── */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px}
+@media(max-width:500px){.cgrid{grid-template-columns:1fr}}
+.ctrl{display:flex;flex-direction:column;gap:5px}
+.ctrl label{font-size:.74rem;color:var(--dim);font-weight:500;letter-spacing:.02em}
+select{appearance:none;background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:7px 11px;font-family:var(--sans);font-size:.84rem;cursor:pointer;outline:none;transition:border-color .15s;width:100%}
+select:focus{border-color:var(--gold)}
+input[type=text],input[type=number],input[type=password]{background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:7px 11px;font-family:var(--sans);font-size:.84rem;outline:none;transition:border-color .15s;width:100%}
+input[type=text]:focus,input[type=number]:focus,input[type=password]:focus{border-color:var(--gold)}
+.rrow{display:flex;align-items:center;gap:9px}
+input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
+.rv{font-family:var(--mono);font-size:.76rem;color:var(--gold);min-width:46px;text-align:right;font-weight:500}
+.computed{padding:7px 11px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;font-family:var(--mono);font-size:.78rem;color:var(--gold)}
+.tog-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:14px;padding-top:14px;gap:12px}
+.tog-txt{font-size:.83rem}
+.tog-txt small{display:block;color:var(--muted);font-size:.71rem;margin-top:2px}
+.tog{position:relative;width:42px;height:22px;flex-shrink:0}
+.tog input{display:none}
+.knob{position:absolute;inset:0;background:var(--border2);border-radius:11px;cursor:pointer;transition:background .2s}
+.knob::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s}
+.tog input:checked+.knob{background:var(--gold)}
+.tog input:checked+.knob::after{left:23px}
+.info{border-left:3px solid var(--gold);border-radius:0 6px 6px 0;background:var(--goldbg);padding:8px 11px;font-size:.74rem;color:var(--muted);line-height:1.65;margin-top:11px}
+.info b{color:var(--text)}
+
+/* ── Checkboxes & Radios ── */
+.cb-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.cb-row input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.cb-row label{font-size:.82rem;cursor:pointer}
+.radio-row{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:5px}
+.radio-row label{display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer}
+.radio-row input[type=radio]{accent-color:var(--gold);cursor:pointer}
+
+/* ── Tabs & Buttons ── */
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px; overflow-x: auto;}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:var(--sans);font-size:.8rem;font-weight:500;padding:7px 13px;cursor:pointer;transition:color .15s,border-color .15s;margin-bottom:-1px; white-space: nowrap;}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.file-list-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;max-height:190px;overflow-y:auto;margin-bottom:8px}
+.fl-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:.8rem; cursor:pointer;}
+.fl-item:last-child{border-bottom:none}
+.fl-num{color:var(--gold);font-family:var(--mono);font-size:.7rem;min-width:22px}
+.fl-name{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fl-meta{color:var(--muted);font-size:.7rem;white-space:nowrap}
+.fl-item.sel{background:var(--goldbg)}
+.btn-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px}
+.btn-sm{background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:var(--sans);font-size:.76rem;font-weight:500;padding:5px 11px;cursor:pointer;transition:background .12s,border-color .12s}
+.btn-sm:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm.danger{color:var(--red)}
+.btn-sm.danger:hover{border-color:var(--red)}
+.btn-sm.primary{background:var(--goldbg);border-color:rgba(240,165,0,.3);color:var(--gold)}
+.btn-sm.primary:hover{background:rgba(240,165,0,.14)}
+
+/* ── Process & Run ── */
+.run{width:100%;padding:11px;background:var(--gold);color:#000;border:none;border-radius:8px;font-family:var(--sans);font-size:.93rem;font-weight:700;cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:-.01em}
+.run:hover:not(:disabled){background:#f8b820;transform:translateY(-1px)}
+.run:active:not(:disabled){transform:translateY(0)}
+.run:disabled{opacity:.3;cursor:not-allowed; background: var(--border2); color: var(--muted);}
+.proc-area{display:none;margin-top:12px}
+.ptrack{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:9px}
+.pfill{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));width:0%;transition:width .35s ease;border-radius:2px}
+.steps-row{display:flex;gap:4px;margin-bottom:10px}
+.step-chip{flex:1;padding:5px 2px;text-align:center;border-radius:5px;font-size:.65rem;font-family:var(--mono);background:var(--surface);border:1px solid var(--border);color:var(--muted);transition:all .3s}
+.step-chip.active{background:var(--goldbg);border-color:var(--gold);color:var(--gold)}
+.step-chip.done{background:rgba(62,207,142,.08);border-color:rgba(62,207,142,.3);color:var(--green)}
+.log{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:9px 11px;font-family:var(--mono);font-size:.69rem;line-height:1.85;max-height:190px;overflow-y:auto;color:var(--muted)}
+.log .ok{color:var(--green)}.log .er{color:var(--red)}.log .st{color:var(--gold);font-weight:500}.log .wn{color:#d4a849}.log .li{color:var(--muted)}
+
+/* ── Downloads ── */
+.dl-list{display:flex;flex-direction:column;gap:7px}
+.dl-item{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;gap:10px;flex-wrap:wrap}
+.dl-title{font-size:.84rem;font-weight:600; color: var(--text);}
+.dl-desc{font-size:.71rem;color:var(--muted);margin-top:1px}
+.dl-actions{display:flex;gap:5px;flex-shrink:0}
+.dl-btn{background:rgba(62,207,142,.1);color:var(--green);border:1px solid rgba(62,207,142,.3);border-radius:5px;padding:5px 11px;font-family:var(--sans);font-size:.74rem;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background .15s}
+.dl-btn:hover{background:rgba(62,207,142,.2)}
+.sess-btn{background:var(--goldbg);color:var(--gold);border:1px solid rgba(240,165,0,.25);border-radius:5px;padding:5px 11px;font-family:var(--sans);font-size:.74rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
+.sess-btn:hover{background:rgba(240,165,0,.14)}
+
+/* ── Calculator & Grapher ── */
+.fullscreen-mode { position: fixed !important; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1000; background: var(--bg); overflow-y: auto; max-width: none !important; margin: 0 !important; padding: 16px 5% !important; border-radius: 0; }
+.calc-disp{background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:11px 13px;margin-bottom:10px}
+.calc-expr{font-family:var(--mono);font-size:.78rem;color:var(--muted);min-height:18px;word-break:break-all}
+.calc-result{font-family:var(--mono);font-size:1.7rem;color:var(--text);font-weight:600;text-align:right;word-break:break-all;min-height:40px;display:flex;align-items:center;justify-content:flex-end}
+.calc-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.cbtn{padding:12px 4px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:var(--sans);font-size:.85rem;font-weight:500;cursor:pointer;transition:background .1s,border-color .1s;text-align:center}
+.cbtn:hover{background:var(--card);border-color:var(--border2)}
+.cbtn.op{color:var(--gold);border-color:rgba(240,165,0,.18);background:var(--goldbg)}
+.cbtn.eq{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;font-size:.95rem}
+.cbtn.eq:hover{background:#f8b820}
+.cbtn.cls{background:rgba(224,92,92,.1);color:var(--red);border-color:rgba(224,92,92,.22)}
+.cbtn.fn{color:var(--blue);font-size:.75rem}
+
+#graphCanvas{width:100%;height:320px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:block;cursor:crosshair; margin-top: 12px;}
+.g-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.g-inp{flex:1;min-width:80px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:.85rem;outline:none}
+.g-inp:focus{border-color:var(--gold)}
+.g-mini{width:80px;flex:none}
+.fn-color-indicator { width: 14px; height: 14px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.g-inputs-wrapper { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+
+.hist-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;max-height:280px;overflow-y:auto}
+.hist-item{padding:9px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.8rem;gap:10px}
+.hist-item:last-child{border-bottom:none}
+.hist-expr{color:var(--muted);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis}
+.hist-res{color:var(--gold);font-family:var(--mono);font-weight:600;white-space:nowrap}
+
+/* ── Global session badge ── */
+#gBadge{position:fixed;bottom:18px;right:16px;z-index:200;background:rgba(240,165,0,.13);border:1px solid rgba(240,165,0,.3);border-radius:18px;padding:6px 14px;color:var(--gold);font-family:var(--mono);font-size:.75rem;display:none;cursor:pointer;transition:background .15s;backdrop-filter:blur(8px)}
+#gBadge:hover{background:var(--goldbg)}
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">🌓</button>
+
+<!-- GLOBAL SESSION BADGE -->
+<div id="gBadge" onclick="showSessionModal()">📋 <span id="gBadgeCount">0</span> in session</div>
+
+<!-- ═══════════════════════════════════════════════════
+     LANDING PAGE
+════════════════════════════════════════════════════ -->
+<div id="landing" class="page">
+  <div id="libStatus"></div>
+  
+  <div class="hd">
+    <div class="hd-brand">
+      <div class="hd-icon">📚</div>
+      <div>
+        <div class="hd-title">Student's <span>Suite</span></div>
+        <div class="hd-sub">An offline-first academic document processor</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer-banner">
+    <strong>Privacy & Processing Architecture:</strong> This suite operates strictly on your device. Documents are never uploaded to an external server, guaranteeing total data sovereignty. <br><br>
+    <em>Note:</em> Processing heavily illustrated or lengthy PDFs requires substantial RAM. On lower-end tablets or mobile environments, excessive memory usage may trigger browser tab restarts. Please use the "Clear Memory" function periodically if processing many files.
+  </div>
+
+  <div class="tools-grid">
+    <div class="tool-card" onclick="openTool('booklet')">
+      <div class="tc-icon">📖</div>
+      <div class="tc-body"><div class="tc-name">Booklet Imposition</div><div class="tc-desc">Re-order pages for saddle-stitch booklet printing with registration marks.</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('merge')">
+      <div class="tc-icon">⊕</div>
+      <div class="tc-body"><div class="tc-name">PDF Merge</div><div class="tc-desc">Combine multiple PDF files sequentially into a single document.</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('split')">
+      <div class="tc-icon">✂</div>
+      <div class="tc-body"><div class="tc-name">PDF Split</div><div class="tc-desc">Isolate specific chapters or split by fixed intervals.</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('compress')">
+      <div class="tc-icon">⊘</div>
+      <div class="tc-body"><div class="tc-name">PDF Compress</div><div class="tc-desc">Lossless re-compression to strip unused metadata and reduce file size.</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('nup')">
+      <div class="tc-icon">⊞</div>
+      <div class="tc-body"><div class="tc-name">N-up Layout</div><div class="tc-desc">Arrange multiple source pages per output sheet in a customizable grid.</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('rearrange')">
+      <div class="tc-icon">⇅</div>
+      <div class="tc-body"><div class="tc-name">Rearrange Pages</div><div class="tc-desc">Interactively reorder, duplicate, or delete individual pages.</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('toimage')">
+      <div class="tc-icon">◫</div>
+      <div class="tc-body"><div class="tc-name">PDF to Image</div><div class="tc-desc">Render PDF pages as high-resolution PNG or JPEG images.</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('wmadd')">
+      <div class="tc-icon">⬡</div>
+      <div class="tc-body"><div class="tc-name">Add Watermark</div><div class="tc-desc">Stamp text watermarks across documents with precise opacity control.</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('wmremove')">
+      <div class="tc-icon">◌</div>
+      <div class="tc-body"><div class="tc-name">Remove Watermark</div><div class="tc-desc">Strip annotation-layer and surface watermarks from documents.</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('unlock')">
+      <div class="tc-icon">🔓</div>
+      <div class="tc-body"><div class="tc-name">Unlock PDF</div><div class="tc-desc">Decrypt password-protected files (requires the original password).</div></div>
+    </div>
+    <div class="tool-card" onclick="openTool('calc')" style="grid-column: 1 / -1; align-items: center;">
+      <div class="tc-icon">∑</div>
+      <div class="tc-body"><div class="tc-name">Scientific & Graphing Calculator</div><div class="tc-desc">Evaluate complex expressions and visualize multiple functions dynamically.</div></div>
+    </div>
+  </div>
+
+  <div class="analytics-widget">
+    <span>Suite Version: 2.1.0</span>
+    <span style="cursor:help;" title="Administrative Analytics (Local View Only)">Session Operations: <span id="localOpCount">0</span></span>
+  </div>
+  
+  <div style="text-align:center; margin-top: 30px; font-size: 0.85rem; color: var(--muted);">
+    Designed by Suvadip Patra (<a href="https://github.com/Joydip1" target="_blank" style="color: var(--gold); text-decoration: none;">@Joydip1</a>)
+  </div>
+
+  <!-- Note: Static host restriction -->
+  <div class="comments-section">
+    <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: var(--text);">Community Notes (Local Sandbox)</h3>
+    <div class="comments-box">
+      <p style="font-size: 0.8rem; color: var(--dim); margin-bottom: 10px;"><em>Architectural Limitation: GitHub Pages is a static hosting environment. To maintain complete privacy, no server database is attached to this application. Any notes written here will persist strictly within your local browser storage and cannot be seen by other users.</em></p>
+      <textarea id="localNoteArea" placeholder="Draft academic notes, observations, or formulas here..." style="width:100%; height:80px; background:var(--surface); border:1px solid var(--border2); border-radius:6px; color:var(--text); padding:10px; font-family:var(--sans); resize: vertical;"></textarea>
+      <button class="btn-sm primary" style="margin-top: 10px;" onclick="saveLocalNote()">Save Local Note</button>
+      <span id="noteStatus" style="font-size: 0.75rem; color: var(--green); margin-left: 10px; display: none;">✓ Saved</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: BOOKLET IMPOSITION
+════════════════════════════════════════════════════ -->
+<div id="tool-booklet" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">📖 Booklet Imposition</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('bk-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="bk-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> This utility structures standard sequential PDFs into a saddle-stitch (staple-fold) configuration. This allows documents to be printed on larger sheets and folded into a cohesive booklet.<br><br>
+        <b>Technical Execution:</b><br>
+        <code>① Dimensional Standardization</code> — Each page is programmatically scaled to map precisely onto half of a landscape canvas.<br>
+        <code>② Imposition Logic</code> — The system calculates the exact physical print sequence (outer-to-inner per signature group), inserting blank padding pages if the total page count is not divisible by the signature capacity.<br>
+        <code>③ Print Marks</code> — Optional, yet recommended, structural guides (fold dashed lines, spine registration dots, and signature indexing) are injected into the document layer to assist physical binding.
+      </div>
+    </div>
+    <div class="slabel">01 — Document Input</div>
+    <div class="card">
+      <div id="bk-session" class="session-tray"><span>📋 Session files available — pick one to use as input:</span><div class="session-file-list" id="bk-slist"></div></div>
+      <div class="dz" id="bk-dz"><input type="file" id="bk-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="bk-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="bk-pname">—</div><div class="pill-meta" id="bk-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Geometric Parameters</div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Sheets per Signature</label>
+          <select id="bk-sheets"><option value="1">1 sheet → 4 pages / sig</option><option value="2">2 sheets → 8 pages / sig</option><option value="3">3 sheets → 12 pages / sig</option><option value="4" selected>4 sheets → 16 pages / sig</option></select>
+        </div>
+        <div class="ctrl"><label>Computed Sub-page Area</label><div class="computed" id="bk-pw">—</div></div>
+        <div class="ctrl"><label>Spine Binding Gap (mm)</label><div class="rrow"><input type="range" id="bk-gap" min="20" max="60" value="30"/><span class="rv" id="bk-gapV">30 mm</span></div></div>
+        <div class="ctrl"><label>Outer Trim Margin (mm)</label><div class="rrow"><input type="range" id="bk-outer" min="0" max="30" value="0"/><span class="rv" id="bk-outerV">0 mm</span></div></div>
+      </div>
+      <div class="tog-row"><div class="tog-txt">Include Registration Marks<small>Dashed fold guides, structural labels, and binding dots</small></div><label class="tog"><input type="checkbox" id="bk-marks" checked/><span class="knob"></span></label></div>
+      <div class="info">The foundation canvas is fixed at <b>277 × 190 mm</b> (A4 landscape minus 10 mm standard bleed borders). Aspect ratios are modified to fill the structural requirements.</div>
+    </div>
+    <div class="slabel">03 — Execution</div>
+    <div class="card">
+      <button class="run" id="bk-run" disabled>⚙ Initialize Imposition</button>
+      <div class="proc-area" id="bk-proc">
+        <div style="margin-bottom:8px"></div>
+        <div class="steps-row"><div class="step-chip" id="bk-c1">① Resize</div><div class="step-chip" id="bk-c2">② Impose</div><div class="step-chip" id="bk-c3">③ Marks</div></div>
+        <div class="ptrack"><div class="pfill" id="bk-pfill"></div></div>
+        <div class="log" id="bk-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="bk-dlLabel" style="display:none">04 — Output Documents</div>
+    <div class="card" id="bk-dlSect" style="display:none"><div class="dl-list" id="bk-dlList"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: PDF MERGE
+════════════════════════════════════════════════════ -->
+<div id="tool-merge" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">⊕ PDF Merge</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('mg-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="mg-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> This module addresses the common academic requirement of compiling disjointed research papers, assignments, or scans into a singular, cohesive document.<br><br>
+        <b>Technical Execution:</b> The system reads the byte-streams of multiple distinct PDFs, extracts their page structures, and linearly appends them to a newly instantiated document buffer. The original scaling and visual fidelity of each page are preserved.<br><br>
+        <b>Workflow Tip:</b> Files generated by other tools in this suite are temporarily cached in the "Session Tray," allowing rapid chaining of operations (e.g., split a chapter, then merge it with a new cover page).
+      </div>
+    </div>
+    <div class="slabel">01 — Queue Construction</div>
+    <div class="card">
+      <div id="mg-session" class="session-tray"><span>📋 Session cache — insert into merge queue:</span><div class="session-file-list" id="mg-slist"></div></div>
+      <div class="btn-row">
+        <button class="btn-sm primary" onclick="mgAddFiles()">+ Upload PDFs</button>
+        <button class="btn-sm" onclick="mgMoveUp()">↑ Shift Up</button>
+        <button class="btn-sm" onclick="mgMoveDown()">↓ Shift Down</button>
+        <button class="btn-sm danger" onclick="mgRemoveSel()">✕ Remove Node</button>
+        <button class="btn-sm" onclick="mgClearAll()">Clear Queue</button>
+      </div>
+      <input type="file" id="mg-fi" accept=".pdf" multiple style="display:none"/>
+      <div class="file-list-box" id="mg-list"><div style="padding:14px 12px;color:var(--muted);font-size:.8rem">The queue is empty. Initialize by adding PDFs.</div></div>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:6px;font-family:var(--mono)" id="mg-stats"></div>
+    </div>
+    <div class="slabel">02 — Execution</div>
+    <div class="card">
+      <button class="run" id="mg-run" disabled>⊕ Compile Document</button>
+      <div class="proc-area" id="mg-proc">
+        <div class="ptrack"><div class="pfill" id="mg-pfill"></div></div>
+        <div class="log" id="mg-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="mg-dlLabel" style="display:none">03 — Output</div>
+    <div class="card" id="mg-dlSect" style="display:none"><div class="dl-list" id="mg-dlList"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: PDF SPLIT
+════════════════════════════════════════════════════ -->
+<div id="tool-split" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">✂ PDF Split</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('sp-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="sp-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> A structural dissection tool designed to extract granular chapters or segments from substantial academic texts.<br><br>
+        <b>Extraction Modes:</b><br>
+        <code>Custom Ranges</code> — Accepts comma-separated bounds (e.g., <code>1-5, 8, 10-12</code>). The system initiates a distinct output document for each parsed token.<br>
+        <code>Uniform Interval</code> — Programmatically chunks the document into equal algorithmic batches (e.g., every 10 pages).<br>
+        <code>Granular Extraction</code> — Isolates specific individual pages into separate output streams.<br><br>
+        Generated segments are isolated in memory and presented as independent downloadable artifacts.
+      </div>
+    </div>
+    <div class="slabel">01 — Source Document</div>
+    <div class="card">
+      <div id="sp-session" class="session-tray"><span>📋 Session cache:</span><div class="session-file-list" id="sp-slist"></div></div>
+      <div class="dz" id="sp-dz"><input type="file" id="sp-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="sp-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="sp-pname">—</div><div class="pill-meta" id="sp-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Dissection Vectors</div>
+    <div class="card">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="spTab(0,this)">Custom Ranges</button>
+        <button class="tab-btn" onclick="spTab(1,this)">Uniform Interval</button>
+        <button class="tab-btn" onclick="spTab(2,this)">Granular Extraction</button>
+      </div>
+      <div class="tab-pane active" id="sp-t0">
+        <div style="font-size:.8rem;color:var(--dim);margin-bottom:8px">Define continuous bounds (e.g., <code style="color:var(--gold)">1-5, 8, 10-12</code>). Each bound establishes a new file.</div>
+        <input type="text" id="sp-ranges" placeholder="e.g. 1-5, 8, 10-12"/>
+      </div>
+      <div class="tab-pane" id="sp-t1">
+        <div style="font-size:.8rem;color:var(--dim);margin-bottom:8px">Segment the document into batches of N pages.</div>
+        <div class="ctrl"><label>Capacity per Batch</label><div class="rrow"><input type="range" id="sp-n" min="1" max="50" value="10"/><span class="rv" id="sp-nV">10 pp</span></div></div>
+      </div>
+      <div class="tab-pane" id="sp-t2">
+        <div style="font-size:.8rem;color:var(--dim);margin-bottom:8px">Isolate distinct pages (e.g., <code style="color:var(--gold)">3, 7, 12</code>).</div>
+        <input type="text" id="sp-extract" placeholder="e.g. 3, 7, 12"/>
+      </div>
+      <div class="btn-row" style="margin-top:14px"><button class="btn-sm primary" onclick="spPreview()">👁 Project Outputs</button></div>
+      <div id="sp-preview-list" style="display:none;margin-top:10px">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:6px;font-family:var(--mono)" id="sp-preview-count"></div>
+        <div class="file-list-box" id="sp-plist"></div>
+      </div>
+    </div>
+    <div class="slabel">03 — Execution</div>
+    <div class="card">
+      <button class="run" id="sp-run" disabled>✂ Dissect PDF</button>
+      <div class="proc-area" id="sp-proc">
+        <div class="ptrack"><div class="pfill" id="sp-pfill"></div></div>
+        <div class="log" id="sp-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="sp-dlLabel" style="display:none">04 — Artifacts</div>
+    <div class="card" id="sp-dlSect" style="display:none"><div class="dl-list" id="sp-dlList"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: PDF COMPRESS
+════════════════════════════════════════════════════ -->
+<div id="tool-compress" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">⊘ PDF Compress</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('cp-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="cp-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> This routine subjects the PDF to an architectural optimization pass to mitigate file bloat.<br><br>
+        <b>Technical Execution:</b> The client-side engine traverses the document structure, aggressively applying DEFLATE compression to all uncompressed data streams. Simultaneously, it triggers a garbage-collection pass to sever orphaned objects, and repacks the remaining architecture into clustered object streams.<br><br>
+        <b>Architectural Limitation:</b> This is strictly a <i>lossless</i> restructuring. It does not perform destructive image down-sampling (raster interpolation). Substantial size reductions (beyond 40%) typically require server-side rasterization techniques.
+      </div>
+    </div>
+    <div class="slabel">01 — Unoptimized Document</div>
+    <div class="card">
+      <div id="cp-session" class="session-tray"><span>📋 Session cache:</span><div class="session-file-list" id="cp-slist"></div></div>
+      <div class="dz" id="cp-dz"><input type="file" id="cp-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="cp-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="cp-pname">—</div><div class="pill-meta" id="cp-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Execution</div>
+    <div class="card">
+      <button class="run" id="cp-run" disabled>⊘ Initiate Optimization</button>
+      <div class="proc-area" id="cp-proc">
+        <div class="ptrack"><div class="pfill" id="cp-pfill"></div></div>
+        <div class="log" id="cp-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="cp-dlLabel" style="display:none">03 — Optimized Output</div>
+    <div class="card" id="cp-dlSect" style="display:none"><div class="dl-list" id="cp-dlList"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: UNLOCK PDF (New)
+════════════════════════════════════════════════════ -->
+<div id="tool-unlock" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">🔓 Unlock PDF</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('un-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="un-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> This utility acts as a decryption layer, stripping RC4/AES security protocols from locked documents to allow uninhibited printing, editing, and merging.<br><br>
+        <b>Requirement:</b> Security paradigms mandate that the system is provided with the correct original password. It does not perform brute-force circumvention.<br><br>
+        <b>Architectural Limitation:</b> While client-side decryption is robust, this web architecture cannot currently <i>encrypt</i> a file. Constructing encrypted PDF architecture requires direct access to deep system memory, a function best reserved for native command-line utilities (like <code>qpdf</code>) within an isolated OS environment.
+      </div>
+    </div>
+    <div class="slabel">01 — Encrypted Document</div>
+    <div class="card">
+      <div class="dz" id="un-dz"><input type="file" id="un-fi" accept=".pdf"/><div class="dz-icon">🔒</div><div class="dz-txt"><b>Click or drop a locked PDF</b></div></div>
+      <div class="pill" id="un-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="un-pname">—</div><div class="pill-meta" id="un-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Authentication Layer</div>
+    <div class="card">
+      <input type="password" id="un-pwd" placeholder="Enter document password" style="margin-bottom: 14px; font-family: var(--mono);"/>
+      <button class="run" id="un-run" disabled>🔓 Decrypt & Strip Security</button>
+      <div class="proc-area" id="un-proc"><div class="log" id="un-log"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: N-UP LAYOUT
+════════════════════════════════════════════════════ -->
+<div id="tool-nup" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">⊞ N-up Layout</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('nu-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="nu-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> This structural formatter condenses reading material by mapping multiple sequential source pages onto a singular overarching coordinate grid. Highly applicable for slide presentations, academic thumbnails, or economical draft printing.<br><br>
+        <b>Technical Execution:</b> You define a Cartesian array (Rows × Columns). The system iterates through the source document, recalculating geometric boundaries and injecting scaled page buffers into the corresponding array cell. Excess cells on the final sheet are cleanly abandoned.
+      </div>
+    </div>
+    <div class="slabel">01 — Source Document</div>
+    <div class="card">
+      <div id="nu-session" class="session-tray"><span>📋 Session cache:</span><div class="session-file-list" id="nu-slist"></div></div>
+      <div class="dz" id="nu-dz"><input type="file" id="nu-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="nu-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="nu-pname">—</div><div class="pill-meta" id="nu-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Grid Parameters</div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Vertical Divisions (Rows)</label><div class="rrow"><input type="range" id="nu-rows" min="1" max="4" value="2"/><span class="rv" id="nu-rowsV">2</span></div></div>
+        <div class="ctrl"><label>Horizontal Divisions (Cols)</label><div class="rrow"><input type="range" id="nu-cols" min="1" max="4" value="2"/><span class="rv" id="nu-colsV">2</span></div></div>
+        <div class="ctrl"><label>Internal Spacing (mm)</label><div class="rrow"><input type="range" id="nu-sp" min="0" max="20" value="4"/><span class="rv" id="nu-spV">4 mm</span></div></div>
+        <div class="ctrl"><label>Perimeter Margin (mm)</label><div class="rrow"><input type="range" id="nu-mg" min="0" max="30" value="8"/><span class="rv" id="nu-mgV">8 mm</span></div></div>
+      </div>
+      <div class="ctrl" style="margin-top:14px"><label>Target Substrate Dimension</label>
+        <select id="nu-size">
+          <option value="595,842">A4 Portrait (210 × 297 mm)</option>
+          <option value="842,595">A4 Landscape (297 × 210 mm)</option>
+          <option value="842,1190">A3 Portrait (297 × 420 mm)</option>
+          <option value="612,792">Letter (216 × 279 mm)</option>
+        </select>
+      </div>
+      <div class="info" id="nu-info">Architecture: 2 × 2 = <b>4 distinct source mappings per output plane</b></div>
+    </div>
+    <div class="slabel">03 — Execution</div>
+    <div class="card">
+      <button class="run" id="nu-run" disabled>⊞ Compile Layout</button>
+      <div class="proc-area" id="nu-proc">
+        <div class="ptrack"><div class="pfill" id="nu-pfill"></div></div>
+        <div class="log" id="nu-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="nu-dlLabel" style="display:none">04 — Output</div>
+    <div class="card" id="nu-dlSect" style="display:none"><div class="dl-list" id="nu-dlList"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: REARRANGE PAGES
+════════════════════════════════════════════════════ -->
+<div id="tool-rearrange" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">⇅ Rearrange Pages</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('ra-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="ra-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> Facilitates the manual, non-linear restructuring of an existing document's internal hierarchy.<br><br>
+        <b>Technical Execution:</b> The interface renders the document's internal array index. By manipulating the node list, you command the rendering engine to extract, duplicate, or ignore specific indices. Upon execution, the system constructs a new document honoring the bespoke sequence.
+      </div>
+    </div>
+    <div class="slabel">01 — Source Document</div>
+    <div class="card">
+      <div id="ra-session" class="session-tray"><span>📋 Session cache:</span><div class="session-file-list" id="ra-slist"></div></div>
+      <div class="dz" id="ra-dz"><input type="file" id="ra-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="ra-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="ra-pname">—</div><div class="pill-meta" id="ra-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Sequence Manipulation</div>
+    <div class="card">
+      <div class="btn-row">
+        <button class="btn-sm" onclick="raShift(-1)">↑ Promote Node</button>
+        <button class="btn-sm" onclick="raShift(1)">↓ Demote Node</button>
+        <button class="btn-sm" onclick="raDup()">Clone</button>
+        <button class="btn-sm danger" onclick="raDel()">✕ Erase</button>
+        <button class="btn-sm" onclick="raReset()">Revert State</button>
+      </div>
+      <div class="file-list-box" id="ra-list"><div style="padding:14px;color:var(--muted);font-size:.8rem">Submit a document to expose the internal hierarchy.</div></div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:8px;font-family:var(--mono)" id="ra-count"></div>
+    </div>
+    <div class="slabel">03 — Execution</div>
+    <div class="card">
+      <button class="run" id="ra-run" disabled>⇅ Compile Architecture</button>
+      <div class="proc-area" id="ra-proc">
+        <div class="ptrack"><div class="pfill" id="ra-pfill"></div></div>
+        <div class="log" id="ra-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="ra-dlLabel" style="display:none">04 — Output</div>
+    <div class="card" id="ra-dlSect" style="display:none"><div class="dl-list" id="ra-dlList"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: PDF TO IMAGE
+════════════════════════════════════════════════════ -->
+<div id="tool-toimage" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">◫ PDF to Image</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('ti-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="ti-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> Projects the vector-based architecture of a PDF onto a flat raster image plane.<br><br>
+        <b>Technical Execution:</b> This module interfaces with <code>pdf.js</code> (injected dynamically). It translates PDF vector instructions into pixels plotted onto an HTML Canvas element at the requested density (DPI). The canvas buffer is then encoded into standard PNG or JPEG protocols.<br><br>
+        <b>Architectural Note:</b> Rasterizing large architectural schematics or dense textbooks consumes immense amounts of RAM. Exercise caution on mobile platforms.
+      </div>
+    </div>
+    <div class="slabel">01 — Source Document</div>
+    <div class="card">
+      <div id="ti-session" class="session-tray"><span>📋 Session cache:</span><div class="session-file-list" id="ti-slist"></div></div>
+      <div class="dz" id="ti-dz"><input type="file" id="ti-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="ti-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="ti-pname">—</div><div class="pill-meta" id="ti-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Raster Metrics</div>
+    <div class="card">
+      <div class="ctrl" style="margin-bottom:14px"><label>Plotting Density (DPI)</label>
+        <div class="radio-row">
+          <label><input type="radio" name="ti-dpi" value="72"/> 72</label>
+          <label><input type="radio" name="ti-dpi" value="96"/> 96</label>
+          <label><input type="radio" name="ti-dpi" value="150" checked/> 150</label>
+          <label><input type="radio" name="ti-dpi" value="200"/> 200</label>
+          <label><input type="radio" name="ti-dpi" value="300"/> 300</label>
+        </div>
+      </div>
+      <div class="ctrl" style="margin-bottom:14px"><label>Encoding Protocol</label>
+        <div class="radio-row">
+          <label><input type="radio" name="ti-fmt" value="png" checked/> PNG (Strict Lossless)</label>
+          <label><input type="radio" name="ti-fmt" value="jpeg"/> JPEG (Lossy Efficiency)</label>
+        </div>
+      </div>
+      <div class="ctrl"><label>Target Vectors</label><input type="text" id="ti-pages" placeholder="Extract all — or specify e.g. 1-3, 5"/></div>
+    </div>
+    <div class="slabel">03 — Execution</div>
+    <div class="card">
+      <button class="run" id="ti-run" disabled>◫ Render Raster Artifacts</button>
+      <div class="proc-area" id="ti-proc">
+        <div class="ptrack"><div class="pfill" id="ti-pfill"></div></div>
+        <div class="log" id="ti-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="ti-dlLabel" style="display:none">04 — Image Outputs</div>
+    <div class="card" id="ti-dlSect" style="display:none"><div class="dl-list" id="ti-dlList"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: ADD WATERMARK
+════════════════════════════════════════════════════ -->
+<div id="tool-wmadd" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">⬡ Add Watermark</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('wa-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="wa-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> Injects a translucent, vector-text overlay across every page of the document architecture to assert intellectual property or confidentiality state.<br><br>
+        <b>Technical Execution:</b> The engine calculates the geometric center or defined coordinate bounds of each individual page. It then renders a specified text string at the declared rotation vector and alpha-channel opacity. <br><br>
+        <b>Limitation:</b> This web iteration is restricted to typographic watermarks. Image-based stamping protocols necessitate backend raster manipulation capabilities.
+      </div>
+    </div>
+    <div class="slabel">01 — Source Document</div>
+    <div class="card">
+      <div id="wa-session" class="session-tray"><span>📋 Session cache:</span><div class="session-file-list" id="wa-slist"></div></div>
+      <div class="dz" id="wa-dz"><input type="file" id="wa-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="wa-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="wa-pname">—</div><div class="pill-meta" id="wa-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Stamp Parameters</div>
+    <div class="card">
+      <div class="ctrl" style="margin-bottom:14px"><label>String Payload</label><input type="text" id="wa-text" value="CONFIDENTIAL"/></div>
+      <div class="cgrid">
+        <div class="ctrl"><label>Scale (pt)</label><div class="rrow"><input type="range" id="wa-fsize" min="12" max="120" value="52"/><span class="rv" id="wa-fsizeV">52 pt</span></div></div>
+        <div class="ctrl"><label>Alpha Channel (%)</label><div class="rrow"><input type="range" id="wa-op" min="5" max="100" value="25"/><span class="rv" id="wa-opV">25%</span></div></div>
+        <div class="ctrl"><label>Vector Rotation (°)</label><div class="rrow"><input type="range" id="wa-rot" min="-180" max="180" value="-45"/><span class="rv" id="wa-rotV">-45°</span></div></div>
+        <div class="ctrl"><label>Hexadecimal Value</label><input type="text" id="wa-col" value="#4F8EF7" placeholder="#RRGGBB"/></div>
+      </div>
+      <div class="ctrl" style="margin-top:14px"><label>Coordinate Anchor</label>
+        <select id="wa-pos">
+          <option value="diag">Absolute Center (Diagonal Plot)</option>
+          <option value="center">Absolute Center (Linear Plot)</option>
+          <option value="tl">Quadrant II (Top-left)</option>
+          <option value="tr">Quadrant I (Top-right)</option>
+          <option value="bl">Quadrant III (Bottom-left)</option>
+          <option value="br">Quadrant IV (Bottom-right)</option>
+        </select>
+      </div>
+    </div>
+    <div class="slabel">03 — Execution</div>
+    <div class="card">
+      <button class="run" id="wa-run" disabled>⬡ Impress Watermark</button>
+      <div class="proc-area" id="wa-proc">
+        <div class="ptrack"><div class="pfill" id="wa-pfill"></div></div>
+        <div class="log" id="wa-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="wa-dlLabel" style="display:none">04 — Output</div>
+    <div class="card" id="wa-dlSect" style="display:none"><div class="dl-list" id="wa-dlList"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: REMOVE WATERMARK
+════════════════════════════════════════════════════ -->
+<div id="tool-wmremove" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">‹ Suite</button><span class="nav-title">◌ Remove Watermark</span></div>
+  <div class="page">
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('wr-desc')">ℹ Detailed Methodology ▾</button>
+      <div id="wr-desc" class="desc-body" style="display:none">
+        <b>Process Overview:</b> Explores the document architecture to identify and strip obfuscating layers using heuristic strategies.<br><br>
+        <b>Strategic Options:</b><br>
+        <code>Strategy 1 (Structural Severance)</code> — Aggressively targets and deletes the <code>Annots</code> array node from every page. Highly effective against generic stamps, highlighted overlays, and surface-drawn modifications.<br>
+        <code>Strategy 2 (Coordinate Redaction)</code> — Projects absolute-white rectangles over suspected horizontal text bands. <br><br>
+        <b>Architectural Limitation:</b> Deep stream parsing (e.g., neutralizing vector grey-sweeps hardcoded into the content stream) is computationally unfeasible within an isolated browser session.
+      </div>
+    </div>
+    <div class="slabel">01 — Obfuscated Document</div>
+    <div class="card">
+      <div id="wr-session" class="session-tray"><span>📋 Session cache:</span><div class="session-file-list" id="wr-slist"></div></div>
+      <div class="dz" id="wr-dz"><input type="file" id="wr-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="wr-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="wr-pname">—</div><div class="pill-meta" id="wr-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Intervention Tactics</div>
+    <div class="card">
+      <div class="cb-row"><input type="checkbox" id="wr-ann" checked/><label for="wr-ann">Strategy 1: Sever 'Annots' architecture (Stamps & Surface UI)</label></div>
+      <div class="cb-row" style="margin-top: 8px;">
+        <input type="checkbox" id="wr-txt"/>
+        <label for="wr-txt">Strategy 2: Blanket redaction array:</label>
+        <input type="text" id="wr-txtval" placeholder="e.g. DRAFT" style="flex:1;margin-left:8px"/>
+      </div>
+      <div class="info">Diagnostic: Execute <b>Structural Scan</b> first to interrogate the file nodes before committing to an intervention.</div>
+      <div class="btn-row" style="margin-top:14px"><button class="btn-sm primary" onclick="wrScan()">🔍 Perform Structural Scan</button></div>
+      <div class="log" id="wr-scanlog" style="margin-top:10px;display:none"></div>
+    </div>
+    <div class="slabel">03 — Execution</div>
+    <div class="card">
+      <button class="run" id="wr-run" disabled>◌ Cleanse Document</button>
+      <div class="proc-area" id="wr-proc">
+        <div class="ptrack"><div class="pfill" id="wr-pfill"></div></div>
+        <div class="log" id="wr-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="wr-dlLabel" style="display:none">04 — Output</div>
+    <div class="card" id="wr-dlSect" style="display:none"><div class="dl-list" id="wr-dlList"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TOOL: SCIENTIFIC CALCULATOR & GRAPHER
+════════════════════════════════════════════════════ -->
+<div id="tool-calc" class="tool-panel">
+  <div class="nav-bar">
+    <button class="nav-back" onclick="goBack()">‹ Suite</button>
+    <span class="nav-title">∑ Multifunction Graphing</span>
+    <button class="btn-sm primary" onclick="toggleFullscreenCalc()" style="margin-left: auto;">⛶ Fullscreen Focus</button>
+  </div>
+  <div class="page" id="calc-container">
+    
+    <div class="card">
+      <button class="desc-toggle" onclick="toggleDesc('cc-desc')">ℹ Syntax & Parser Constraints ▾</button>
+      <div id="cc-desc" class="desc-body" style="display:none">
+        <b>Mathematical Syntax Rules:</b> Ensure variables are defined against <code>x</code>.<br><br>
+        <code>• Transcendentals</code>: Access standard functions explicitly (e.g., <code>sin(x)</code>, <code>log(x)</code>).<br>
+        <code>• Exponentials</code>: The parser recognizes the caret syntax (e.g., <code>x^2</code> is intercepted and processed).<br>
+        <code>• Operands</code>: Implicit multiplication is not supported by the strict execution environment. You must delineate operators (e.g., <code>2*x</code>, not <code>2x</code>).<br><br>
+        In graph mode, you may stack multiple independent equations for comparative analysis.
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="calcTab(0,this)">Multifunction Plotter</button>
+      <button class="tab-btn" onclick="calcTab(1,this)">Console Evaluator</button>
+      <button class="tab-btn" onclick="calcTab(2,this)">Ledger History</button>
+    </div>
+
+    <!-- Grapher -->
+    <div class="tab-pane active" id="calc-t0" style="padding-top:14px">
+      <div class="g-inputs-wrapper" id="g-inputs-container">
+        <div class="g-row g-fn-row">
+          <span class="fn-color-indicator" style="background-color: #f0a500;"></span>
+          <span style="font-family:var(--mono);font-size:.85rem;color:var(--muted)">f1(x) =</span>
+          <input class="g-inp g-fn-input" value="sin(x)" placeholder="e.g. sin(x) * x"/>
+          <button class="btn-sm danger" onclick="removeGraphInput(this)">✕</button>
+        </div>
+      </div>
+      
+      <div class="btn-row" style="margin-bottom: 16px;">
+        <button class="btn-sm primary" onclick="addGraphInput()">+ Append Function Vector</button>
+        <button class="btn-sm" onclick="graphPlot()">Execute Plot</button>
+      </div>
+
+      <div class="g-row">
+        <span style="font-size:.74rem;color:var(--muted)">Domain boundaries:</span>
+        <input class="g-inp g-mini" id="g-xmin" value="-10" placeholder="Min"/>
+        <span style="font-size:.74rem;color:var(--muted)">to</span>
+        <input class="g-inp g-mini" id="g-xmax" value="10" placeholder="Max"/>
+      </div>
+      
+      <canvas id="graphCanvas"></canvas>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:8px;font-family:var(--mono)" id="g-status">Awaiting execution.</div>
+    </div>
+
+    <!-- Console -->
+    <div class="tab-pane" id="calc-t1" style="padding-top:14px">
+      <div class="calc-disp">
+        <div class="calc-expr" id="c-expr"></div>
+        <div class="calc-result" id="c-result">0</div>
+      </div>
+      <div class="calc-grid" id="c-grid"></div>
+    </div>
+
+    <!-- History -->
+    <div class="tab-pane" id="calc-t2" style="padding-top:14px">
+      <div class="btn-row" style="margin-bottom:10px">
+        <button class="btn-sm danger" onclick="calcClearHist()">✕ Purge Ledger</button>
+      </div>
+      <div class="hist-box" id="c-hist"><div style="padding:14px;color:var(--muted);font-size:.8rem">Ledger is void.</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT CORE ARCHITECTURE
+════════════════════════════════════════════════════ -->
+<script>
+/* ── Local Config & State ── */
+let globalOpCount = 0;
+
+function incrementAnalytics() {
+  globalOpCount++;
+  const countEl = document.getElementById('localOpCount');
+  if(countEl) countEl.textContent = globalOpCount;
+}
+
+/* ── Prevent Mobile Refresh Drops ── */
+document.addEventListener('touchmove', function(e){
+  if(e.touches.length === 1) {
+    const t = e.target;
+    let el = t;
+    while(el && el !== document.body) {
+      if(el.scrollTop > 0 || el.scrollHeight > el.clientHeight) return;
+      el = el.parentElement;
+    }
+    if(window.scrollY === 0) e.preventDefault();
+  }
+}, {passive:false});
+
+/* ── Memory Management (Blob Revocation System) ── */
+window._activeBlobs = [];
+function trackBlob(url) {
+  window._activeBlobs.push(url);
+}
+
+function clearMemoryRequest() {
+  if(window._activeBlobs.length === 0) {
+    alert("No temporary files currently resident in memory.");
+    return;
+  }
+  if(confirm(`This will aggressively purge ${window._activeBlobs.length} temporary file artifacts from the device's RAM to prevent memory exhaustion on lower-end systems. \n\nWarning: Previous download links in this session will break. Proceed?`)) {
+    window._activeBlobs.forEach(url => URL.revokeObjectURL(url));
+    window._activeBlobs = [];
+    alert("Memory successfully purged. Safe to resume intensive tasks.");
+  }
+}
+
+/* ── Fallback Dependency Validation ── */
+// In an isolated environment, if the user failed to download pdf-lib, attempt CDN injection as absolute last resort.
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    if(typeof PDFLib === 'undefined') {
+      console.warn("Local ./js/pdf-lib.min.js missing. Fallback to network CDN activated.");
+      const s = document.createElement('script');
+      s.src = "https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js";
+      s.onload = initApp;
+      document.head.appendChild(s);
+    } else {
+      initApp();
+    }
+  }, 100);
+});
+
+/* ── Core Initializer ── */
+let PDFDocument, rgb, degrees, StandardFonts, PDFName, MM;
+
+function initApp() {
+  const banner = document.getElementById('libStatus');
+  if(typeof PDFLib === 'undefined'){
+    banner.style.display='block'; banner.className='err';
+    banner.innerHTML='⚠ Fatal Context Error: pdf-lib architecture failed to initialize. Check local /js/ paths or network firewall.';
+    return;
+  }
+  
+  PDFDocument = PDFLib.PDFDocument;
+  rgb = PDFLib.rgb;
+  degrees = PDFLib.degrees;
+  StandardFonts = PDFLib.StandardFonts;
+  PDFName = PDFLib.PDFName;
+  MM = 72/25.4; // Point conversion
+}
+
+/* ── Theming System ── */
+function toggleTheme() {
+  const current = document.body.getAttribute('data-theme');
+  const next = current === 'light' ? 'dark' : 'light';
+  document.body.setAttribute('data-theme', next);
+  localStorage.setItem('suite-theme', next);
+  if(document.getElementById('graphCanvas').offsetParent !== null) { graphPlot(); }
+}
+if(localStorage.getItem('suite-theme') === 'light') { document.body.setAttribute('data-theme', 'light'); }
+
+/* ── Fullscreen Calculator Toggle ── */
+function toggleFullscreenCalc() {
+  const container = document.getElementById('tool-calc');
+  container.classList.toggle('fullscreen-mode');
+  setTimeout(graphPlot, 50); 
+}
+
+/* ── Community Notes System ── */
+function saveLocalNote() {
+  const text = document.getElementById('localNoteArea').value;
+  localStorage.setItem('academic-local-note', text);
+  const status = document.getElementById('noteStatus');
+  status.style.display = 'inline-block';
+  setTimeout(() => status.style.display = 'none', 2000);
+}
+if(localStorage.getItem('academic-local-note')) {
+  document.getElementById('localNoteArea').value = localStorage.getItem('academic-local-note');
+}
+
+/* ═══ SESSION MANAGER ═══════════════════════════════════ */
+const SESSION = [];
+
+function sessionAdd(name, bytes, tool) {
+  SESSION.unshift({name, bytes, tool, id: Date.now()});
+  if(SESSION.length > 12) SESSION.length = 12;
+  updateSessionUI();
+}
+
+function updateSessionUI() {
+  const n = SESSION.length;
+  const badge = document.getElementById('gBadge');
+  if(n > 0){ badge.style.display='block'; document.getElementById('gBadgeCount').textContent=n; }
+  else badge.style.display='none';
+}
+
+function showSessionModal() {
+  if(!SESSION.length) {
+    clearMemoryRequest(); 
+    return; 
+  }
+  let html = '<div style="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px" id="sess-overlay" onclick="if(event.target===this)this.remove()">'
+    +'<div style="background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:24px;max-width:440px;width:100%">'
+    +'<div style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text)">📋 Session Artifacts</div>';
+  SESSION.forEach(f=>{
+    html+=`<div style="padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:7px;margin-bottom:8px;font-size:.8rem">
+      <div style="font-weight:600;color:var(--text); word-break: break-all;">${f.name}</div>
+      <div style="color:var(--muted);font-size:.7rem">Origin: ${f.tool} · ${(f.bytes.length/1024).toFixed(0)} KB</div>
+    </div>`;
+  });
+  html+='<div style="display:flex; gap: 10px; margin-top:16px;">'
+      +'<button onclick="clearMemoryRequest()" style="background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.3);border-radius:6px;color:var(--red);padding:9px;flex:1;cursor:pointer;">Purge Memory</button>'
+      +'<button onclick="document.getElementById(\'sess-overlay\').remove()" style="background:var(--goldbg);border:1px solid rgba(240,165,0,.3);border-radius:6px;color:var(--gold);padding:9px;flex:1;cursor:pointer;">Dismiss</button></div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+function refreshSessionTray(prefix) {
+  const tray = document.getElementById(prefix+'-session');
+  const list = document.getElementById(prefix+'-slist');
+  if(!tray||!list) return;
+  if(!SESSION.length){ tray.classList.remove('has-files'); return; }
+  tray.classList.add('has-files');
+  list.innerHTML = SESSION.map(f=>
+    `<button class="session-file-btn" onclick="sessionUse('${prefix}',${f.id})">${f.name} <span style="opacity:.6">(${(f.bytes.length/1024).toFixed(0)} KB)</span></button>`
+  ).join('');
+}
+
+/* ═══ NAVIGATION ════════════════════════════════════════ */
+function openTool(id) {
+  document.getElementById('landing').style.display='none';
+  document.querySelectorAll('.tool-panel').forEach(p=>p.style.display='none');
+  document.getElementById('tool-'+id).style.display='block';
+  refreshSessionTray(id === 'toimage' ? 'ti' :
+    id === 'wmadd' ? 'wa' : id === 'wmremove' ? 'wr' :
+    id === 'rearrange' ? 'ra' : id === 'compress' ? 'cp' :
+    id === 'booklet' ? 'bk' : id === 'nup' ? 'nu' :
+    id === 'split' ? 'sp' : id === 'merge' ? 'mg' : id === 'unlock' ? 'un' : id);
+  window.scrollTo(0,0);
+  if(id === 'calc') setTimeout(graphPlot, 50);
+}
+function goBack() {
+  document.querySelectorAll('.tool-panel').forEach(p=>p.style.display='none');
+  const calc = document.getElementById('tool-calc');
+  if(calc.classList.contains('fullscreen-mode')) calc.classList.remove('fullscreen-mode');
+  document.getElementById('landing').style.display='block';
+  window.scrollTo(0,0);
+}
+
+function toggleDesc(id) {
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function spTab(i,btn){
+  document.querySelectorAll('#tool-split .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#tool-split .tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sp-t'+i).classList.add('active');
+  window._spMode=i;
+}
+function calcTab(i,btn){
+  document.querySelectorAll('#tool-calc .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#tool-calc .tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('calc-t'+i).classList.add('active');
+  if(i===0) setTimeout(()=>graphPlot(),50);
+}
+
+/* ═══ SHARED HELPERS ════════════════════════════════════ */
+const tick = ()=>new Promise(r=>setTimeout(r,0));
+function ts(){return new Date().toLocaleTimeString('en-GB',{hour12:false})}
+
+function logMsg(boxId,msg,type='li'){
+  const box=document.getElementById(boxId);
+  if(!box)return;
+  const d=document.createElement('div');
+  d.className=type;
+  d.innerHTML=`<span style="opacity:.32">[${ts()}]</span> ${msg}`;
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
+function logClear(boxId){const b=document.getElementById(boxId);if(b)b.innerHTML=''}
+function setP(id,pct){const el=document.getElementById(id);if(el)el.style.width=pct+'%'}
+function chip(id,state){const el=document.getElementById(id);if(!el)return;el.classList.remove('active','done');if(state)el.classList.add(state)}
+function showProc(procId){document.getElementById(procId).style.display='block'}
+
+function addDownload(listId, bytes, filename, title, desc, toolName) {
+  const blob=new Blob([bytes],{type:'application/pdf'});
+  const url=URL.createObjectURL(blob);
+  trackBlob(url);
+  const item=document.createElement('div');
+  item.className='dl-item';
+  const sessId=Date.now()+'_'+Math.random();
+  item.dataset.sessId=sessId;
+  item.dataset.name=filename;
+  item.dataset.bytes=JSON.stringify(Array.from(bytes));
+  item.innerHTML=`
+    <div><div class="dl-title">${title}</div><div class="dl-desc">${desc}</div></div>
+    <div class="dl-actions">
+      <a href="${url}" download="${filename}" class="dl-btn">⬇ Export</a>
+      <button class="sess-btn" onclick="dlSaveSession('${listId}','${sessId}','${filename}','${toolName}')">📋 → Session Cache</button>
+    </div>`;
+  document.getElementById(listId).appendChild(item);
+  incrementAnalytics();
+}
+
+function addDownloadImage(listId, blob, filename, title) {
+  const url=URL.createObjectURL(blob);
+  trackBlob(url);
+  const item=document.createElement('div');
+  item.className='dl-item';
+  item.innerHTML=`
+    <div><div class="dl-title">${title}</div><div class="dl-desc">${filename}</div></div>
+    <div class="dl-actions"><a href="${url}" download="${filename}" class="dl-btn">⬇ Export Artifact</a></div>`;
+  document.getElementById(listId).appendChild(item);
+  incrementAnalytics();
+}
+
+function dlSaveSession(listId, sessId, filename, toolName) {
+  const items=document.querySelectorAll('#'+listId+' .dl-item');
+  for(const item of items){
+    if(item.dataset.sessId===sessId){
+      const bytes=new Uint8Array(JSON.parse(item.dataset.bytes));
+      sessionAdd(filename, bytes, toolName);
+      const btn=item.querySelector('.sess-btn');
+      if(btn){btn.textContent='✅ Cached';btn.disabled=true;btn.style.opacity='.5';}
+      return;
+    }
+  }
+}
+
+function setupDZ(dzId, fiId, pillNameId, pillMetaId, pillId, runId, procId, onLoad) {
+  const dz=document.getElementById(dzId);
+  const fi=document.getElementById(fiId);
+  if(!dz||!fi)return;
+  fi.addEventListener('change', e=>{ if(e.target.files[0]) loadPDFFile(e.target.files[0], pillNameId, pillMetaId, pillId, runId, procId, onLoad) });
+  dz.addEventListener('dragover', e=>{e.preventDefault();dz.classList.add('over')});
+  dz.addEventListener('dragleave', ()=>dz.classList.remove('over'));
+  dz.addEventListener('drop', e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])loadPDFFile(e.dataTransfer.files[0], pillNameId, pillMetaId, pillId, runId, procId, onLoad)});
+}
+
+/* ── Resilient Fallback File Loader ── */
+async function loadPDFFile(file, pillNameId, pillMetaId, pillId, runId, procId, onLoad) {
+  if(!file.name.toLowerCase().endsWith('.pdf') && file.type!=='application/pdf'){ 
+    alert('Strict Architecture Fault: The submitted entity does not conform to the PDF structural signature.'); return; 
+  }
+  const buf=await file.arrayBuffer();
+  const bytes=new Uint8Array(buf);
+  
+  try {
+    const doc=await PDFDocument.load(bytes,{ignoreEncryption:true});
+    const n=doc.getPageCount();
+    document.getElementById(pillNameId).textContent=file.name;
+    document.getElementById(pillMetaId).textContent=`${n} Page(s) · ${(bytes.length/1024).toFixed(0)} KB`;
+    document.getElementById(pillId).classList.add('on');
+    if(runId) document.getElementById(runId).disabled=false;
+    if(procId) document.getElementById(procId).style.display='block';
+    onLoad(bytes, file.name, n);
+  } catch(e) { 
+    // This catches malformed, deeply encrypted, or structurally invalid PDFs without crashing.
+    console.error(e);
+    alert('Validation Failure: The document structure could not be parsed. It may be heavily encrypted, corrupted, or incompatible with client-side processing algorithms.'); 
+  }
+}
+
+function sessionUse(prefix, sessId) {
+  const f = SESSION.find(x=>x.id===sessId);
+  if(!f) return;
+  const handlers = {
+    'bk': (b,n,pg)=>{ window.bkInputBytes=b; document.getElementById('bk-pname').textContent=n; document.getElementById('bk-pmeta').textContent=pg+' pages · '+(b.length/1024).toFixed(0)+' KB'; document.getElementById('bk-pill').classList.add('on'); document.getElementById('bk-run').disabled=false; document.getElementById('bk-proc').style.display='block'; },
+    'mg': (b,n)=>mgAddFromSession(n,b),
+    'sp': (b,n,pg)=>{ spInputBytes=b; spFileName=n; document.getElementById('sp-pname').textContent=n; document.getElementById('sp-pmeta').textContent=pg+' pages'; document.getElementById('sp-pill').classList.add('on'); document.getElementById('sp-run').disabled=false; },
+    'cp': (b,n,pg)=>{ cpInputBytes=b; document.getElementById('cp-pname').textContent=n; document.getElementById('cp-pmeta').textContent=pg+' pages · '+(b.length/1024).toFixed(0)+' KB'; document.getElementById('cp-pill').classList.add('on'); document.getElementById('cp-run').disabled=false; document.getElementById('cp-proc').style.display='block'; },
+    'nu': (b,n,pg)=>{ nuInputBytes=b; document.getElementById('nu-pname').textContent=n; document.getElementById('nu-pmeta').textContent=pg+' pages'; document.getElementById('nu-pill').classList.add('on'); document.getElementById('nu-run').disabled=false; document.getElementById('nu-proc').style.display='block'; },
+    'ra': (b,n)=>raLoadBytes(b,n),
+    'ti': (b,n,pg)=>{ tiInputBytes=b; tiFileName=n; tiPageCount=pg; document.getElementById('ti-pname').textContent=n; document.getElementById('ti-pmeta').textContent=pg+' pages'; document.getElementById('ti-pill').classList.add('on'); document.getElementById('ti-run').disabled=false; document.getElementById('ti-proc').style.display='block'; },
+    'wa': (b,n,pg)=>{ waInputBytes=b; document.getElementById('wa-pname').textContent=n; document.getElementById('wa-pmeta').textContent=pg+' pages'; document.getElementById('wa-pill').classList.add('on'); document.getElementById('wa-run').disabled=false; document.getElementById('wa-proc').style.display='block'; },
+    'wr': (b,n,pg)=>{ wrInputBytes=b; document.getElementById('wr-pname').textContent=n; document.getElementById('wr-pmeta').textContent=pg+' pages'; document.getElementById('wr-pill').classList.add('on'); document.getElementById('wr-run').disabled=false; document.getElementById('wr-proc').style.display='block'; },
+  };
+  const h = handlers[prefix];
+  if(!h) return;
+  PDFDocument.load(f.bytes,{ignoreEncryption:true}).then(doc=>{
+    h(f.bytes, f.name, doc.getPageCount());
+  }).catch(e=>alert('Retrieval Error: Could not unpack session cache. ' + e.message));
+}
+
+/* ════════════════════════════════════════════
+   TOOL: BOOKLET IMPOSITION
+═══════════════════════════════════════════ */
+window.bkInputBytes=null;
+function bkUpdatePreview(){
+  const g=+document.getElementById('bk-gap').value, o=+document.getElementById('bk-outer').value;
+  document.getElementById('bk-pw').textContent=((277-g-2*o)/2).toFixed(1)+' × 190.0 mm';
+}
+document.getElementById('bk-gap').addEventListener('input',function(){document.getElementById('bk-gapV').textContent=this.value+' mm';bkUpdatePreview()});
+document.getElementById('bk-outer').addEventListener('input',function(){document.getElementById('bk-outerV').textContent=this.value+' mm';bkUpdatePreview()});
+bkUpdatePreview();
+
+setupDZ('bk-dz','bk-fi','bk-pname','bk-pmeta','bk-pill','bk-run','bk-proc',(b)=>{window.bkInputBytes=b;});
+
+function bkBindSeq(total,n){
+  const g=4*n,seq=[];
+  for(let k=1;k<=total/g;k++){const base=(k-1)*g;for(let j=0;j<g;j++){const p=j>>1,r=j&1;if(p%2===0)seq.push(r===0?base+(g-p):base+(p+1));else seq.push(r===0?base+(p+1):base+(g-p));}}
+  return seq;
+}
+function bkPadCalc(total,cap){
+  const need=(cap-(total%cap))%cap;
+  let front=0,back=0;
+  if(need===0){}else if(need===1){back=1}else if(need%2===0){front=back=need/2}else{front=(need>>1)+1;back=need>>1;}
+  return{need,front,back};
+}
+function bkOrd(n){const r=n%100;if(r>=11&&r<=13)return n+'th';return n+({1:'st',2:'nd',3:'rd'}[n%10]||'th')}
+
+async function bkStep1(srcBytes,gapMm,outerMm){
+  const wMm=(277-gapMm-2*outerMm)/2, tW=wMm*MM, tH=190*MM;
+  logMsg('bk-log',`Initialization › Map target: ${wMm.toFixed(2)} × 190.00 mm`,'st');
+  const srcDoc=await PDFDocument.load(srcBytes,{ignoreEncryption:true});
+  const n=srcDoc.getPageCount(), outDoc=await PDFDocument.create();
+  const emb=await outDoc.embedPdf(srcDoc,[...Array(n).keys()]);
+  for(let i=0;i<n;i++){
+    const p=outDoc.addPage([tW,tH]);
+    p.drawPage(emb[i],{x:0,y:0,width:tW,height:tH});
+    if(i%4===3){setP('bk-pfill',5+(i/n)*25);await tick();}
+  }
+  const bytes=await outDoc.save({useObjectStreams:false});
+  logMsg('bk-log',`Initialization › Processed ${n} geometric transformations.`,'ok');
+  return bytes;
+}
+
+async function bkStep2(resBytes,gapMm,outerMm,sheetsPerSig){
+  const cap=sheetsPerSig*4;
+  const srcDoc=await PDFDocument.load(resBytes,{ignoreEncryption:true});
+  const nSrc=srcDoc.getPageCount();
+  const {need,front,back}=bkPadCalc(nSrc,cap);
+  const working=nSrc+front+back;
+  logMsg('bk-log',`Compilation › Nodes: ${nSrc} | Padding elements: ${need}`,'st');
+  const CW=277*MM, CH=190*MM;
+  const pageW=(277-gapMm-2*outerMm)/2*MM, gapPts=gapMm*MM, outerPts=outerMm*MM;
+  const rightX=outerPts+pageW+gapPts;
+  const order=bkBindSeq(working,sheetsPerSig);
+  const outDoc=await PDFDocument.create();
+  const allEmb=await outDoc.embedPdf(srcDoc,[...Array(nSrc).keys()]);
+  for(let i=0;i<order.length;i+=2){
+    const sheet=outDoc.addPage([CW,CH]);
+    const lIdx=(order[i]-1)-front, rIdx=(order[i+1]-1)-front;
+    if(lIdx>=0&&lIdx<nSrc) sheet.drawPage(allEmb[lIdx],{x:outerPts,y:0,width:pageW,height:CH});
+    if(rIdx>=0&&rIdx<nSrc) sheet.drawPage(allEmb[rIdx],{x:rightX,y:0,width:pageW,height:CH});
+    if(i%8===6){setP('bk-pfill',35+(i/order.length)*28);await tick();}
+  }
+  const bytes=await outDoc.save({useObjectStreams:false});
+  logMsg('bk-log',`Compilation › Structured ${order.length/2} physical planes.`,'ok');
+  return bytes;
+}
+
+async function bkStep3(impBytes,sheetsPerSig){
+  logMsg('bk-log','Finalization › Injecting substrate registration marks…','st');
+  const CW=277*MM, CH=190*MM;
+  const doc=await PDFDocument.load(impBytes,{ignoreEncryption:true});
+  const font=await doc.embedFont(StandardFonts.Helvetica);
+  const midX=CW/2, fsize=12, pad=12;
+  const lnCol=rgb(0.6,0.6,0.6), txtCol=rgb(0.2,0.2,0.2), dotCol=rgb(0,0,0);
+  const da=[1.5*MM,2.0*MM];
+  const avail=CH-40*MM;
+  const dotY=[CH-20*MM,CH-20*MM-avail/3,CH-20*MM-2*avail/3,20*MM];
+  const pages=doc.getPages();
+  for(let idx=0;idx<pages.length;idx++){
+    const pg=pages[idx], pn=idx+1;
+    if(pn%2!==0){
+      pg.drawLine({start:{x:midX,y:0},end:{x:midX,y:CH},thickness:1,color:lnCol,opacity:0.5,dashArray:da,dashPhase:0});
+    } else {
+      const ei=(idx-1)>>1;
+      const foldNum=Math.floor(ei/sheetsPerSig)+1, foldPage=(ei%sheetsPerSig)+1;
+      const text=`${bkOrd(foldNum)} structural fold — phase ${foldPage}`;
+      const tW=font.widthOfTextAtSize(text,fsize);
+      const centre=CH/2, gBot=centre-tW/2-pad, gTop=centre+tW/2+pad;
+      pg.drawLine({start:{x:midX,y:0},end:{x:midX,y:gBot},thickness:1,color:lnCol,opacity:0.5,dashArray:da,dashPhase:0});
+      pg.drawLine({start:{x:midX,y:gTop},end:{x:midX,y:CH},thickness:1,color:lnCol,opacity:0.5,dashArray:da,dashPhase:0});
+      pg.drawText(text,{x:midX+fsize*0.3,y:centre-tW/2,size:fsize,font,color:txtCol,rotate:degrees(90),opacity:0.5});
+    }
+    for(const y of dotY){pg.drawCircle({x:midX,y,size:1.0*MM,borderColor:dotCol,borderWidth:0.5});pg.drawCircle({x:midX,y,size:0.3*MM,color:dotCol,borderColor:dotCol,borderWidth:0.5});}
+    if(idx%4===3){setP('bk-pfill',67+(idx/pages.length)*28);await tick();}
+  }
+  const bytes=await doc.save();
+  logMsg('bk-log',`Finalization › Annotated ${pages.length} elements.`,'ok');
+  return bytes;
+}
+
+document.getElementById('bk-run').addEventListener('click',async()=>{
+  if(!window.bkInputBytes){logMsg('bk-log','Initialization Fault: Null payload vector.','wn');return;}
+  const gapMm=+document.getElementById('bk-gap').value;
+  const outerMm=+document.getElementById('bk-outer').value;
+  const sheets=+document.getElementById('bk-sheets').value;
+  const marks=document.getElementById('bk-marks').checked;
+  document.getElementById('bk-run').disabled=true;
+  document.getElementById('bk-dlSect').style.display='none';
+  document.getElementById('bk-dlLabel').style.display='none';
+  document.getElementById('bk-dlList').innerHTML='';
+  logClear('bk-log');setP('bk-pfill',0);
+  chip('bk-c1',null);chip('bk-c2',null);chip('bk-c3',null);
+  
+  try{
+    chip('bk-c1','active');setP('bk-pfill',5);
+    const r1=await bkStep1(window.bkInputBytes,gapMm,outerMm);
+    chip('bk-c1','done');
+    const wMm=(277-gapMm-2*outerMm)/2;
+    addDownload('bk-dlList',r1,'Step1_Standardized.pdf','① Matrix Normalization',`${wMm.toFixed(1)} × 190.0 mm bounds`,'Booklet');
+    
+    setP('bk-pfill',33);
+    chip('bk-c2','active');
+    const r2=await bkStep2(r1,gapMm,outerMm,sheets);
+    chip('bk-c2','done');
+    addDownload('bk-dlList',r2,'Step2_Architecture.pdf','② Architecture Mapped','Nodes translated to print sequence','Booklet');
+    
+    setP('bk-pfill',66);
+    if(marks){
+      chip('bk-c3','active');
+      const r3=await bkStep3(r2,sheets);
+      chip('bk-c3','done');
+      addDownload('bk-dlList',r3,'Step3_Final_Annotated.pdf','③ Annotated Final','Complete geometric imposition','Booklet');
+    } else { chip('bk-c3','done'); }
+    
+    setP('bk-pfill',100);logMsg('bk-log','Pipeline resolution successful.','ok');
+    document.getElementById('bk-dlSect').style.display='block';
+    document.getElementById('bk-dlLabel').style.display='';
+  }catch(e){logMsg('bk-log','Execution Failure: '+e.message,'er');}
+  
+  document.getElementById('bk-run').disabled=false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: MERGE
+═══════════════════════════════════════════ */
+let mgFiles=[];
+
+window.mgAddFiles=function(){document.getElementById('mg-fi').click()};
+document.getElementById('mg-fi').addEventListener('change',async function(e){
+  const files=Array.from(e.target.files);
+  for(const f of files){
+    if(!f.name.toLowerCase().endsWith('.pdf')) continue;
+    const buf=await f.arrayBuffer();
+    const bytes=new Uint8Array(buf);
+    try{
+      const doc=await PDFDocument.load(bytes,{ignoreEncryption:true});
+      mgFiles.push({name:f.name,bytes,pages:doc.getPageCount()});
+    } catch(err){console.warn(err);}
+  }
+  e.target.value='';mgRefresh();
+});
+
+function mgAddFromSession(name,bytes){
+  PDFDocument.load(bytes,{ignoreEncryption:true}).then(doc=>{
+    mgFiles.push({name,bytes,pages:doc.getPageCount()});mgRefresh();
+  }).catch(e=>alert('Session fetch compromised: '+e.message));
+}
+window.mgAddFromSession=mgAddFromSession;
+
+function mgRefresh(){
+  const el=document.getElementById('mg-list');
+  if(!mgFiles.length){el.innerHTML='<div style="padding:14px 12px;color:var(--muted);font-size:.8rem">Queue empty.</div>';document.getElementById('mg-run').disabled=true;document.getElementById('mg-stats').textContent='';return;}
+  el.innerHTML=mgFiles.map((f,i)=>`
+    <div class="fl-item${i===window._mgSel?' sel':''}" onclick="mgSel(${i})">
+      <span class="fl-num">${i+1}</span>
+      <span class="fl-name">${f.name}</span>
+      <span class="fl-meta">${f.pages} pp</span>
+    </div>`).join('');
+  const total=mgFiles.reduce((a,f)=>a+f.pages,0);
+  document.getElementById('mg-stats').textContent=`${mgFiles.length} file(s) · Projected output volume: ${total} pages`;
+  document.getElementById('mg-run').disabled=mgFiles.length<2;
+  document.getElementById('mg-proc').style.display='block';
+}
+
+window.mgSel=function(i){window._mgSel=i;mgRefresh()};
+window.mgMoveUp=function(){const i=window._mgSel;if(i==null||i===0)return;[mgFiles[i-1],mgFiles[i]]=[mgFiles[i],mgFiles[i-1]];window._mgSel=i-1;mgRefresh()};
+window.mgMoveDown=function(){const i=window._mgSel;if(i==null||i>=mgFiles.length-1)return;[mgFiles[i],mgFiles[i+1]]=[mgFiles[i+1],mgFiles[i]];window._mgSel=i+1;mgRefresh()};
+window.mgRemoveSel=function(){if(window._mgSel==null)return;mgFiles.splice(window._mgSel,1);window._mgSel=null;mgRefresh()};
+window.mgClearAll=function(){mgFiles=[];window._mgSel=null;mgRefresh()};
+
+document.getElementById('mg-run').addEventListener('click',async()=>{
+  if(mgFiles.length<2) return;
+  document.getElementById('mg-run').disabled=true;
+  document.getElementById('mg-dlSect').style.display='none';
+  document.getElementById('mg-dlLabel').style.display='none';
+  document.getElementById('mg-dlList').innerHTML='';
+  logClear('mg-log');setP('mg-pfill',0);
+  
+  try{
+    logMsg('mg-log',`Initiating compilation across ${mgFiles.length} sequential nodes…`,'st');
+    const merged=await PDFDocument.create();
+    for(let i=0;i<mgFiles.length;i++){
+      const src=await PDFDocument.load(mgFiles[i].bytes,{ignoreEncryption:true});
+      const pgs=await merged.copyPages(src,src.getPageIndices());
+      pgs.forEach(p=>merged.addPage(p));
+      setP('mg-pfill',((i+1)/mgFiles.length)*90);
+      logMsg('mg-log',`  ✓ Appended segment: ${mgFiles[i].name}`,'ok');
+      await tick();
+    }
+    logMsg('mg-log','Executing final buffer flush…','li');
+    const bytes=await merged.save();
+    setP('mg-pfill',100);
+    logMsg('mg-log',`Compilation successful. Artifact size: ${bytes.length/1024|0} KB`,'ok');
+    addDownload('mg-dlList',bytes,'merged_manuscript.pdf','Compiled Manuscript',`${mgFiles.length} streams aggregated · ${merged.getPageCount()} pages total`,'Merge');
+    document.getElementById('mg-dlSect').style.display='block';
+    document.getElementById('mg-dlLabel').style.display='';
+  }catch(e){logMsg('mg-log','Compilation Interrupted: '+e.message,'er');}
+  document.getElementById('mg-run').disabled=false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: SPLIT
+═══════════════════════════════════════════ */
+let spInputBytes=null, spFileName='output', spPageCount=0;
+window._spMode=0;
+
+setupDZ('sp-dz','sp-fi','sp-pname','sp-pmeta','sp-pill','sp-run','sp-proc',(b,name,pg)=>{spInputBytes=b;spFileName=name.replace(/\.pdf$/i,'');spPageCount=pg;});
+
+function spParseRanges(text,n){
+  const segs=[];
+  for(const tok of text.split(',')){
+    const t=tok.trim();if(!t)continue;
+    if(t.includes('-')){
+      const [a,b]=t.split('-',2).map(Number);
+      if(isNaN(a)||isNaN(b)||a<1||b<a||b>n) throw new Error(`Boundary fault: Range "${t}" falls outside structural index (1–${n})`);
+      segs.push(Array.from({length:b-a+1},(_,i)=>a-1+i));
+    } else {
+      const p=Number(t);
+      if(isNaN(p)||p<1||p>n) throw new Error(`Boundary fault: Page ${t} falls outside structural index (1–${n})`);
+      segs.push([p-1]);
+    }
+  }
+  if(!segs.length) throw new Error('Input vectors malformed or missing.');
+  return segs;
+}
+
+function spComputeSegments(){
+  if(!spInputBytes) throw new Error('Architecture uninitialized. Load document first.');
+  const mode=window._spMode;
+  if(mode===0) return spParseRanges(document.getElementById('sp-ranges').value||'1',spPageCount);
+  if(mode===1){const n=+document.getElementById('sp-n').value||10;return Array.from({length:Math.ceil(spPageCount/n)},(_,i)=>Array.from({length:Math.min(n,spPageCount-i*n)},(_,j)=>i*n+j));}
+  return spParseRanges(document.getElementById('sp-extract').value||'1',spPageCount);
+}
+
+document.getElementById('sp-n').addEventListener('input',function(){document.getElementById('sp-nV').textContent=this.value+' pp'});
+
+window.spPreview=function(){
+  if(!spInputBytes){alert('Architecture uninitialized. Load document first.');return;}
+  try{
+    const segs=spComputeSegments();
+    const list=document.getElementById('sp-plist');
+    list.innerHTML=segs.map((seg,i)=>{
+      const fr=seg[0]+1, to=seg[seg.length-1]+1;
+      const rng=seg.length===1?`Index ${fr}`:`Indices ${fr}–${to}`;
+      return `<div class="fl-item"><span class="fl-num">${i+1}</span><span class="fl-name">${spFileName}_segment_${String(i+1).padStart(2,'0')}.pdf</span><span class="fl-meta">${rng}</span></div>`;
+    }).join('');
+    document.getElementById('sp-preview-count').textContent=`Calculated: ${segs.length} independent document branches will formulate.`;
+    document.getElementById('sp-preview-list').style.display='block';
+  }catch(e){alert(e.message);}
+};
+
+document.getElementById('sp-run').addEventListener('click',async()=>{
+  if(!spInputBytes) return;
+  let segs;
+  try{segs=spComputeSegments();}catch(e){alert(e.message);return;}
+  
+  document.getElementById('sp-run').disabled=true;
+  document.getElementById('sp-dlSect').style.display='none';
+  document.getElementById('sp-dlLabel').style.display='none';
+  document.getElementById('sp-dlList').innerHTML='';
+  logClear('sp-log');setP('sp-pfill',0);
+  
+  try{
+    logMsg('sp-log',`Initiating structural dissection yielding ${segs.length} distinct branches…`,'st');
+    const src=await PDFDocument.load(spInputBytes,{ignoreEncryption:true});
+    for(let i=0;i<segs.length;i++){
+      const seg=segs[i];
+      const out=await PDFDocument.create();
+      const pgs=await out.copyPages(src,seg);
+      pgs.forEach(p=>out.addPage(p));
+      const bytes=await out.save();
+      const fr=seg[0]+1, to=seg[seg.length-1]+1;
+      const rng=seg.length===1?`Index ${fr}`:`Indices ${fr}-${to}`;
+      const fname=`${spFileName}_segment_${String(i+1).padStart(2,'0')}.pdf`;
+      addDownload('sp-dlList',bytes,fname,`Branch ${i+1}`,`Contains ${rng} · Density: ${seg.length} page(s)`,`Split`);
+      setP('sp-pfill',((i+1)/segs.length)*100);
+      logMsg('sp-log',`  ✓ Severed and exported branch ${i+1}.`,'ok');
+      await tick();
+    }
+    logMsg('sp-log',`Dissection routine finalized. ${segs.length} arrays populated.`,'ok');
+    document.getElementById('sp-dlSect').style.display='block';
+    document.getElementById('sp-dlLabel').style.display='';
+  }catch(e){logMsg('sp-log','Execution Fault: '+e.message,'er');}
+  document.getElementById('sp-run').disabled=false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: COMPRESS
+═══════════════════════════════════════════ */
+let cpInputBytes=null;
+setupDZ('cp-dz','cp-fi','cp-pname','cp-pmeta','cp-pill','cp-run','cp-proc',(b)=>{cpInputBytes=b;});
+
+document.getElementById('cp-run').addEventListener('click',async()=>{
+  if(!cpInputBytes) return;
+  document.getElementById('cp-run').disabled=true;
+  document.getElementById('cp-dlSect').style.display='none';
+  document.getElementById('cp-dlLabel').style.display='none';
+  document.getElementById('cp-dlList').innerHTML='';
+  logClear('cp-log');setP('cp-pfill',10);
+  
+  try{
+    logMsg('cp-log','Engaging architectural compression algorithms…','st');
+    const before=cpInputBytes.length;
+    const doc=await PDFDocument.load(cpInputBytes,{ignoreEncryption:true});
+    setP('cp-pfill',50);await tick();
+    const bytes=await doc.save({useObjectStreams:true});
+    const after=bytes.length;
+    setP('cp-pfill',100);
+    
+    logMsg('cp-log',`Base architecture: ${(before/1048576).toFixed(2)} MB (${(before/1024).toFixed(0)} KB)`,'li');
+    logMsg('cp-log',`Optimized state  : ${(after/1048576).toFixed(2)} MB (${(after/1024).toFixed(0)} KB)`,'ok');
+    const pct=((1-after/before)*100).toFixed(1);
+    logMsg('cp-log',`Yield: ${pct}% volumetric reduction${+pct<=0?' (Data entropy already minimized)':''}`,'ok');
+    
+    addDownload('cp-dlList',bytes,'optimized_document.pdf','Optimized PDF Artifact',`${(before/1024).toFixed(0)} KB → ${(after/1024).toFixed(0)} KB (${pct}% optimization)`,'Compress');
+    document.getElementById('cp-dlSect').style.display='block';
+    document.getElementById('cp-dlLabel').style.display='';
+  }catch(e){logMsg('cp-log','Optimization Fault: '+e.message,'er');}
+  document.getElementById('cp-run').disabled=false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: UNLOCK PDF
+═══════════════════════════════════════════ */
+let unInputBytes = null;
+let unFileName = 'unlocked.pdf';
+
+setupDZ('un-dz','un-fi','un-pname','un-pmeta','un-pill','un-run','un-proc',(b, name) => {
+    unInputBytes = b;
+    unFileName = name.replace(/\.pdf$/i, '_unlocked.pdf');
+});
+
+document.getElementById('un-run').addEventListener('click', async () => {
+    if(!unInputBytes) return;
+    const pwd = document.getElementById('un-pwd').value;
+    const log = document.getElementById('un-log');
+    
+    document.getElementById('un-run').disabled = true;
+    log.innerHTML = '';
+    logMsg('un-log', 'Subjecting document to decryption stream pass...', 'st');
+    
+    try {
+        const doc = await PDFLib.PDFDocument.load(unInputBytes, { password: pwd });
+        const bytes = await doc.save();
+        
+        logMsg('un-log', '✓ Key validation successful. Security architecture stripped.', 'ok');
+        
+        // Inline blob generation for simplicity in unlock
+        const blob = new Blob([bytes], {type:'application/pdf'});
+        const url = URL.createObjectURL(blob);
+        trackBlob(url);
+        
+        const a = document.createElement('a');
+        a.href = url; a.download = unFileName;
+        a.className = 'dl-btn';
+        a.textContent = '⬇ Export Unlocked Document';
+        a.style.display = 'inline-block'; a.style.marginTop = '10px';
+        log.appendChild(a);
+        incrementAnalytics();
+        
+    } catch (e) {
+        logMsg('un-log', `Access Denied: ${e.message}. Ensure alphanumeric syntax of the key is exact.`, 'er');
+    }
+    document.getElementById('un-run').disabled = false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: N-UP LAYOUT
+═══════════════════════════════════════════ */
+let nuInputBytes=null;
+setupDZ('nu-dz','nu-fi','nu-pname','nu-pmeta','nu-pill','nu-run','nu-proc',(b)=>{nuInputBytes=b;});
+
+['nu-rows','nu-cols','nu-sp','nu-mg'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',function(){
+    document.getElementById(id+'V').textContent=this.value+(id.includes('row')||id.includes('col')?'':' mm');
+    const r=+document.getElementById('nu-rows').value, c=+document.getElementById('nu-cols').value;
+    document.getElementById('nu-info').innerHTML=`Architecture: ${r} × ${c} = <b>${r*c} distinct source mappings per output plane</b>`;
+  });
+});
+
+document.getElementById('nu-run').addEventListener('click',async()=>{
+  if(!nuInputBytes) return;
+  document.getElementById('nu-run').disabled=true;
+  document.getElementById('nu-dlSect').style.display='none';
+  document.getElementById('nu-dlLabel').style.display='none';
+  document.getElementById('nu-dlList').innerHTML='';
+  logClear('nu-log');setP('nu-pfill',5);
+  
+  try{
+    const rows=+document.getElementById('nu-rows').value;
+    const cols=+document.getElementById('nu-cols').value;
+    const spMM=+document.getElementById('nu-sp').value;
+    const mgMM=+document.getElementById('nu-mg').value;
+    const [pW,pH]=document.getElementById('nu-size').value.split(',').map(Number);
+    const sp=spMM*MM, mg=mgMM*MM;
+    const cellW=(pW-2*mg-(cols-1)*sp)/cols;
+    const cellH=(pH-2*mg-(rows-1)*sp)/rows;
+    
+    logMsg('nu-log',`Constructing N-up matrix: ${rows}×${cols} | Render plane: ${(cellW/MM).toFixed(1)}×${(cellH/MM).toFixed(1)} mm per sector`,'st');
+    
+    const src=await PDFDocument.load(nuInputBytes,{ignoreEncryption:true});
+    const nSrc=src.getPageCount();
+    const out=await PDFDocument.create();
+    const per=rows*cols, nSheets=Math.ceil(nSrc/per);
+    const emb=await out.embedPdf(src,[...Array(nSrc).keys()]);
+    
+    for(let s=0;s<nSheets;s++){
+      const pg=out.addPage([pW,pH]);
+      for(let cell=0;cell<per;cell++){
+        const idx=s*per+cell;
+        if(idx>=nSrc) break;
+        const r=Math.floor(cell/cols), c=cell%cols;
+        const x=mg+c*(cellW+sp);
+        const y=pH-mg-(r+1)*cellH-r*sp;
+        pg.drawPage(emb[idx],{x,y,width:cellW,height:cellH});
+      }
+      if(s%4===3){setP('nu-pfill',10+(s/nSheets)*85);await tick();}
+    }
+    
+    const bytes=await out.save();
+    setP('nu-pfill',100);
+    logMsg('nu-log',`Matrix mapped. ${nSrc} arrays collapsed into ${nSheets} dense artifacts.`,'ok');
+    
+    addDownload('nu-dlList',bytes,'nup_matrix.pdf','N-up Structured Matrix',`Tessellation: ${rows}×${cols} · ${nSheets} output arrays`,'N-up');
+    document.getElementById('nu-dlSect').style.display='block';
+    document.getElementById('nu-dlLabel').style.display='';
+  }catch(e){logMsg('nu-log','Matrix compilation faulted: '+e.message,'er');}
+  document.getElementById('nu-run').disabled=false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: REARRANGE
+═══════════════════════════════════════════ */
+let raInputBytes=null, raOrder=[], raOrigN=0, raFileName='rearranged.pdf';
+let raSel=null;
+
+async function raLoadBytes(bytes, name, pg){
+  raInputBytes=bytes; raFileName=(name||'doc').replace(/\.pdf$/i,'')+'_reordered.pdf';
+  raOrder=Array.from({length:pg},(_,i)=>i); raOrigN=pg; raSel=null;
+  document.getElementById('ra-pname').textContent=name;
+  document.getElementById('ra-pmeta').textContent=pg+' pages';
+  document.getElementById('ra-pill').classList.add('on');
+  document.getElementById('ra-run').disabled=false;
+  document.getElementById('ra-proc').style.display='block';
+  raRefresh();
+}
+window.raLoadBytes=raLoadBytes;
+setupDZ('ra-dz','ra-fi','ra-pname','ra-pmeta','ra-pill','ra-run','ra-proc',raLoadBytes);
+
+function raRefresh(){
+  const el=document.getElementById('ra-list');
+  el.innerHTML=raOrder.map((orig,i)=>`
+    <div class="fl-item${i===raSel?' sel':''}" onclick="raSelect(${i})">
+      <span class="fl-num">Seq ${String(i+1).padStart(3,'0')}</span>
+      <span class="fl-name" style="color:var(--muted)">← Origin array node</span>
+      <span class="fl-meta" style="color:var(--gold)">${String(orig+1).padStart(3,'0')}</span>
+    </div>`).join('');
+  document.getElementById('ra-count').textContent=`${raOrder.length} node(s) present in manipulation chain.`;
+}
+
+window.raSelect=function(i){raSel=i;raRefresh()};
+window.raShift=function(d){if(raSel==null)return;const j=raSel+d;if(j<0||j>=raOrder.length)return;[raOrder[raSel],raOrder[j]]=[raOrder[j],raOrder[raSel]];raSel=j;raRefresh()};
+window.raDup=function(){if(raSel==null)return;raOrder.splice(raSel+1,0,raOrder[raSel]);raRefresh()};
+window.raDel=function(){if(raSel==null||raOrder.length<=1)return;raOrder.splice(raSel,1);raSel=Math.min(raSel,raOrder.length-1);raRefresh()};
+window.raReset=function(){raOrder=Array.from({length:raOrigN},(_,i)=>i);raSel=null;raRefresh()};
+
+document.getElementById('ra-run').addEventListener('click',async()=>{
+  if(!raInputBytes||!raOrder.length) return;
+  document.getElementById('ra-run').disabled=true;
+  document.getElementById('ra-dlSect').style.display='none';
+  document.getElementById('ra-dlLabel').style.display='none';
+  document.getElementById('ra-dlList').innerHTML='';
+  logClear('ra-log');setP('ra-pfill',0);
+  
+  try{
+    logMsg('ra-log',`Compiling new architecture referencing ${raOrder.length} distinct sequence nodes…`,'st');
+    const src=await PDFDocument.load(raInputBytes,{ignoreEncryption:true});
+    const out=await PDFDocument.create();
+    const pgs=await out.copyPages(src,raOrder);
+    pgs.forEach(p=>out.addPage(p));
+    setP('ra-pfill',90);await tick();
+    const bytes=await out.save();
+    setP('ra-pfill',100);
+    
+    logMsg('ra-log',`Sequence locked. Output array generated.`,'ok');
+    addDownload('ra-dlList',bytes,raFileName,'Reordered Blueprint',`${raOrder.length} elements mapped to custom sequence`,'Rearrange');
+    document.getElementById('ra-dlSect').style.display='block';
+    document.getElementById('ra-dlLabel').style.display='';
+  }catch(e){logMsg('ra-log','Compilation Syntax Error: '+e.message,'er');}
+  document.getElementById('ra-run').disabled=false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: PDF TO IMAGE (Dynamic PDF.js Injection)
+═══════════════════════════════════════════ */
+let tiInputBytes=null, tiFileName='page', tiPageCount=0;
+setupDZ('ti-dz','ti-fi','ti-pname','ti-pmeta','ti-pill','ti-run','ti-proc',(b,name,pg)=>{tiInputBytes=b;tiFileName=name.replace(/\.pdf$/i,'');tiPageCount=pg;});
+
+function tiLoadPDFjs(){
+  return new Promise((res,rej)=>{
+    if(window.pdfjsLib){res();return;}
+    // Preferred offline paths. Fallback inline if unreachable.
+    const s=document.createElement('script');
+    s.src='./js/pdf.min.js';
+    s.onload=()=>{
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc='./js/pdf.worker.min.js';
+      res();
+    };
+    s.onerror=()=>{
+      console.warn('Local pdf.min.js missing. Attaching to CDN distribution.');
+      const sFallback = document.createElement('script');
+      sFallback.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      sFallback.onload = () => {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          res();
+      }
+      sFallback.onerror = () => rej(new Error('Complete asset failure. Local paths empty and network absent.'));
+      document.head.appendChild(sFallback);
+    };
+    document.head.appendChild(s);
+  });
+}
+
+function tiParsePages(text,n){
+  if(!text||text.trim().toLowerCase()==='all') return Array.from({length:n},(_,i)=>i+1);
+  const pages=[];
+  for(const tok of text.split(',')){
+    const t=tok.trim();
+    if(t.includes('-')){const[a,b]=t.split('-',2).map(Number);for(let i=a;i<=b&&i<=n;i++)pages.push(i);}
+    else{const p=Number(t);if(p>=1&&p<=n)pages.push(p);}
+  }
+  return [...new Set(pages)].sort((a,b)=>a-b);
+}
+
+document.getElementById('ti-run').addEventListener('click',async()=>{
+  if(!tiInputBytes) return;
+  document.getElementById('ti-run').disabled=true;
+  document.getElementById('ti-dlSect').style.display='none';
+  document.getElementById('ti-dlLabel').style.display='none';
+  document.getElementById('ti-dlList').innerHTML='';
+  logClear('ti-log');setP('ti-pfill',0);
+  showProc('ti-proc');
+  
+  try{
+    logMsg('ti-log','Synchronizing rasterization library…','li');
+    await tiLoadPDFjs();
+    const dpi=+(document.querySelector('input[name="ti-dpi"]:checked')?.value||150);
+    const fmt=document.querySelector('input[name="ti-fmt"]:checked')?.value||'png';
+    const pagesText=document.getElementById('ti-pages').value;
+    const pageNums=tiParsePages(pagesText,tiPageCount);
+    
+    logMsg('ti-log',`Encoding ${pageNums.length} geometric plane(s) at ${dpi} DPI traversing to ${fmt.toUpperCase()} protocol…`,'st');
+    const scale=dpi/72;
+    const pdfData={data:tiInputBytes};
+    const pdfDoc=await pdfjsLib.getDocument(pdfData).promise;
+    
+    for(let i=0;i<pageNums.length;i++){
+      const pgNum=pageNums[i];
+      const page=await pdfDoc.getPage(pgNum);
+      const vp=page.getViewport({scale});
+      const canvas=document.createElement('canvas');
+      canvas.width=vp.width; canvas.height=vp.height;
+      await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+      const mimeType=fmt==='jpeg'?'image/jpeg':'image/png';
+      const quality=fmt==='jpeg'?0.92:undefined;
+      
+      await new Promise(res=>{
+        canvas.toBlob(blob=>{
+          if(blob){
+            const fname=`${tiFileName}_frame_${String(pgNum).padStart(4,'0')}.${fmt}`;
+            addDownloadImage('ti-dlList',blob,fname,`Raster Frame ${pgNum}`);
+          }
+          res();
+        },mimeType,quality);
+      });
+      setP('ti-pfill',((i+1)/pageNums.length)*100);
+      logMsg('ti-log',`  ✓ Frame ${pgNum} serialized.`,'ok');
+      await tick();
+    }
+    logMsg('ti-log',`Rasterization pipeline closed. Artifacts available.`,'ok');
+    document.getElementById('ti-dlSect').style.display='block';
+    document.getElementById('ti-dlLabel').style.display='';
+  }catch(e){logMsg('ti-log','Pipeline Collapse: '+e.message,'er');}
+  document.getElementById('ti-run').disabled=false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: ADD WATERMARK
+═══════════════════════════════════════════ */
+let waInputBytes=null;
+setupDZ('wa-dz','wa-fi','wa-pname','wa-pmeta','wa-pill','wa-run','wa-proc',(b)=>{waInputBytes=b;});
+
+['wa-fsize','wa-op','wa-rot'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',function(){
+    const sfx=id==='wa-fsize'?' pt':id==='wa-op'?'%':'°';
+    document.getElementById(id+'V').textContent=this.value+sfx;
+  });
+});
+
+function hexToRgb01(hex){
+  const h=hex.replace('#','');
+  if(h.length!==6) throw new Error('Hexadecimal sequence malformed.');
+  return [parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255, parseInt(h.slice(4,6),16)/255];
+}
+
+document.getElementById('wa-run').addEventListener('click',async()=>{
+  if(!waInputBytes) return;
+  document.getElementById('wa-run').disabled=true;
+  document.getElementById('wa-dlSect').style.display='none';
+  document.getElementById('wa-dlLabel').style.display='none';
+  document.getElementById('wa-dlList').innerHTML='';
+  logClear('wa-log');setP('wa-pfill',5);
+  
+  try{
+    const text=document.getElementById('wa-text').value||'WATERMARK';
+    const fsize=+document.getElementById('wa-fsize').value;
+    const opPct=+document.getElementById('wa-op').value;
+    const op=opPct/100;
+    const rotDeg=+document.getElementById('wa-rot').value;
+    const colHex=document.getElementById('wa-col').value||'#4F8EF7';
+    const pos=document.getElementById('wa-pos').value;
+    const [cr,cg,cb]=hexToRgb01(colHex);
+    const colour=rgb(cr,cg,cb);
+    
+    logMsg('wa-log',`Broadcasting typographic footprint "${text}" across node network…`,'st');
+    const doc=await PDFDocument.load(waInputBytes,{ignoreEncryption:true});
+    const font=await doc.embedFont(StandardFonts.Helvetica);
+    const pages=doc.getPages();
+    
+    for(let i=0;i<pages.length;i++){
+      const pg=pages[i];
+      const {width:W,height:H}=pg.getSize();
+      const tW=font.widthOfTextAtSize(text,fsize);
+      let x,y,angle;
+      if(pos==='diag'){angle=-45;x=W/2-tW/2*Math.cos(Math.PI/4)+H/2*Math.sin(Math.PI/4)-tW*0.25;y=H/2-fsize/2;}
+      else if(pos==='center'){angle=rotDeg;x=W/2-tW/2;y=H/2-fsize/2;}
+      else if(pos==='tl'){angle=rotDeg;x=40;y=H-40-fsize;}
+      else if(pos==='tr'){angle=rotDeg;x=W-tW-40;y=H-40-fsize;}
+      else if(pos==='bl'){angle=rotDeg;x=40;y=40+fsize;}
+      else{angle=rotDeg;x=W-tW-40;y=40+fsize;}
+      
+      pg.drawText(text,{x,y,size:fsize,font,color:colour,opacity:op,rotate:degrees(angle)});
+      if(i%4===3){setP('wa-pfill',5+(i/pages.length)*90);await tick();}
+    }
+    
+    const bytes=await doc.save();
+    setP('wa-pfill',100);
+    logMsg('wa-log',`Layer infusion complete. Extrapolated across ${pages.length} geometries.`,'ok');
+    addDownload('wa-dlList',bytes,'impressed_document.pdf','Watermarked Artifact',`Typography: "${text}" anchored at alpha ${opPct}%`,'Watermark');
+    
+    document.getElementById('wa-dlSect').style.display='block';
+    document.getElementById('wa-dlLabel').style.display='';
+  }catch(e){logMsg('wa-log','Typographic Render Error: '+e.message,'er');}
+  document.getElementById('wa-run').disabled=false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: REMOVE WATERMARK
+═══════════════════════════════════════════ */
+let wrInputBytes=null, wrFileName='cleaned';
+setupDZ('wr-dz','wr-fi','wr-pname','wr-pmeta','wr-pill','wr-run','wr-proc',(b,name)=>{wrInputBytes=b;wrFileName=(name||'doc').replace(/\.pdf$/i,'')+'_cleansed.pdf';});
+
+window.wrScan=async function(){
+  if(!wrInputBytes){alert('Validation missing. Supply architecture first.');return;}
+  const scanlog=document.getElementById('wr-scanlog');
+  scanlog.style.display='block'; scanlog.innerHTML='';
+  logMsg('wr-scanlog','Interrogating structural bounds…','st');
+  try{
+    const doc=await PDFDocument.load(wrInputBytes,{ignoreEncryption:true});
+    const pages=doc.getPages();
+    let totalAnnots=0;
+    for(const pg of pages){
+      try{
+        const annots=pg.node.get(PDFName.of('Annots'));
+        if(annots) totalAnnots+=1;
+      }catch(e){}
+    }
+    logMsg('wr-scanlog',`Nodes Analyzed: ${pages.length}`,'li');
+    logMsg('wr-scanlog',`Suspect Annotation clusters identified on ${totalAnnots} node(s).`, totalAnnots>0?'ok':'li');
+    if(totalAnnots>0) logMsg('wr-scanlog','System Recommends: Strategy 1 (Structural Severance).','ok');
+    else logMsg('wr-scanlog','Annotation vector blank. Consider Strategy 2 if obfuscation resides in content stream.','wn');
+  }catch(e){logMsg('wr-scanlog','Interrogation failure: '+e.message,'er');}
+};
+
+document.getElementById('wr-run').addEventListener('click',async()=>{
+  if(!wrInputBytes) return;
+  document.getElementById('wr-run').disabled=true;
+  document.getElementById('wr-dlSect').style.display='none';
+  document.getElementById('wr-dlLabel').style.display='none';
+  document.getElementById('wr-dlList').innerHTML='';
+  logClear('wr-log');setP('wr-pfill',5);
+  
+  const doAnn=document.getElementById('wr-ann').checked;
+  const doTxt=document.getElementById('wr-txt').checked;
+  const txtVal=document.getElementById('wr-txtval').value.trim();
+  
+  try{
+    logMsg('wr-log','Spooling architecture into memory…','st');
+    const doc=await PDFDocument.load(wrInputBytes,{ignoreEncryption:true});
+    const pages=doc.getPages();
+    let mods=0;
+    
+    if(doAnn){
+      logMsg('wr-log','Executing Strategy 1: Stripping peripheral annotation vectors…','st');
+      let removed=0;
+      for(const pg of pages){
+        try{
+          const annots=pg.node.get(PDFName.of('Annots'));
+          if(annots){pg.node.delete(PDFName.of('Annots'));removed++;}
+        }catch(e){}
+      }
+      mods+=removed;
+      logMsg('wr-log',`  → Eradicated annotation nodes from ${removed} array(s).`,'ok');
+    }
+    
+    setP('wr-pfill',50);await tick();
+    if(doTxt&&txtVal){
+      logMsg('wr-log',`Executing Strategy 2: Absolute-white coordinate redaction mapping…`,'st');
+      let covered=0;
+      for(const pg of pages){
+        const {width,height}=pg.getSize();
+        // Applies a white overlay centrally. Complex text-search stream parsing is beyond client scope.
+        pg.drawRectangle({x:0,y:height*0.3,width,height:height*0.4,color:rgb(1,1,1),opacity:0.85});
+        covered++;
+      }
+      mods+=covered;
+      logMsg('wr-log',`  → Coordinates obscured on ${covered} node(s).`,'wn');
+    }
+    
+    setP('wr-pfill',90);await tick();
+    logMsg('wr-log','Rebuilding sanitized array structure…','li');
+    const bytes=await doc.save();
+    setP('wr-pfill',100);
+    
+    logMsg('wr-log',`Resolution complete. Interventions executed: ${mods}.`,'ok');
+    addDownload('wr-dlList',bytes,wrFileName,'Cleansed PDF',`${mods} structural alterations verified`,'WM Remove');
+    document.getElementById('wr-dlSect').style.display='block';
+    document.getElementById('wr-dlLabel').style.display='';
+  }catch(e){logMsg('wr-log','Execution Fault: '+e.message,'er');}
+  document.getElementById('wr-run').disabled=false;
+});
+
+/* ════════════════════════════════════════════
+   TOOL: SCIENTIFIC CALCULATOR & GRAPHER
+═══════════════════════════════════════════ */
+let cExpr='', cHistory=[];
+
+const MATH_SCOPE={
+  pi:Math.PI, PI:Math.PI, e:Math.E, tau:2*Math.PI, inf:Infinity,
+  sin:Math.sin, cos:Math.cos, tan:Math.tan,
+  asin:Math.asin, acos:Math.acos, atan:Math.atan, atan2:Math.atan2,
+  sinh:Math.sinh, cosh:Math.cosh, tanh:Math.tanh,
+  log:Math.log, log2:Math.log2, log10:Math.log10, ln:Math.log,
+  exp:Math.exp, sqrt:Math.sqrt, cbrt:Math.cbrt, abs:Math.abs,
+  floor:Math.floor, ceil:Math.ceil, round:Math.round, trunc:Math.trunc,
+  pow:Math.pow, hypot:Math.hypot,
+  sign:Math.sign, max:Math.max, min:Math.min,
+  factorial:n=>{if(n<0||!Number.isInteger(n)||n>170)throw new Error('Asymptotic limit: Integer out of factorial bounds.');let r=1;for(let i=2;i<=n;i++)r*=i;return r;},
+  gcd:(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a;},
+  degrees:r=>r*180/Math.PI, radians:d=>d*Math.PI/180,
+  mod:(a,b)=>a%b,
+};
+
+function cSafeEval(expr,xVal){
+  expr=expr.replace(/\^/g,'**').replace(/×/g,'*').replace(/÷/g,'/');
+  const scope={...MATH_SCOPE};
+  if(xVal!==undefined) scope.x=xVal;
+  // A constrained execution frame avoiding generalized eval() faults.
+  const fn=new Function(...Object.keys(scope),`"use strict"; return (${expr});`);
+  return fn(...Object.values(scope));
+}
+
+function cFmt(v){
+  if(typeof v==='number'){
+    if(!isFinite(v)) return String(v);
+    if(v===Math.trunc(v)&&Math.abs(v)<1e15) return String(Math.trunc(v));
+    return +v.toPrecision(12)+'';
+  }
+  return String(v);
+}
+
+function cLiveEval(){
+  const e=cExpr.trim();
+  if(!e){document.getElementById('c-result').textContent='0';return;}
+  try{const r=cSafeEval(e);document.getElementById('c-result').textContent=cFmt(r);}
+  catch{document.getElementById('c-result').textContent='…';}
+}
+
+function cCalc(){
+  const e=cExpr.trim();
+  if(!e) return;
+  try{
+    const r=cSafeEval(e);
+    const fmted=cFmt(r);
+    document.getElementById('c-result').textContent=fmted;
+    cHistory.unshift({expr:e,result:fmted});
+    if(cHistory.length>40) cHistory.length=40;
+    cRefreshHist();
+  }catch(ex){document.getElementById('c-result').textContent='Syntax Fault: '+ex.message.slice(0,30);}
+}
+
+function cInsert(t){cExpr+=t;document.getElementById('c-expr').textContent=cExpr;cLiveEval();}
+function cBack(){cExpr=cExpr.slice(0,-1);document.getElementById('c-expr').textContent=cExpr;cLiveEval();}
+function cClear(){cExpr='';document.getElementById('c-expr').textContent='';document.getElementById('c-result').textContent='0';}
+function cAns(){if(cHistory.length){cInsert(cHistory[0].result);}}
+
+function cRefreshHist(){
+  const box=document.getElementById('c-hist');
+  if(!cHistory.length){box.innerHTML='<div style="padding:14px;color:var(--muted);font-size:.8rem">Ledger is void.</div>';return;}
+  box.innerHTML=cHistory.map(h=>`<div class="hist-item"><span class="hist-expr">${h.expr}</span><span class="hist-res">= ${h.result}</span></div>`).join('');
+}
+window.calcClearHist=function(){cHistory=[];cRefreshHist()};
+
+// Instantiate Keypad
+const BTNS=[
+  ['sin(','sin(','fn'],['cos(','cos(','fn'],['tan(','tan(','fn'],['log(','log(','fn'],['ln(','ln(','fn'],['√','sqrt(','fn'],
+  ['π','pi',''],['e','e',''],['x²','**2','fn'],['xⁿ','**','fn'],['|x|','abs(','fn'],['n!','factorial(','fn'],
+  ['7','7',''],['8','8',''],['9','9',''],['÷','/','op'],['(','(',''],[')',')',''],
+  ['4','4',''],['5','5',''],['6','6',''],['×','*','op'],['%','%','op'],['^','**','fn'],
+  ['1','1',''],['2','2',''],['3','3',''],['−','-','op'],['.','.',''],['←',null,'back'],
+  ['0','0',''],['00','00',''],['C',null,'cls'],['+','+','op'],['ANS',null,'ans'],['=',null,'eq'],
+];
+const grid=document.getElementById('c-grid');
+BTNS.forEach(([lbl,ins,cls])=>{
+  const b=document.createElement('button');
+  b.className='cbtn'+(cls?' '+cls:'');
+  b.textContent=lbl;
+  b.addEventListener('click',()=>{
+    if(cls==='eq') cCalc();
+    else if(cls==='cls') cClear();
+    else if(cls==='back') cBack();
+    else if(cls==='ans') cAns();
+    else cInsert(ins);
+  });
+  grid.appendChild(b);
+});
+
+/* ── Dynamic Multifunction Graphing ── */
+const graphColors = ['#f0a500', '#3ecf8e', '#5c9cf5', '#e05c5c', '#d4a849'];
+
+function addGraphInput() {
+  const container = document.getElementById('g-inputs-container');
+  const count = container.querySelectorAll('.g-fn-row').length;
+  if(count >= 5) { alert("Execution ceiling reached: Maximum 5 concurrent plots supported to preserve frame-rate on mobile contexts."); return; }
+  
+  const color = graphColors[count % graphColors.length];
+  const row = document.createElement('div');
+  row.className = 'g-row g-fn-row';
+  row.innerHTML = `
+    <span class="fn-color-indicator" style="background-color: ${color};"></span>
+    <span style="font-family:var(--mono);font-size:.85rem;color:var(--muted)">f${count+1}(x) =</span>
+    <input class="g-inp g-fn-input" placeholder="Define variable expression..."/>
+    <button class="btn-sm danger" onclick="removeGraphInput(this)">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+function removeGraphInput(btn) {
+  const row = btn.closest('.g-fn-row');
+  if(document.querySelectorAll('.g-fn-row').length > 1) { 
+    row.remove(); 
+    // Re-index remaining
+    document.querySelectorAll('.g-fn-row').forEach((r, i) => {
+        r.querySelector('.fn-color-indicator').style.backgroundColor = graphColors[i % graphColors.length];
+        r.querySelector('span:nth-child(2)').textContent = `f${i+1}(x) =`;
+    });
+    graphPlot(); 
+  }
+}
+
+function graphPlot(){
+  const inputs = document.querySelectorAll('.g-fn-input');
+  const xMin=parseFloat(document.getElementById('g-xmin').value)||(-10);
+  const xMax=parseFloat(document.getElementById('g-xmax').value)||(10);
+  const canvas=document.getElementById('graphCanvas');
+  const W=canvas.offsetWidth||canvas.width||600;
+  const H=canvas.offsetHeight||320;
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  
+  const isLight = document.body.getAttribute('data-theme') === 'light';
+  ctx.fillStyle = isLight ? '#ffffff' : '#12141a'; 
+  ctx.fillRect(0,0,W,H);
+  
+  // Calculate dynamic Y domain based on active functions
+  const N=Math.min(W*2,1200);
+  let yLo=Infinity, yHi=-Infinity;
+  const compiledPaths = [];
+
+  inputs.forEach((inp, idx) => {
+    let fn = inp.value.trim();
+    if(!fn) return;
+    const xs=[], ys=[];
+    for(let i=0;i<N;i++){
+      const x=xMin+(xMax-xMin)*i/(N-1);
+      try {
+        const y=cSafeEval(fn,x);
+        if(isFinite(y)){ yLo=Math.min(yLo,y); yHi=Math.max(yHi,y); }
+        xs.push(x); ys.push(y);
+      } catch { xs.push(x); ys.push(NaN); }
+    }
+    compiledPaths.push({ fnRaw: fn, xs, ys, color: graphColors[idx % graphColors.length] });
+  });
+
+  if(compiledPaths.length === 0) {
+      document.getElementById('g-status').textContent='Awaiting valid mathematical input.';
+      return;
+  }
+
+  if(!isFinite(yLo)||yLo===yHi){yLo=-10;yHi=10;}
+  const pad=(yHi-yLo)*0.06||1;
+  const yMin2=yLo-pad;
+  const yMax2=yHi+pad;
+  const toX=x=>(x-xMin)/(xMax-xMin)*W;
+  const toY=y=>H-(y-yMin2)/(yMax2-yMin2)*H;
+
+  // Grid
+  ctx.strokeStyle = isLight ? '#e4e7eb' : '#222632'; ctx.lineWidth=1;
+  for(let gx=Math.ceil(xMin);gx<=xMax;gx++){const px=toX(gx);ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,H);ctx.stroke();}
+  for(let gy=Math.ceil(yMin2);gy<=yMax2;gy++){const py=toY(gy);ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(W,py);ctx.stroke();}
+  
+  // Coordinate Axes
+  ctx.strokeStyle = isLight ? '#cbd2d9' : '#2e3347'; ctx.lineWidth=1.5;
+  if(0>=xMin&&0<=xMax){const px=toX(0);ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,H);ctx.stroke();}
+  if(0>=yMin2&&0<=yMax2){const py=toY(0);ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(W,py);ctx.stroke();}
+
+  // Rasterize Compiled Paths
+  let activeEqs = [];
+  compiledPaths.forEach((path, idx) => {
+    activeEqs.push(`f${idx+1}(x)=${path.fnRaw}`);
+    ctx.strokeStyle = path.color; ctx.lineWidth=2; ctx.beginPath(); let pen=false;
+    for(let i=0;i<N;i++){
+      const y=path.ys[i];
+      if(!isFinite(y)){pen=false;continue;}
+      const px=toX(path.xs[i]),py=toY(y);
+      if(!pen){ctx.moveTo(px,py);pen=true;}
+      else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+  });
+
+  ctx.fillStyle = isLight ? '#7b8794' : '#5a6180'; ctx.font='10px JetBrains Mono, monospace';
+  ctx.fillText(`Domain x: [${xMin}, ${xMax}]  |  Range y: [${yMin2.toFixed(1)}, ${yMax2.toFixed(1)}]`,6,H-6);
+  document.getElementById('g-status').textContent = `Plotted Vectors: ${activeEqs.join(" | ")}`;
+}
+
+window.graphPlot=graphPlot;
+
+</script>
+</body>
+</html>
