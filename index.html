@@ -1011,7 +1011,7 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
 
     <!-- Description -->
     <div class="card">
-      <button class="desc-toggle" onclick="tDesc('mx-d')">ℹ Terms &amp; Operations Guide ▾</button>
+      <button class="desc-toggle" onclick="tDesc('mx-d')">ℹ Terms, Operations &amp; Demos ▾</button>
       <div id="mx-d" class="desc-body">
         <b>Matrix:</b> A rectangular grid of numbers with rows (horizontal) and columns (vertical). Written as m×n where m = rows, n = columns.<br><br>
         <b>Square matrix:</b> Same number of rows and columns (2×2, 3×3, etc.). Determinant and inverse only exist for square matrices.<br><br>
@@ -1021,7 +1021,21 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
         <b>Rank:</b> The number of linearly independent rows (or columns). Tells you how much "real information" is in the matrix.<br><br>
         <b>RREF (Reduced Row Echelon Form):</b> A standardised form reached by row operations. Used to solve systems of linear equations.<br><br>
         <b>Eigenvalues:</b> Special numbers λ where A×v = λ×v for some non-zero vector v. Supported for 2×2 matrices.<br><br>
-        <b>Operations needing two matrices (A and B):</b> Add, Subtract, Multiply. For A+B and A−B, both matrices must have the same dimensions. For A×B, columns of A must equal rows of B.
+        <b>Operations needing two matrices (A and B):</b> Add, Subtract, Multiply. For A+B and A−B, both matrices must have the same dimensions. For A×B, columns of A must equal rows of B.<br><br>
+        
+        <div style="height:1px;background:var(--border);margin:10px 0"></div>
+        
+        <b>Demo 1: Matrix Multiplication</b><br>
+        1. Set Matrix A to 2×2 and Matrix B to 2×2.<br>
+        2. In A, enter <code>1, 2</code> (top) and <code>3, 4</code> (bottom).<br>
+        3. In B, enter <code>2, 0</code> (top) and <code>1, 2</code> (bottom).<br>
+        4. Click <b>A × B — Multiplication</b> to compute the resultant matrix.<br><br>
+        
+        <b>Demo 2: Solving Simultaneous Equations (2x + y = 8; x − y = 1)</b><br>
+        1. Set Matrix A to 2 rows × 3 columns.<br>
+        2. Enter coefficients: Top row <code>2, 1, 8</code>. Bottom row <code>1, -1, 1</code>.<br>
+        3. Click <b>RREF(A) — Row Reduction</b>.<br>
+        4. The output isolates the variables: row 1 shows <code>1, 0, 3</code> (x=3) and row 2 shows <code>0, 1, 2</code> (y=2). Expand the working steps to examine the algorithmic breakdown.
       </div>
     </div>
 
