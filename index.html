@@ -2,1278 +2,975 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5"/>
 <title>Student's Suite</title>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-
-<!-- Localized Dependency with Smart Fallback -->
+<meta name="theme-color" content="#0b0c10"/>
 <script src="./js/pdf-lib.min.js"></script>
-<script>
-  if (typeof window.PDFLib === 'undefined') {
-    console.warn("Local pdf-lib.min.js not found. Injecting CDN fallback for functionality.");
-    document.write('<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"><\/script>');
-  }
-</script>
-
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-
 <style>
-/* ── Theming System & Reactive Variables ── */
-:root {
-  --bg: #0b0c10; --surface: #12141a; --card: #181b24;
-  --border: #222632; --border2: #2e3347;
-  --gold: #f0a500; --gold2: #d08800; --goldbg: rgba(240,165,0,.07);
-  --green: #3ecf8e; --red: #e05c5c; --blue: #5c9cf5;
-  --muted: #5a6180; --dim: #8892b0; --text: #cdd6f4;
-  --mono: 'JetBrains Mono', monospace; --sans: 'Space Grotesk', sans-serif;
-  --mouse-x: 50%; --mouse-y: 50%;
+:root{
+  --bg:#0b0c10;--surface:#12141a;--card:#181b24;
+  --border:#222632;--border2:#2e3347;
+  --gold:#f0a500;--gold2:#d08800;--goldbg:rgba(240,165,0,.07);
+  --green:#3ecf8e;--red:#e05c5c;--blue:#5c9cf5;
+  --muted:#5a6180;--dim:#8892b0;--text:#cdd6f4;
+  --nav-bg:rgba(11,12,16,0.92);
+  --mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;
+  --mx:50%;--my:50%;
 }
-
-[data-theme="light"] {
-  --bg: #f5f7fa; --surface: #ffffff; --card: #ffffff;
-  --border: #e4e7eb; --border2: #cbd2d9;
-  --gold: #d08800; --gold2: #b07000; --goldbg: rgba(208,136,0,.07);
-  --green: #2fa872; --red: #d94848; --blue: #3b82f6;
-  --muted: #7b8794; --dim: #52606d; --text: #1f2933;
+[data-theme="light"]{
+  --bg:#f5f7fa;--surface:#ffffff;--card:#ffffff;
+  --border:#e4e7eb;--border2:#cbd2d9;
+  --gold:#c07800;--gold2:#9a5f00;--goldbg:rgba(192,120,0,.07);
+  --green:#2a9065;--red:#c43d3d;--blue:#2563eb;
+  --muted:#7b8794;--dim:#52606d;--text:#1f2933;
+  --nav-bg:rgba(245,247,250,0.92);
 }
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg); color: var(--text); font-family: var(--sans);
-  min-height: 100vh; overflow-x: hidden; overscroll-behavior-y: auto; 
-  transition: background 0.3s ease, color 0.3s ease;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(circle 260px at var(--mx) var(--my),rgba(240,165,0,.06) 0%,transparent 100%),
+    radial-gradient(var(--border2) 1px,transparent 1px);
+  background-size:100% 100%,28px 28px;
 }
-
-/* Reactive Dot Matrix Background */
-body::before {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1;
-  background-image: 
-    radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(240, 165, 0, 0.08) 0%, transparent 25%),
-    radial-gradient(var(--border2) 1px, transparent 1px);
-  background-size: 100% 100%, 28px 28px;
-  opacity: 0.6; transition: background-image 0.1s ease;
+[data-theme="light"] body::before{
+  background-image:
+    radial-gradient(circle 260px at var(--mx) var(--my),rgba(192,120,0,.08) 0%,transparent 100%),
+    radial-gradient(#cbd2d9 1px,transparent 1px);
+  background-size:100% 100%,28px 28px;
 }
+.page{position:relative;z-index:1;max-width:840px;margin:0 auto;padding:26px 14px 90px}
+.tool-panel{display:none}
 
-/* ── UI Shell & Layout ── */
-.page { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 28px 16px 100px; }
-.tool-panel { display: none; position: relative; z-index: 1; }
-.theme-toggle { position: fixed; top: 16px; right: 16px; z-index: 200; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; width: 42px; height: 42px; display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 1.2rem; transition: transform 0.2s; }
-.theme-toggle:hover { transform: scale(1.05); }
+/* Theme toggle */
+.theme-btn{position:fixed;top:13px;right:13px;z-index:400;background:var(--surface);border:1px solid var(--border);border-radius:50%;width:38px;height:38px;display:grid;place-items:center;cursor:pointer;font-size:1rem;box-shadow:0 3px 10px rgba(0,0,0,.15);transition:transform .15s,border-color .15s}
+.theme-btn:hover{transform:scale(1.08);border-color:var(--gold)}
 
-/* ── Navigation ── */
-.nav-bar { position: sticky; top: 0; z-index: 100; background: rgba(var(--bg), 0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; padding: 11px 16px; margin-bottom: 20px;}
-.nav-back { background: none; border: 1px solid var(--border2); border-radius: 7px; color: var(--gold); font-family: var(--sans); font-size: .82rem; font-weight: 600; cursor: pointer; padding: 5px 12px; transition: background .15s; }
-.nav-back:hover { background: var(--goldbg); }
-.nav-title { font-size: 1rem; font-weight: 600; }
+/* Session badge */
+#gBadge{position:fixed;bottom:16px;right:13px;z-index:400;background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.25);border-radius:16px;padding:5px 12px;color:var(--gold);font-family:var(--mono);font-size:.7rem;display:none;cursor:pointer;backdrop-filter:blur(8px)}
+#gBadge.on{display:block}
 
-/* ── Landing Header & Logo ── */
-.hd { margin-bottom: 24px; }
-.hd-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
-.hd-logo-img { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); background: var(--surface); }
-.hd-title { font-size: 1.8rem; font-weight: 700; letter-spacing: -.03em; line-height: 1; margin-bottom: 6px; }
-.hd-title span { color: var(--gold); }
-.hd-sub { color: var(--muted); font-size: .85rem; line-height: 1.6; }
+/* Nav bar — FIX: uses CSS var not rgba(var()) */
+.nav-bar{position:sticky;top:0;z-index:200;background:var(--nav-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;padding:9px 13px}
+.nav-back{background:none;border:1px solid var(--border2);border-radius:6px;color:var(--gold);font-family:var(--sans);font-size:.75rem;font-weight:600;cursor:pointer;padding:5px 11px;transition:background .13s;flex-shrink:0}
+.nav-back:hover{background:var(--goldbg)}
+.nav-title{font-size:.85rem;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-right{margin-left:auto;display:flex;gap:5px;flex-shrink:0}
 
-/* ── Categorization Bar ── */
-.cat-bar { display: flex; gap: 10px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-.cat-bar::-webkit-scrollbar { display: none; }
-.cat-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; white-space: nowrap; font-family: var(--sans); font-size: 0.85rem; font-weight: 500; transition: all 0.2s; }
-.cat-btn.active { background: var(--goldbg); color: var(--gold); border-color: var(--gold); }
+/* Landing */
+.hd{margin-bottom:18px}
+.hd-brand{display:flex;align-items:center;gap:13px;margin-bottom:9px}
+.hd-icon{width:48px;height:48px;background:var(--gold);border-radius:11px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;color:#111}
+.hd-logo-img{width:48px;height:48px;border-radius:11px;object-fit:cover;flex-shrink:0;border:1px solid var(--border);background:var(--surface)}
+.hd-title{font-size:1.65rem;font-weight:700;letter-spacing:-.03em;line-height:1;margin-bottom:4px}
+.hd-title span{color:var(--gold)}
+.hd-sub{color:var(--muted);font-size:.8rem;line-height:1.6}
+.disc{background:var(--goldbg);border-left:4px solid var(--gold);padding:10px 14px;margin-bottom:16px;border-radius:0 7px 7px 0;font-size:.78rem;color:var(--dim);line-height:1.6}
+.disc b{color:var(--text)}
 
-/* ── Tool Grid ── */
-.tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
-.tool-card { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 16px; display: flex; align-items: flex-start; gap: 13px; cursor: pointer; transition: all 0.2s; user-select: none; }
-.tool-card.hidden { display: none !important; }
-.tool-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
-.tc-icon { width: 38px; height: 38px; background: var(--goldbg); border: 1px solid rgba(240,165,0,.18); border-radius: 8px; display: grid; place-items: center; font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
-.tc-body { flex: 1; min-width: 0; }
-.tc-name { font-size: .95rem; font-weight: 600; margin-bottom: 4px; color: var(--text); }
-.tc-desc { font-size: .78rem; color: var(--muted); line-height: 1.5; }
+/* Category tabs */
+.cat-bar{display:flex;gap:3px;margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:3px;overflow-x:auto}
+.cat-btn{flex:1;background:none;border:none;border-radius:6px;color:var(--muted);font-family:var(--sans);font-size:.76rem;font-weight:600;padding:7px 5px;cursor:pointer;transition:background .13s,color .13s;white-space:nowrap;min-width:60px}
+.cat-btn.active{background:var(--goldbg);color:var(--gold)}
+.cat-btn:hover:not(.active){color:var(--text);background:var(--card)}
 
-/* ── Forms, Inputs, Elements ── */
-.slabel { font-family: var(--mono); font-size: .67rem; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: .12em; display: flex; align-items: center; gap: 10px; margin-bottom: 9px; margin-top: 16px; }
-.slabel::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 16px 18px; margin-bottom: 12px; }
+/* Tools grid */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.tool-card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:13px 14px;display:flex;align-items:flex-start;gap:11px;cursor:pointer;transition:border-color .15s,transform .1s}
+.tool-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.08)}
+.tc-icon{width:34px;height:34px;background:var(--goldbg);border:1px solid rgba(240,165,0,.15);border-radius:7px;display:grid;place-items:center;font-size:1rem;flex-shrink:0;margin-top:1px}
+.tc-body{flex:1;min-width:0}
+.tc-name{font-size:.88rem;font-weight:600;margin-bottom:2px}
+.tc-desc{font-size:.72rem;color:var(--muted);line-height:1.5}
 
-.desc-toggle { background: none; border: 1px solid var(--border2); border-radius: 6px; color: var(--gold); font-family: var(--sans); font-size: .76rem; font-weight: 600; padding: 5px 11px; cursor: pointer; transition: background .15s; margin-bottom: 0; width: 100%; text-align: left;}
-.desc-toggle:hover { background: var(--goldbg); }
-.desc-body { margin-top: 10px; font-size: .82rem; color: var(--dim); line-height: 1.7; border-left: 3px solid var(--gold); padding: 12px 16px; background: var(--goldbg); border-radius: 0 7px 7px 0; }
-.desc-body b { color: var(--text); }
-.desc-body h4 { color: var(--gold); font-size: 0.9rem; margin: 12px 0 4px 0; }
-.desc-body ul { margin-left: 20px; margin-bottom: 10px; }
+/* Footer */
+.site-footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+.site-footer a{color:var(--gold);text-decoration:none}
+#gc-counter{margin-top:18px;min-height:22px;text-align:center}
 
-/* File Drop Zones & UI */
-.dz { border: 2px dashed var(--border2); border-radius: 9px; padding: 24px 20px; text-align: center; cursor: pointer; position: relative; transition: all .2s; }
-.dz:hover, .dz.over { border-color: var(--gold); background: var(--goldbg); }
-.dz input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.dz-icon { font-size: 1.6rem; margin-bottom: 5px; }
-.dz-txt { color: var(--muted); font-size: .8rem; }
-.pill { display: none; align-items: center; gap: 11px; margin-top: 9px; padding: 8px 12px; background: rgba(62,207,142,.06); border: 1px solid rgba(62,207,142,.25); border-radius: 8px; }
-.pill.on { display: flex; }
-.pill-name { font-weight: 600; font-size: .84rem; word-break: break-all; color: var(--text); }
-.pill-meta { color: var(--muted); font-size: .7rem; margin-top: 1px; }
+/* Local notepad */
+.notepad{margin-top:22px;background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:13px}
+.notepad textarea{width:100%;height:68px;background:var(--card);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:8px;font-family:var(--sans);font-size:.78rem;resize:vertical;outline:none;transition:border-color .15s;margin-top:7px}
+.notepad textarea:focus{border-color:var(--gold)}
 
-.cgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; }
-@media(max-width: 500px) { .cgrid { grid-template-columns: 1fr; } }
-.ctrl { display: flex; flex-direction: column; gap: 5px; }
-.ctrl label { font-size: .74rem; color: var(--dim); font-weight: 500; }
-select, input[type=text], input[type=number], input[type=password] { background: var(--surface); border: 1px solid var(--border2); border-radius: 6px; color: var(--text); padding: 7px 11px; font-family: var(--sans); font-size: .84rem; outline: none; width: 100%; }
-select:focus, input:focus { border-color: var(--gold); }
-.rrow { display: flex; align-items: center; gap: 9px; }
-input[type=range] { flex: 1; accent-color: var(--gold); }
-.rv { font-family: var(--mono); font-size: .76rem; color: var(--gold); min-width: 46px; text-align: right; }
+/* Lib status */
+#libStatus{display:none;padding:7px 11px;border-radius:7px;font-size:.75rem;margin-bottom:9px;border:1px solid}
+#libStatus.err{background:rgba(224,92,92,.1);border-color:rgba(224,92,92,.4);color:#e05c5c}
+#libStatus.ok{background:rgba(62,207,142,.07);border-color:rgba(62,207,142,.3);color:#3ecf8e}
 
-.btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 9px; }
-.btn-sm { background: var(--surface); border: 1px solid var(--border2); border-radius: 6px; color: var(--text); font-family: var(--sans); font-size: .76rem; padding: 6px 12px; cursor: pointer; transition: all .12s; }
-.btn-sm:hover { border-color: var(--gold); color: var(--gold); }
-.btn-sm.primary { background: var(--goldbg); border-color: rgba(240,165,0,.3); color: var(--gold); }
-.btn-sm.danger { color: var(--red); }
+/* Components */
+.slabel{font-family:var(--mono);font-size:.63rem;font-weight:500;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:8px;margin-bottom:7px;margin-top:2px}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:13px 15px;margin-bottom:10px}
 
-.run { width: 100%; padding: 12px; background: var(--gold); color: #000; border: none; border-radius: 8px; font-family: var(--sans); font-size: .95rem; font-weight: 700; cursor: pointer; transition: transform .1s, opacity .2s; }
-.run:active { transform: translateY(1px); }
-.run:disabled { opacity: .4; cursor: not-allowed; }
+/* Desc toggles */
+.desc-toggle{background:none;border:1px solid var(--border2);border-radius:5px;color:var(--gold);font-family:var(--sans);font-size:.72rem;font-weight:600;padding:4px 10px;cursor:pointer;transition:background .13s}
+.desc-toggle:hover{background:var(--goldbg)}
+.desc-body{margin-top:9px;font-size:.78rem;color:var(--dim);line-height:1.8;border-left:3px solid var(--gold);padding:9px 12px;background:var(--goldbg);border-radius:0 7px 7px 0;display:none}
+.desc-body b{color:var(--text)}
+.desc-body code{font-family:var(--mono);font-size:.7rem;color:var(--gold);background:var(--surface);padding:1px 5px;border-radius:3px}
+.desc-body ul{margin:7px 0 3px 15px}.desc-body li{margin-bottom:3px}
 
-/* Processing Log */
-.proc-area { display: none; margin-top: 12px; }
-.ptrack { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 9px; }
-.pfill { height: 100%; background: linear-gradient(90deg, var(--gold2), var(--gold)); width: 0%; transition: width .3s ease; }
-.log { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 9px 11px; font-family: var(--mono); font-size: .7rem; line-height: 1.8; max-height: 200px; overflow-y: auto; color: var(--muted); }
-.log .ok { color: var(--green); } .log .er { color: var(--red); } .log .st { color: var(--gold); }
+/* Session tray */
+.sess-tray{display:none;background:rgba(62,207,142,.05);border:1px solid rgba(62,207,142,.2);border-radius:7px;padding:7px 11px;font-size:.72rem;color:var(--green);margin-bottom:8px}
+.sess-tray.on{display:block}
+.sess-file-list{margin-top:4px;display:flex;flex-direction:column;gap:2px}
+.sess-file-btn{background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.15);border-radius:4px;padding:4px 9px;color:var(--green);font-size:.69rem;cursor:pointer;text-align:left;width:100%;transition:background .1s}
+.sess-file-btn:hover{background:rgba(62,207,142,.16)}
 
-/* Output Downloads */
-.dl-list { display: flex; flex-direction: column; gap: 7px; }
-.dl-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; gap: 10px; flex-wrap: wrap; }
-.dl-title { font-size: .84rem; font-weight: 600; color: var(--text); }
-.dl-desc { font-size: .71rem; color: var(--dim); }
-.dl-btn { background: rgba(62,207,142,.1); color: var(--green); border: 1px solid rgba(62,207,142,.3); border-radius: 5px; padding: 6px 12px; font-family: var(--sans); font-size: .74rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background .15s; }
+/* Drop zone */
+.dz{border:2px dashed var(--border2);border-radius:8px;padding:20px 16px;text-align:center;cursor:pointer;position:relative;transition:border-color .18s,background .18s}
+.dz:hover,.dz.over{border-color:var(--gold);background:var(--goldbg)}
+.dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:1.4rem;margin-bottom:3px}
+.dz-txt{color:var(--muted);font-size:.76rem}
+.dz-txt b{color:var(--gold)}
 
-/* Canvas & Overlays */
-.preview-canvas-container { width: 100%; min-height: 150px; background: var(--surface); border: 1px dashed var(--border2); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; position: relative; }
-canvas.preview { max-width: 100%; max-height: 300px; object-fit: contain; }
-.file-list-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; max-height: 190px; overflow-y: auto; margin-bottom: 8px; }
-.fl-item { display: flex; align-items: center; gap: 9px; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: .8rem; cursor: pointer; }
-.fl-num { color: var(--gold); font-family: var(--mono); font-size: .7rem; min-width: 22px; }
-.fl-name { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fl-meta { color: var(--muted); font-size: .7rem; white-space: nowrap; }
-.fl-item.sel { background: var(--goldbg); }
+/* Pill */
+.pill{display:none;align-items:center;gap:9px;margin-top:7px;padding:7px 11px;background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.22);border-radius:7px}
+.pill.on{display:flex}
+.pill-name{font-weight:600;font-size:.8rem;word-break:break-all}
+.pill-meta{color:var(--muted);font-size:.67rem;margin-top:1px}
 
-/* Tabs (Calc/Split) */
-.tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 12px; overflow-x: auto; }
-.tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-family: var(--sans); font-size: .8rem; font-weight: 500; padding: 7px 13px; cursor: pointer; white-space: nowrap; margin-bottom:-1px; }
-.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
-.tab-pane { display: none; }
-.tab-pane.active { display: block; }
+/* Controls */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 15px}
+@media(max-width:500px){.cgrid{grid-template-columns:1fr}}
+.ctrl{display:flex;flex-direction:column;gap:5px}
+.ctrl label{font-size:.71rem;color:var(--dim);font-weight:500;letter-spacing:.02em}
+select,input[type=text],input[type=number],input[type=password]{appearance:none;background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:7px 9px;font-family:var(--sans);font-size:.81rem;outline:none;transition:border-color .13s;width:100%}
+select:focus,input[type=text]:focus,input[type=number]:focus,input[type=password]:focus{border-color:var(--gold)}
+.rrow{display:flex;align-items:center;gap:7px}
+input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
+.rv{font-family:var(--mono);font-size:.72rem;color:var(--gold);min-width:46px;text-align:right;font-weight:500}
+.computed{padding:7px 9px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;font-family:var(--mono);font-size:.74rem;color:var(--gold)}
 
-/* Calculator Specific */
-.calc-disp { background: var(--surface); border: 1px solid var(--border2); border-radius: 9px; padding: 11px 13px; margin-bottom: 10px; }
-.calc-expr { font-family: var(--mono); font-size: .78rem; color: var(--muted); min-height: 18px; word-break: break-all; }
-.calc-result { font-family: var(--mono); font-size: 1.7rem; color: var(--text); font-weight: 600; text-align: right; word-break: break-all; min-height: 40px; display: flex; align-items: center; justify-content: flex-end; }
-.calc-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 4px; }
-.cbtn { padding: 12px 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); font-family: var(--sans); font-size: .85rem; font-weight: 500; cursor: pointer; text-align: center; }
-.cbtn:hover { background: var(--card); border-color: var(--border2); }
-.cbtn.op { color: var(--gold); border-color: rgba(240,165,0,.18); background: var(--goldbg); }
-.cbtn.eq { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
-.cbtn.cls { color: var(--red); } .cbtn.fn { color: var(--blue); font-size: .75rem; }
+/* Toggle switch */
+.tog-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:11px;padding-top:11px;gap:11px}
+.tog-txt{font-size:.8rem}.tog-txt small{display:block;color:var(--muted);font-size:.68rem;margin-top:1px}
+.tog{position:relative;width:40px;height:22px;flex-shrink:0}
+.tog input{display:none}
+.knob{position:absolute;inset:0;background:var(--border2);border-radius:11px;cursor:pointer;transition:background .18s}
+.knob::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .18s}
+.tog input:checked+.knob{background:var(--gold)}
+.tog input:checked+.knob::after{left:21px}
 
-/* Analytics */
-.analytics-widget { font-family: var(--mono); font-size: 0.75rem; color: var(--dim); display: flex; justify-content: space-between; border-top: 1px dashed var(--border2); padding-top: 12px; margin-top: 24px; align-items: center; }
+/* Info box */
+.info{border-left:3px solid var(--gold);border-radius:0 6px 6px 0;background:var(--goldbg);padding:8px 11px;font-size:.72rem;color:var(--muted);line-height:1.65;margin-top:9px}
+.info b{color:var(--text)}
+
+/* Checkbox / radio */
+.cb-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.cb-row input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.cb-row label{font-size:.79rem;cursor:pointer}
+.radio-row{display:flex;flex-wrap:wrap;gap:3px 12px;margin-top:4px}
+.radio-row label{display:flex;align-items:center;gap:4px;font-size:.79rem;cursor:pointer}
+.radio-row input[type=radio]{accent-color:var(--gold);cursor:pointer}
+
+/* Tabs */
+.tab-bar{display:flex;border-bottom:1px solid var(--border);margin-bottom:10px;overflow-x:auto}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:var(--sans);font-size:.76rem;font-weight:500;padding:6px 11px;cursor:pointer;transition:color .13s,border-color .13s;margin-bottom:-1px;white-space:nowrap}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* File list */
+.fl-box{background:var(--surface);border:1px solid var(--border);border-radius:7px;max-height:180px;overflow-y:auto;margin-bottom:6px}
+.fl-item{display:flex;align-items:center;gap:7px;padding:6px 10px;border-bottom:1px solid var(--border);font-size:.76rem;cursor:pointer}
+.fl-item:last-child{border-bottom:none}
+.fl-num{color:var(--gold);font-family:var(--mono);font-size:.66rem;min-width:18px}
+.fl-name{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fl-meta{color:var(--muted);font-size:.66rem;white-space:nowrap}
+.fl-item.sel{background:var(--goldbg)}
+
+/* Buttons */
+.btn-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px}
+.btn-sm{background:var(--surface);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--sans);font-size:.72rem;font-weight:500;padding:5px 9px;cursor:pointer;transition:background .1s,border-color .1s;text-decoration:none;display:inline-block}
+.btn-sm:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm.danger{color:var(--red)}.btn-sm.danger:hover{border-color:var(--red);background:rgba(224,92,92,.06)}
+.btn-sm.primary{background:var(--goldbg);border-color:rgba(240,165,0,.25);color:var(--gold)}
+.btn-sm.primary:hover{background:rgba(240,165,0,.13)}
+.btn-sm.green{background:rgba(62,207,142,.08);border-color:rgba(62,207,142,.25);color:var(--green)}
+.btn-sm.green:hover{background:rgba(62,207,142,.16)}
+
+/* Run button */
+.run{width:100%;padding:11px;background:var(--gold);color:#000;border:none;border-radius:8px;font-family:var(--sans);font-size:.89rem;font-weight:700;cursor:pointer;transition:background .13s,transform .09s;display:flex;align-items:center;justify-content:center;gap:7px}
+.run:hover:not(:disabled){background:#f8b820;transform:translateY(-1px)}
+.run:active:not(:disabled){transform:translateY(0)}
+.run:disabled{opacity:.28;cursor:not-allowed;background:var(--border2);color:var(--muted)}
+
+/* Progress */
+.proc-area{display:none;margin-top:10px}
+.ptrack{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:7px}
+.pfill{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));width:0%;transition:width .35s ease;border-radius:2px}
+.steps-row{display:flex;gap:3px;margin-bottom:8px}
+.step-chip{flex:1;padding:4px 2px;text-align:center;border-radius:4px;font-size:.61rem;font-family:var(--mono);background:var(--surface);border:1px solid var(--border);color:var(--muted);transition:all .25s}
+.step-chip.active{background:var(--goldbg);border-color:var(--gold);color:var(--gold)}
+.step-chip.done{background:rgba(62,207,142,.07);border-color:rgba(62,207,142,.28);color:var(--green)}
+
+/* Log */
+.log{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:var(--mono);font-size:.66rem;line-height:1.9;max-height:180px;overflow-y:auto;color:var(--muted)}
+.log .ok{color:var(--green)}.log .er{color:var(--red)}.log .st{color:var(--gold);font-weight:500}.log .wn{color:#d4a849}.log .li{color:var(--muted)}
+
+/* Downloads */
+.dl-list{display:flex;flex-direction:column;gap:6px}
+.dl-item{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:7px;gap:8px;flex-wrap:wrap}
+.dl-title{font-size:.8rem;font-weight:600}.dl-desc{font-size:.68rem;color:var(--muted);margin-top:1px}
+.dl-btn{background:rgba(62,207,142,.09);color:var(--green);border:1px solid rgba(62,207,142,.28);border-radius:5px;padding:5px 10px;font-family:var(--sans);font-size:.7rem;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background .13s;display:inline-block}
+.dl-btn:hover{background:rgba(62,207,142,.18)}
+.sess-btn{background:var(--goldbg);color:var(--gold);border:1px solid rgba(240,165,0,.22);border-radius:5px;padding:5px 10px;font-family:var(--sans);font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .13s}
+.sess-btn:hover{background:rgba(240,165,0,.13)}
+
+/* Image tools */
+.img-wrap{background:var(--surface);border:1px solid var(--border);border-radius:7px;overflow:hidden;text-align:center}
+.img-canvas{max-width:100%;display:block;margin:0 auto}
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+@media(max-width:480px){.cmp-grid{grid-template-columns:1fr}}
+.cmp-lbl{font-size:.68rem;color:var(--muted);font-family:var(--mono);text-align:center;padding:4px;background:var(--surface);border-bottom:1px solid var(--border)}
+.cmp-sz{font-size:.68rem;color:var(--gold);font-family:var(--mono);text-align:center;padding:3px 4px}
+.checker-bg{background-image:linear-gradient(45deg,#555 25%,transparent 25%),linear-gradient(-45deg,#555 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#555 75%),linear-gradient(-45deg,transparent 75%,#555 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
+[data-theme="light"] .checker-bg{background-image:linear-gradient(45deg,#ccc 25%,transparent 25%),linear-gradient(-45deg,#ccc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc 75%),linear-gradient(-45deg,transparent 75%,#ccc 75%);background-size:16px 16px}
+
+/* Calculator */
+.fullscreen-calc{position:fixed!important;top:0;left:0;width:100vw;height:100vh;z-index:500;background:var(--bg);overflow-y:auto;border-radius:0!important}
+.calc-disp{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;margin-bottom:9px}
+.calc-expr{font-family:var(--mono);font-size:.73rem;color:var(--muted);min-height:16px;word-break:break-all}
+.calc-result{font-family:var(--mono);font-size:1.55rem;color:var(--text);font-weight:600;text-align:right;word-break:break-all;min-height:38px;display:flex;align-items:center;justify-content:flex-end}
+.calc-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px}
+.cbtn{padding:10px 3px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font-family:var(--sans);font-size:.79rem;font-weight:500;cursor:pointer;transition:background .09s,border-color .09s;text-align:center}
+.cbtn:hover{background:var(--card);border-color:var(--border2)}
+.cbtn.op{color:var(--gold);border-color:rgba(240,165,0,.16);background:var(--goldbg)}
+.cbtn.eq{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.cbtn.eq:hover{background:#f8b820}
+.cbtn.cls{background:rgba(224,92,92,.09);color:var(--red);border-color:rgba(224,92,92,.2)}
+.cbtn.fn{color:var(--blue);font-size:.69rem}
+#graphCanvas{width:100%;height:280px;background:var(--surface);border:1px solid var(--border);border-radius:7px;display:block;cursor:crosshair;margin-top:9px}
+.g-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.g-inp{flex:1;min-width:70px;background:var(--surface);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:6px 9px;font-family:var(--mono);font-size:.79rem;outline:none}
+.g-inp:focus{border-color:var(--gold)}
+.g-mini{width:70px;flex:none}
+.fn-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+.hist-box{background:var(--surface);border:1px solid var(--border);border-radius:7px;max-height:240px;overflow-y:auto}
+.hist-item{padding:7px 10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.75rem;gap:7px}
+.hist-item:last-child{border-bottom:none}
+.hist-expr{color:var(--muted);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis}
+.hist-res{color:var(--gold);font-family:var(--mono);font-weight:600;white-space:nowrap}
 </style>
 </head>
 <body>
 
-<button class="theme-toggle" id="themeToggleBtn" title="Toggle Light/Dark Mode">🌓</button>
+<button class="theme-btn" onclick="toggleTheme()" title="Toggle Light/Dark">🌓</button>
+<div id="gBadge" onclick="showSessionModal()">📋 <span id="gBadgeCount">0</span> in session</div>
 
-<!-- ==========================================
-     LANDING PAGE
-=========================================== -->
+<!-- ══════════ LANDING ══════════ -->
 <div id="landing" class="page">
+  <div id="libStatus"></div>
   <div class="hd">
     <div class="hd-brand">
-      <img src="./logo.png" alt="Suite Logo" class="hd-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"/>
-      <div class="hd-logo-img" style="display:none; place-items:center; font-size:1.5rem; background:var(--gold); color:#000;">📚</div>
+      <!-- Swap the div below for: <img src="./logo.png" class="hd-logo-img" alt="Logo"/> -->
+      <div class="hd-icon">📚</div>
       <div>
         <div class="hd-title">Student's <span>Suite</span></div>
-        <div class="hd-sub">Offline-first Academic Document & Image Processor</div>
+        <div class="hd-sub">Offline-first · No upload · No server · All processing in your browser</div>
       </div>
     </div>
   </div>
-
-  <div class="cat-bar" id="categoryFilter">
-    <button class="cat-btn active" data-filter="all">All Tools</button>
-    <button class="cat-btn" data-filter="pdf">PDF Utilities</button>
-    <button class="cat-btn" data-filter="image">Image Processing</button>
-    <button class="cat-btn" data-filter="maths">Mathematics</button>
+  <div class="disc"><b>Privacy:</b> Every file is processed locally in your browser tab. Nothing is sent to any server. On low-RAM devices, tap the session badge (bottom-right) to purge memory after heavy operations.</div>
+  <div class="cat-bar">
+    <button class="cat-btn active" onclick="filterCat('all')">All Tools</button>
+    <button class="cat-btn" onclick="filterCat('pdf')">📄 PDF</button>
+    <button class="cat-btn" onclick="filterCat('image')">🖼 Image</button>
+    <button class="cat-btn" onclick="filterCat('maths')">∑ Maths</button>
   </div>
-
-  <div class="tools-grid" id="mainToolsGrid">
-    <div class="tool-card" data-category="pdf" data-target="booklet">
-      <div class="tc-icon">📖</div>
-      <div class="tc-body"><div class="tc-name">Booklet Imposition</div><div class="tc-desc">Re-order pages for saddle-stitch booklet printing.</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf" data-target="merge">
-      <div class="tc-icon">⊕</div>
-      <div class="tc-body"><div class="tc-name">PDF Merge</div><div class="tc-desc">Combine multiple files sequentially into one document.</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf" data-target="split">
-      <div class="tc-icon">✂</div>
-      <div class="tc-body"><div class="tc-name">PDF Split</div><div class="tc-desc">Extract chapters or divide documents by intervals.</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf" data-target="compress">
-      <div class="tc-icon">⊘</div>
-      <div class="tc-body"><div class="tc-name">PDF Compress</div><div class="tc-desc">Lossless metadata and structure optimization.</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf" data-target="nup">
-      <div class="tc-icon">⊞</div>
-      <div class="tc-body"><div class="tc-name">N-up Layout</div><div class="tc-desc">Tile multiple source pages onto a single output grid.</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf" data-target="rearrange">
-      <div class="tc-icon">⇅</div>
-      <div class="tc-body"><div class="tc-name">Rearrange Pages</div><div class="tc-desc">Manually duplicate, delete, or re-order internal pages.</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf" data-target="verified">
-      <div class="tc-icon">☑</div>
-      <div class="tc-body"><div class="tc-name">PDF Verified Tag</div><div class="tc-desc">Stamp structural verification vectors on documents.</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf" data-target="advwmrm">
-      <div class="tc-icon">◌</div>
-      <div class="tc-body"><div class="tc-name">Diagnostic WM Removal</div><div class="tc-desc">Diagnose and strip layered vector/text watermarks.</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf" data-target="wmadd">
-      <div class="tc-icon">⬡</div>
-      <div class="tc-body"><div class="tc-name">Add Watermark</div><div class="tc-desc">Stamp text layers with opacity and rotational vectors.</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf" data-target="unlock">
-      <div class="tc-icon">🔓</div>
-      <div class="tc-body"><div class="tc-name">Unlock PDF</div><div class="tc-desc">Decrypt password-protected files (requires original password).</div></div>
-    </div>
-    <div class="tool-card" data-category="pdf image" data-target="toimage">
-      <div class="tc-icon">◫</div>
-      <div class="tc-body"><div class="tc-name">PDF to Image</div><div class="tc-desc">Extract document vectors into high-res pixel matrices.</div></div>
-    </div>
-    
-    <div class="tool-card" data-category="image" data-target="imgcomp">
-      <div class="tc-icon">🗜</div>
-      <div class="tc-body"><div class="tc-name">Image Compressor</div><div class="tc-desc">Canvas-based qualitative reduction algorithm.</div></div>
-    </div>
-    <div class="tool-card" data-category="image" data-target="imgresize">
-      <div class="tc-icon">⤡</div>
-      <div class="tc-body"><div class="tc-name">Format & Resize</div><div class="tc-desc">Strict compliance scaling (DPI, Dimensions, KB limits).</div></div>
-    </div>
-    <div class="tool-card" data-category="image" data-target="passport">
-      <div class="tc-icon">🖼</div>
-      <div class="tc-body"><div class="tc-name">Passport Photo Maker</div><div class="tc-desc">Crop vectors, rotate geometry, and adjust color matrices.</div></div>
-    </div>
-    <div class="tool-card" data-category="image" data-target="signature">
-      <div class="tc-icon">✍</div>
-      <div class="tc-body"><div class="tc-name">Signature Digitizer</div><div class="tc-desc">Algorithmic background removal and contrast enhancement.</div></div>
-    </div>
-
-    <div class="tool-card" data-category="maths" data-target="calc" style="grid-column: 1 / -1;">
-      <div class="tc-icon">∑</div>
-      <div class="tc-body"><div class="tc-name">Multifunction Graphing</div><div class="tc-desc">Scientific calculator and comparative plotting engine.</div></div>
-    </div>
+  <div class="tools-grid" id="toolsGrid">
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('booklet')"><div class="tc-icon">📖</div><div class="tc-body"><div class="tc-name">Booklet Imposition</div><div class="tc-desc">Reorder pages for saddle-stitch booklet printing with fold guides and registration marks.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('merge')"><div class="tc-icon">⊕</div><div class="tc-body"><div class="tc-name">PDF Merge</div><div class="tc-desc">Combine multiple PDFs into one document in any order you choose.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('split')"><div class="tc-icon">✂</div><div class="tc-body"><div class="tc-name">PDF Split</div><div class="tc-desc">Extract specific pages or split at fixed intervals into separate files.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('compress')"><div class="tc-icon">⊘</div><div class="tc-body"><div class="tc-name">PDF Compress</div><div class="tc-desc">Lossless structural re-compression to strip metadata bloat.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('nup')"><div class="tc-icon">⊞</div><div class="tc-body"><div class="tc-name">N-up Layout</div><div class="tc-desc">Place multiple source pages onto each output sheet in a grid.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('rearrange')"><div class="tc-icon">⇅</div><div class="tc-body"><div class="tc-name">Rearrange Pages</div><div class="tc-desc">Interactively reorder, duplicate, or delete individual pages.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('toimage')"><div class="tc-icon">◫</div><div class="tc-body"><div class="tc-name">PDF → Image</div><div class="tc-desc">Render each page as a high-resolution PNG or JPEG.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('wmadd')"><div class="tc-icon">⬡</div><div class="tc-body"><div class="tc-name">Add Watermark</div><div class="tc-desc">Stamp text watermarks across all pages with opacity and position control.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('wmremove')"><div class="tc-icon">◌</div><div class="tc-body"><div class="tc-name">Remove Watermark</div><div class="tc-desc">Scan and strip annotation-layer and overlay watermarks.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('unlock')"><div class="tc-icon">🔓</div><div class="tc-body"><div class="tc-name">Unlock PDF</div><div class="tc-desc">Decrypt a password-protected PDF using your known password.</div></div></div>
+    <div class="tool-card" data-cat="pdf"   onclick="openTool('verified')"><div class="tc-icon">✅</div><div class="tc-body"><div class="tc-name">Add Verified Stamp</div><div class="tc-desc">Apply a visible VERIFIED / SELF ATTESTED rubber stamp to govt/Aadhaar PDFs.</div></div></div>
+    <div class="tool-card" data-cat="image" onclick="openTool('imgcompress')"><div class="tc-icon">🗜</div><div class="tc-body"><div class="tc-name">Image Compressor</div><div class="tc-desc">Reduce image file size by quality percentage. Side-by-side preview.</div></div></div>
+    <div class="tool-card" data-cat="image" onclick="openTool('imgresize')"><div class="tc-icon">📐</div><div class="tc-body"><div class="tc-name">Image Resize</div><div class="tc-desc">Resize to exact px/cm/inch with DPI and target KB control for exam forms.</div></div></div>
+    <div class="tool-card" data-cat="image" onclick="openTool('passport')"><div class="tc-icon">🪪</div><div class="tc-body"><div class="tc-name">Passport Photo Maker</div><div class="tc-desc">Crop, rotate, adjust a portrait and export at exact ID/passport dimensions.</div></div></div>
+    <div class="tool-card" data-cat="image" onclick="openTool('signature')"><div class="tc-icon">✒</div><div class="tc-body"><div class="tc-name">Signature Cleaner</div><div class="tc-desc">Remove white backgrounds from scanned signatures. Export as transparent PNG.</div></div></div>
+    <div class="tool-card" data-cat="maths" onclick="openTool('calc')" style="grid-column:1/-1"><div class="tc-icon">∑</div><div class="tc-body"><div class="tc-name">Scientific &amp; Graphing Calculator</div><div class="tc-desc">Evaluate complex expressions, plot multiple functions on a dynamic graph.</div></div></div>
   </div>
-
-  <div class="analytics-widget">
-    <span>Suite Version: 4.1.0</span>
-    <span>Total Visitors: <span id="visitor-counter-container" style="color:var(--gold); font-weight:600;">Loading...</span></span>
+  <div id="gc-counter"></div>
+  <div class="site-footer">
+    <span>By <a href="https://github.com/Joydip1" target="_blank">Suvadip Patra (@Joydip1)</a></span>
+    <a href="#" target="_blank" id="feedbackLink">📝 Feedback / Google Form</a>
+    <span>v3.0.0</span>
+  </div>
+  <div style="font-size:.72rem;color:var(--muted);margin-top:10px;display:flex;justify-content:space-between">
+    <span>Session operations: <span id="localOpCount">0</span></span>
+  </div>
+  <div class="notepad">
+    <div style="font-size:.78rem;font-weight:600;color:var(--text)">🗒 Private Notes <span style="font-size:.68rem;color:var(--muted);font-weight:400">(browser-only, never shared)</span></div>
+    <textarea id="localNoteArea" placeholder="Jot formulas, page ranges, or task reminders…"></textarea>
+    <div style="margin-top:6px;display:flex;align-items:center;gap:9px">
+      <button class="btn-sm primary" onclick="saveNote()">💾 Save</button>
+      <span id="noteSt" style="font-size:.7rem;color:var(--green);display:none">✓ Saved</span>
+    </div>
   </div>
 </div>
 
-<!-- ==========================================
-     TOOL PANELS (DOM Shells)
-=========================================== -->
-
-<!-- 1. Booklet Imposition -->
-<div id="tool-booklet" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">📖 Booklet Imposition</span></div>
-  <div class="card">
-    <button class="desc-toggle">ℹ Academic Parameters & Terminology ▾</button>
-    <div class="desc-body" style="display:none">
-      <h4>The Concept of Imposition</h4>
-      Automates <b>Saddle-Stitching</b> logic. Formats sequential PDFs to print correctly when folded down the spine.
-      <h4>Signature Terminology</h4>
-      <ul>
-        <li><b>1-Fold (4 pages/sig):</b> One physical sheet folded once yields 4 reading pages.</li>
-        <li><b>2-Fold (8 pages/sig):</b> Two sheets nested together before folding.</li>
-        <li><b>4-Fold (16 pages/sig):</b> Four nested sheets. Standard for thick booklets to prevent spine creep.</li>
-      </ul>
+<!-- ══════════ TOOL: BOOKLET ══════════ -->
+<div id="tool-booklet" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">📖 Booklet Imposition</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('bk-d')">ℹ Terms &amp; How It Works ▾</button>
+      <div id="bk-d" class="desc-body">
+        <b>Saddle-stitch booklet:</b> Sheets are nested and stapled through the centre fold. Like a magazine — pages 1 and the last page are printed on the same outer sheet, back-to-back.<br><br>
+        <b>Signature:</b> A group of sheets folded together. Choosing "4 sheets per signature" nests 4 physical sheets, giving 16 page positions per signature group (4 sheets × 2 sides × 2 columns per side).<br><br>
+        <b>Spine / Binding Gap:</b> The blank space in the centrefold reserved for the staple. Increase for thicker paper stock.<br><br>
+        <b>Registration Marks:</b> After printing, you need to fold and staple accurately. Marks include a dashed fold guide, a <i>"Signature 1 · Sheet 2 of 4"</i> label so you know the assembly order, and four alignment dots along the spine.<br><br>
+        <b>Three Processing Steps:</b><br>
+        <code>① Resize</code> — Pages are stretched to fill exactly half the canvas width (277 mm / 2).<br>
+        <code>② Impose</code> — Pages are reordered onto A4-landscape sheets in the correct saddle-stitch sequence.<br>
+        <code>③ Marks</code> — Fold guides, "Sig. N · Sheet N of N" labels and binding dots are drawn on every sheet.
+      </div>
     </div>
-  </div>
-  <div class="slabel">01 — Source Document</div>
-  <div class="card">
-    <div class="dz" id="bk-dz"><input type="file" id="bk-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div>
-    <div class="pill" id="bk-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="bk-pname"></div><div class="pill-meta" id="bk-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Geometric Parameters</div>
-  <div class="card">
-    <div class="cgrid">
-      <div class="ctrl"><label>Sheets per Signature</label><select id="bk-sheets"><option value="1">1 sheet (4 pp)</option><option value="2">2 sheets (8 pp)</option><option value="4" selected>4 sheets (16 pp)</option></select></div>
-      <div class="ctrl"><label>Binding Gap (mm)</label><div class="rrow"><input type="range" id="bk-gap" min="0" max="50" value="20"/><span class="rv" id="bk-gapV">20 mm</span></div></div>
-      <div class="ctrl"><label>Outer Margin (mm)</label><div class="rrow"><input type="range" id="bk-outer" min="0" max="30" value="0"/><span class="rv" id="bk-outerV">0 mm</span></div></div>
-      <div class="ctrl"><label>Add Registration Marks</label><select id="bk-marks"><option value="yes">Yes (Guides & Labels)</option><option value="no">No</option></select></div>
-    </div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="bk-run" disabled>⚙ Impose Architecture</button>
-    <div class="proc-area" id="bk-proc">
-      <div class="ptrack"><div class="pfill" id="bk-pfill"></div></div>
-      <div class="log" id="bk-log"></div>
-    </div>
-  </div>
-  <div class="card" id="bk-out" style="display:none"><div class="dl-list" id="bk-dl"></div></div>
-</div>
-
-<!-- 2. PDF Merge -->
-<div id="tool-merge" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">⊕ PDF Merge</span></div>
-  <div class="card">
-    <button class="desc-toggle">ℹ Compilation Logic ▾</button>
-    <div class="desc-body" style="display:none">
-      <h4>Sequential Byte-Stream Fusion</h4>
-      Constructs a unified document array by linearly concatenating the byte streams of independent PDF structures. Visual fidelity remains mathematically unaltered.
-    </div>
-  </div>
-  <div class="slabel">01 — Matrix Queue</div>
-  <div class="card">
-    <input type="file" id="mg-fi" accept=".pdf" multiple style="display:none;"/>
-    <div class="btn-row">
-      <button class="btn-sm primary" onclick="document.getElementById('mg-fi').click()">+ Add PDFs</button>
-      <button class="btn-sm" id="mg-up">↑ Up</button>
-      <button class="btn-sm" id="mg-dn">↓ Down</button>
-      <button class="btn-sm danger" id="mg-rm">✕ Remove</button>
-    </div>
-    <div class="file-list-box" id="mg-list"><div style="padding:14px;color:var(--muted);font-size:.8rem">Queue empty.</div></div>
-  </div>
-  <div class="slabel">02 — Execution</div>
-  <div class="card">
-    <button class="run" id="mg-run" disabled>⊕ Compile Document</button>
-    <div class="proc-area" id="mg-proc"><div class="ptrack"><div class="pfill" id="mg-pfill"></div></div><div class="log" id="mg-log"></div></div>
-  </div>
-  <div class="card" id="mg-out" style="display:none"><div class="dl-list" id="mg-dl"></div></div>
-</div>
-
-<!-- 3. PDF Split -->
-<div id="tool-split" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">✂ PDF Split</span></div>
-  <div class="slabel">01 — Source Document</div>
-  <div class="card">
-    <div class="dz" id="sp-dz"><input type="file" id="sp-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div>
-    <div class="pill" id="sp-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="sp-pname"></div><div class="pill-meta" id="sp-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Dissection Vectors</div>
-  <div class="card">
-    <div class="tab-bar">
-      <button class="tab-btn active" data-tgt="sp-t0">Custom Ranges</button>
-      <button class="tab-btn" data-tgt="sp-t1">Intervals</button>
-    </div>
-    <div class="tab-pane active" id="sp-t0">
-      <label style="font-size:.78rem;color:var(--dim);">Extract Ranges (e.g. 1-5, 8)</label>
-      <input type="text" id="sp-ranges" placeholder="1-5, 8"/>
-    </div>
-    <div class="tab-pane" id="sp-t1">
-      <div class="ctrl"><label>Pages per chunk</label><div class="rrow"><input type="range" id="sp-n" min="1" max="50" value="10"/><span class="rv" id="sp-nV">10 pp</span></div></div>
-    </div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="sp-run" disabled>✂ Sever Architecture</button>
-    <div class="proc-area" id="sp-proc"><div class="ptrack"><div class="pfill" id="sp-pfill"></div></div><div class="log" id="sp-log"></div></div>
-  </div>
-  <div class="card" id="sp-out" style="display:none"><div class="dl-list" id="sp-dl"></div></div>
-</div>
-
-<!-- 4. PDF Compress -->
-<div id="tool-compress" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">⊘ PDF Compress</span></div>
-  <div class="card">
-    <button class="desc-toggle">ℹ Compression Paradigms ▾</button>
-    <div class="desc-body" style="display:none">
-      <h4>Lossless Architecture Restructuring</h4>
-      Applies DEFLATE compression to uncompressed streams and strips orphaned objects. Does not perform destructive image down-sampling.
-    </div>
-  </div>
-  <div class="slabel">01 — Source Document</div>
-  <div class="card">
-    <div class="dz" id="cp-dz"><input type="file" id="cp-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div>
-    <div class="pill" id="cp-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="cp-pname"></div><div class="pill-meta" id="cp-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Execution</div>
-  <div class="card">
-    <button class="run" id="cp-run" disabled>⊘ Optimize Entropy</button>
-    <div class="proc-area" id="cp-proc"><div class="ptrack"><div class="pfill" id="cp-pfill"></div></div><div class="log" id="cp-log"></div></div>
-  </div>
-  <div class="card" id="cp-out" style="display:none"><div class="dl-list" id="cp-dl"></div></div>
-</div>
-
-<!-- 5. N-up Layout -->
-<div id="tool-nup" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">⊞ N-up Layout</span></div>
-  <div class="slabel">01 — Source Document</div>
-  <div class="card">
-    <div class="dz" id="nu-dz"><input type="file" id="nu-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div>
-    <div class="pill" id="nu-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="nu-pname"></div><div class="pill-meta" id="nu-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Layout</div>
-  <div class="card">
-    <div class="cgrid">
-      <div class="ctrl"><label>Rows</label><div class="rrow"><input type="range" id="nu-rows" min="1" max="4" value="2"/><span class="rv" id="nu-rowsV">2</span></div></div>
-      <div class="ctrl"><label>Columns</label><div class="rrow"><input type="range" id="nu-cols" min="1" max="4" value="2"/><span class="rv" id="nu-colsV">2</span></div></div>
-      <div class="ctrl"><label>Spacing (mm)</label><div class="rrow"><input type="range" id="nu-sp" min="0" max="20" value="4"/><span class="rv" id="nu-spV">4 mm</span></div></div>
-      <div class="ctrl"><label>Margin (mm)</label><div class="rrow"><input type="range" id="nu-mg" min="0" max="30" value="8"/><span class="rv" id="nu-mgV">8 mm</span></div></div>
-    </div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="nu-run" disabled>⊞ Compile Matrix</button>
-    <div class="proc-area" id="nu-proc"><div class="ptrack"><div class="pfill" id="nu-pfill"></div></div><div class="log" id="nu-log"></div></div>
-  </div>
-  <div class="card" id="nu-out" style="display:none"><div class="dl-list" id="nu-dl"></div></div>
-</div>
-
-<!-- 6. Rearrange Pages -->
-<div id="tool-rearrange" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">⇅ Rearrange Pages</span></div>
-  <div class="slabel">01 — Source Document</div>
-  <div class="card">
-    <div class="dz" id="ra-dz"><input type="file" id="ra-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div>
-    <div class="pill" id="ra-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="ra-pname"></div><div class="pill-meta" id="ra-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Sequence</div>
-  <div class="card">
-    <div class="btn-row">
-      <button class="btn-sm" id="ra-up">↑ Up</button> <button class="btn-sm" id="ra-dn">↓ Down</button>
-      <button class="btn-sm" id="ra-dp">Clone</button> <button class="btn-sm danger" id="ra-rm">✕ Drop</button>
-      <button class="btn-sm" id="ra-rs">Reset</button>
-    </div>
-    <div class="file-list-box" id="ra-list"><div style="padding:14px;color:var(--muted);font-size:.8rem">Load PDF first.</div></div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="ra-run" disabled>⇅ Compile Architecture</button>
-    <div class="proc-area" id="ra-proc"><div class="ptrack"><div class="pfill" id="ra-pfill"></div></div><div class="log" id="ra-log"></div></div>
-  </div>
-  <div class="card" id="ra-out" style="display:none"><div class="dl-list" id="ra-dl"></div></div>
-</div>
-
-<!-- 7. PDF Verified Tag -->
-<div id="tool-verified" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">☑ Stamp Verification</span></div>
-  <div class="card">
-    <button class="desc-toggle">ℹ Vector Injection ▾</button>
-    <div class="desc-body" style="display:none">
-      <h4>Cryptographic Mimicry</h4>
-      Injects a visual "Verified" vector graphic natively into the PDF geometry. Note: This is a visual stamp, not a true RSA digital signature. Useful for internal document routing.
-    </div>
-  </div>
-  <div class="slabel">01 — Source Document</div>
-  <div class="card">
-    <div class="dz" id="vf-dz"><input type="file" id="vf-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div>
-    <div class="pill" id="vf-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="vf-pname"></div><div class="pill-meta" id="vf-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Stamp Parameters</div>
-  <div class="card">
-    <div class="cgrid">
-      <div class="ctrl"><label>String Payload</label><input type="text" id="vf-text" value="Signature Valid"/></div>
-      <div class="ctrl"><label>Coordinate Anchor</label><select id="vf-quad"><option value="BL">Bottom Left</option><option value="BR">Bottom Right</option></select></div>
-    </div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="vf-run" disabled>☑ Inject Vector</button>
-    <div class="proc-area" id="vf-proc"><div class="ptrack"><div class="pfill" id="vf-pfill"></div></div><div class="log" id="vf-log"></div></div>
-  </div>
-  <div class="card" id="vf-out" style="display:none"><div class="dl-list" id="vf-dl"></div></div>
-</div>
-
-<!-- 8. Diagnostic WM Removal -->
-<div id="tool-advwmrm" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">◌ Diagnostic WM Removal</span></div>
-  <div class="card">
-    <button class="desc-toggle">ℹ Heuristic Analysis Protocols ▾</button>
-    <div class="desc-body" style="display:none">
-      <h4>Structural vs. Visual Obfuscation</h4>
-      <ul>
-        <li><b>Annotation Layer:</b> Metadata stamps floating above the page. The Structural Scan deletes these.</li>
-        <li><b>Content Stream:</b> Hardcoded vectors. This tool deploys spatial heuristics—scanning coordinates in the Top/Bottom 15% and applying absolute-white redaction blocks.</li>
-      </ul>
-    </div>
-  </div>
-  <div class="slabel">01 — Obfuscated Document</div>
-  <div class="card">
-    <div class="dz" id="rm-dz"><input type="file" id="rm-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div>
-    <div class="pill" id="rm-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="rm-pname"></div><div class="pill-meta" id="rm-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Intervention Vectors</div>
-  <div class="card">
-    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:12px;">
-      <label style="font-size:0.85rem;"><input type="checkbox" id="rm-opt1" checked/> Annihilate Annotation Layer (Stamps/Signatures)</label>
-      <label style="font-size:0.85rem;"><input type="checkbox" id="rm-opt2"/> Redact Top Header Region (Y-Max - 15%)</label>
-      <label style="font-size:0.85rem;"><input type="checkbox" id="rm-opt3"/> Redact Bottom Footer Region (Y-Min + 15%)</label>
-    </div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="rm-run" disabled>◌ Cleanse Architecture</button>
-    <div class="proc-area" id="rm-proc"><div class="ptrack"><div class="pfill" id="rm-pfill"></div></div><div class="log" id="rm-log"></div></div>
-  </div>
-  <div class="card" id="rm-out" style="display:none"><div class="dl-list" id="rm-dl"></div></div>
-</div>
-
-<!-- 9. Add Watermark -->
-<div id="tool-wmadd" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">⬡ Add Watermark</span></div>
-  <div class="slabel">01 — Source Document</div>
-  <div class="card">
-    <div class="dz" id="wa-dz"><input type="file" id="wa-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div>
-    <div class="pill" id="wa-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="wa-pname"></div><div class="pill-meta" id="wa-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Stamp Parameters</div>
-  <div class="card">
-    <div class="ctrl" style="margin-bottom:14px"><label>String Payload</label><input type="text" id="wa-text" value="CONFIDENTIAL"/></div>
-    <div class="cgrid">
-      <div class="ctrl"><label>Scale (pt)</label><div class="rrow"><input type="range" id="wa-fs" min="12" max="120" value="52"/><span class="rv" id="wa-fsV">52</span></div></div>
-      <div class="ctrl"><label>Alpha (%)</label><div class="rrow"><input type="range" id="wa-op" min="5" max="100" value="25"/><span class="rv" id="wa-opV">25%</span></div></div>
-      <div class="ctrl"><label>Rotation (°)</label><div class="rrow"><input type="range" id="wa-rot" min="-180" max="180" value="-45"/><span class="rv" id="wa-rotV">-45°</span></div></div>
-      <div class="ctrl"><label>Hex Color</label><input type="text" id="wa-col" value="#FF0000"/></div>
-    </div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="wa-run" disabled>⬡ Impress Watermark</button>
-    <div class="proc-area" id="wa-proc"><div class="ptrack"><div class="pfill" id="wa-pfill"></div></div><div class="log" id="wa-log"></div></div>
-  </div>
-  <div class="card" id="wa-out" style="display:none"><div class="dl-list" id="wa-dl"></div></div>
-</div>
-
-<!-- 10. Unlock PDF -->
-<div id="tool-unlock" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">🔓 Unlock PDF</span></div>
-  <div class="slabel">01 — Encrypted Document</div>
-  <div class="card">
-    <div class="dz" id="ul-dz"><input type="file" id="ul-fi" accept=".pdf"/><div class="dz-icon">🔒</div><div class="dz-txt">Load Locked Vector</div></div>
-    <div class="pill" id="ul-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="ul-pname"></div><div class="pill-meta" id="ul-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Decryption Key</div>
-  <div class="card">
-    <input type="password" id="ul-pwd" placeholder="Enter original password..." style="margin-bottom:12px;"/>
-    <button class="run" id="ul-run" disabled>🔓 Strip Security Protocol</button>
-    <div class="proc-area" id="ul-proc"><div class="log" id="ul-log"></div></div>
-  </div>
-  <div class="card" id="ul-out" style="display:none"><div class="dl-list" id="ul-dl"></div></div>
-</div>
-
-<!-- 11. PDF to Image -->
-<div id="tool-toimage" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">◫ PDF to Image</span></div>
-  <div class="card">
-    <button class="desc-toggle">ℹ Rasterization Engine ▾</button>
-    <div class="desc-body" style="display:none">
-      Injects PDF.js dynamically to translate vector instructions into pixels on an HTML Canvas. Large files require significant RAM.
-    </div>
-  </div>
-  <div class="slabel">01 — Source Document</div>
-  <div class="card">
-    <div class="dz" id="ti-dz"><input type="file" id="ti-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt">Load PDF Vector</div></div>
-    <div class="pill" id="ti-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="ti-pname"></div><div class="pill-meta" id="ti-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Raster Metrics</div>
-  <div class="card">
-    <div class="cgrid">
-      <div class="ctrl"><label>DPI Density</label><select id="ti-dpi"><option>72</option><option selected>150</option><option>300</option></select></div>
-      <div class="ctrl"><label>Format</label><select id="ti-fmt"><option value="png">PNG (Lossless)</option><option value="jpeg">JPEG (Lossy)</option></select></div>
-    </div>
-    <div class="ctrl" style="margin-top:12px"><label>Page Range</label><input type="text" id="ti-pages" placeholder="all or e.g. 1-3"/></div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="ti-run" disabled>◫ Render Pixels</button>
-    <div class="proc-area" id="ti-proc"><div class="ptrack"><div class="pfill" id="ti-pfill"></div></div><div class="log" id="ti-log"></div></div>
-  </div>
-  <div class="card" id="ti-out" style="display:none"><div class="dl-list" id="ti-dl"></div></div>
-</div>
-
-<!-- 12. Image Compressor -->
-<div id="tool-imgcomp" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">🗜 Image Compressor</span></div>
-  <div class="card">
-    <button class="desc-toggle">ℹ Compression Paradigms ▾</button>
-    <div class="desc-body" style="display:none">
-      <h4>Canvas Iteration</h4>
-      Utilizes the browser's native Canvas API to transcode pixel matrices, simulating lossy compression by discarding imperceptible color data.
-      <div style="margin-top:12px;"><a href="https://squoosh.app" target="_blank" class="btn-sm primary" style="text-decoration:none;">Launch Advanced Squoosh.app ↗</a></div>
-    </div>
-  </div>
-  <div class="slabel">01 — Source Image</div>
-  <div class="card">
-    <div class="dz" id="ic-dz"><input type="file" id="ic-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt">Load Image Matrix</div></div>
-    <div class="pill" id="ic-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="ic-pname"></div><div class="pill-meta" id="ic-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Qualitative Parameters</div>
-  <div class="card">
-    <div class="ctrl"><label>Lossy Degradation Index (%)</label><div class="rrow"><input type="range" id="ic-q" min="1" max="100" value="70"/><span class="rv" id="ic-qV">70%</span></div></div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="ic-run" disabled>🗜 Compress Matrix</button>
-    <div class="proc-area" id="ic-proc"><div class="log" id="ic-log"></div></div>
-  </div>
-  <div class="card" id="ic-out" style="display:none"><div class="dl-list" id="ic-dl"></div></div>
-</div>
-
-<!-- 13. Format & Resize -->
-<div id="tool-imgresize" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">⤡ Format & Resize</span></div>
-  <div class="slabel">01 — Source Image</div>
-  <div class="card">
-    <div class="dz" id="ir-dz"><input type="file" id="ir-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt">Load Image Matrix</div></div>
-    <div class="pill" id="ir-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="ir-pname"></div><div class="pill-meta" id="ir-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Spatial Parameters</div>
-  <div class="card">
-    <div class="cgrid">
-      <div class="ctrl"><label>Width (px)</label><input type="number" id="ir-w" placeholder="e.g. 800"/></div>
-      <div class="ctrl"><label>Height (px)</label><input type="number" id="ir-h" placeholder="e.g. 600"/></div>
-      <div class="ctrl"><label>Target Size (Max KB)</label><input type="number" id="ir-kb" placeholder="e.g. 50"/></div>
-      <div class="ctrl"><label>File Name</label><input type="text" id="ir-name" value="resized_image"/></div>
-    </div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="ir-run" disabled>⤡ Scale Matrix</button>
-    <div class="proc-area" id="ir-proc"><div class="log" id="ir-log"></div></div>
-  </div>
-  <div class="card" id="ir-out" style="display:none"><div class="dl-list" id="ir-dl"></div></div>
-</div>
-
-<!-- 14. Passport Photo Maker -->
-<div id="tool-passport" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">🖼 Passport Protocol</span></div>
-  <div class="slabel">01 — Biometric Input</div>
-  <div class="card">
-    <div class="dz" id="pp-dz"><input type="file" id="pp-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt">Load Photo Matrix</div></div>
-    <div class="pill" id="pp-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="pp-pname"></div><div class="pill-meta" id="pp-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Matrix Transforms</div>
-  <div class="card">
-    <div class="preview-canvas-container" style="background:#eee;">
-       <canvas id="pp-canvas" class="preview"></canvas>
-    </div>
-    <div class="cgrid">
-      <div class="ctrl"><label>Rotation (°)</label><div class="rrow"><input type="range" id="pp-rot" min="-180" max="180" value="0"/><span class="rv" id="pp-rotV">0°</span></div></div>
-      <div class="ctrl"><label>Brightness</label><div class="rrow"><input type="range" id="pp-br" min="0" max="200" value="100"/><span class="rv" id="pp-brV">100%</span></div></div>
-      <div class="ctrl"><label>Contrast</label><div class="rrow"><input type="range" id="pp-con" min="0" max="200" value="100"/><span class="rv" id="pp-conV">100%</span></div></div>
-      <div class="ctrl"><label>Saturation</label><div class="rrow"><input type="range" id="pp-sat" min="0" max="200" value="100"/><span class="rv" id="pp-satV">100%</span></div></div>
-    </div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="pp-run" disabled>🖼 Finalize Biometrics</button>
-    <div class="proc-area" id="pp-proc"><div class="log" id="pp-log"></div></div>
-  </div>
-  <div class="card" id="pp-out" style="display:none"><div class="dl-list" id="pp-dl"></div></div>
-</div>
-
-<!-- 15. Signature Digitizer -->
-<div id="tool-signature" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">✍ Signature Extraction</span></div>
-  <div class="card">
-    <button class="desc-toggle">ℹ Luminance Parsing ▾</button>
-    <div class="desc-body" style="display:none">
-      Extracting ink requires programmatic pixel iteration. High luminance pixels (white paper) have their Alpha channel forced to 0 (transparent).
-    </div>
-  </div>
-  <div class="slabel">01 — Physical Scan Input</div>
-  <div class="card">
-    <div class="dz" id="sg-dz"><input type="file" id="sg-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt">Load Signature Matrix</div></div>
-    <div class="pill" id="sg-pill"><span style="font-size:1.2rem">✅</span><div><div class="pill-name" id="sg-pname"></div><div class="pill-meta" id="sg-pmeta"></div></div></div>
-  </div>
-  <div class="slabel">02 — Extraction Matrix</div>
-  <div class="card">
-    <div class="preview-canvas-container" style="background-image: repeating-linear-gradient(45deg, var(--border) 25%, transparent 25%, transparent 75%, var(--border) 75%, var(--border)), repeating-linear-gradient(45deg, var(--border) 25%, var(--bg) 25%, var(--bg) 75%, var(--border) 75%, var(--border)); background-position: 0 0, 10px 10px; background-size: 20px 20px;">
-       <canvas id="sg-canvas" class="preview"></canvas>
-    </div>
-    <div class="ctrl"><label>Luminance Tolerance (Background Deletion)</label><input type="range" id="sg-lum" min="0" max="255" value="200"/></div>
-    <div class="ctrl" style="margin-top:12px;"><label>Ink Density (Contrast)</label><input type="range" id="sg-con" min="1" max="100" value="50"/></div>
-  </div>
-  <div class="slabel">03 — Execution</div>
-  <div class="card">
-    <button class="run" id="sg-run" disabled>✍ Digitize Ink</button>
-    <div class="proc-area" id="sg-proc"><div class="log" id="sg-log"></div></div>
-  </div>
-  <div class="card" id="sg-out" style="display:none"><div class="dl-list" id="sg-dl"></div></div>
-</div>
-
-<!-- 16. Scientific Calculator -->
-<div id="tool-calc" class="tool-panel page">
-  <div class="nav-bar"><button class="nav-back">‹ Back to Suite</button><span class="nav-title">∑ Multifunction Graphing</span></div>
-  <div class="tab-bar">
-    <button class="tab-btn active" data-tgt="calc-t0">Calculator</button>
-    <button class="tab-btn" data-tgt="calc-t1">Grapher</button>
-  </div>
-  <div class="tab-pane active" id="calc-t0">
+    <div class="slabel">01 — Document Input</div>
     <div class="card">
+      <div class="sess-tray" id="bk-sess"><b>Session files:</b><div class="sess-file-list" id="bk-slist"></div></div>
+      <div class="dz" id="bk-dz"><input type="file" id="bk-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="bk-pill"><span>✅</span><div><div class="pill-name" id="bk-pname">—</div><div class="pill-meta" id="bk-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Parameters</div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Sheets per Signature</label>
+          <select id="bk-sheets">
+            <option value="1">1 sheet → 4 pages per sig</option>
+            <option value="2">2 sheets → 8 pages per sig</option>
+            <option value="3">3 sheets → 12 pages per sig</option>
+            <option value="4" selected>4 sheets → 16 pages per sig</option>
+          </select>
+        </div>
+        <div class="ctrl"><label>Computed Sub-page Width</label><div class="computed" id="bk-pw">—</div></div>
+        <div class="ctrl"><label>Spine Gap (mm)</label><div class="rrow"><input type="range" id="bk-gap" min="20" max="60" value="30"/><span class="rv" id="bk-gapV">30</span></div></div>
+        <div class="ctrl"><label>Outer Trim (mm)</label><div class="rrow"><input type="range" id="bk-out" min="0" max="30" value="0"/><span class="rv" id="bk-outV">0</span></div></div>
+      </div>
+      <div class="tog-row">
+        <div class="tog-txt">Include Registration Marks<small>Fold guide, "Sig. N · Sheet N of N" label, 4 binding dots</small></div>
+        <label class="tog"><input type="checkbox" id="bk-marks" checked/><span class="knob"></span></label>
+      </div>
+      <div class="info">Canvas fixed at <b>277 × 190 mm</b> (A4 landscape − 10 mm print borders). Sub-page = <b>(277 − gap − 2×outer) / 2</b>. Pages are stretched (no aspect ratio lock).</div>
+    </div>
+    <div class="slabel">03 — Process</div>
+    <div class="card">
+      <button class="run" id="bk-run" disabled>📖 Process Booklet</button>
+      <div class="proc-area" id="bk-proc">
+        <div class="steps-row"><div class="step-chip" id="bk-c1">① Resize</div><div class="step-chip" id="bk-c2">② Impose</div><div class="step-chip" id="bk-c3">③ Marks</div></div>
+        <div class="ptrack"><div class="pfill" id="bk-pf"></div></div>
+        <div class="log" id="bk-log"></div>
+      </div>
+    </div>
+    <div class="slabel" id="bk-dlab" style="display:none">04 — Downloads</div>
+    <div class="card" id="bk-dsect" style="display:none"><div class="dl-list" id="bk-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: MERGE ══════════ -->
+<div id="tool-merge" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⊕ PDF Merge</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('mg-d')">ℹ How Merge Works ▾</button>
+      <div id="mg-d" class="desc-body"><b>What it does:</b> Concatenates multiple PDF files into one output document, preserving all pages from each source. Files are appended in the queue order shown below — use Up/Down to reorder before running.<br><br><b>Tip:</b> You can add the same file twice to duplicate its contents.</div>
+    </div>
+    <div class="slabel">01 — File Queue</div>
+    <div class="card">
+      <div class="sess-tray" id="mg-sess"><b>Session:</b><div class="sess-file-list" id="mg-slist"></div></div>
+      <div class="btn-row">
+        <button class="btn-sm primary" onclick="mgAdd()">+ Add PDFs</button>
+        <button class="btn-sm" onclick="mgMove(-1)">↑ Up</button>
+        <button class="btn-sm" onclick="mgMove(1)">↓ Down</button>
+        <button class="btn-sm danger" onclick="mgRem()">✕ Remove</button>
+        <button class="btn-sm" onclick="mgClear()">Clear All</button>
+      </div>
+      <input type="file" id="mg-fi" accept=".pdf" multiple style="display:none"/>
+      <div class="dz" id="mg-dz" style="margin-bottom:8px" onclick="mgAdd()">
+        <div class="dz-icon">📄</div>
+        <div class="dz-txt"><b>Drag &amp; drop PDFs here</b> or use + Add button</div>
+      </div>
+      <div class="fl-box" id="mg-list"><div style="padding:10px;color:var(--muted);font-size:.75rem">Queue empty. Add PDFs above.</div></div>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:4px;font-family:var(--mono)" id="mg-stats"></div>
+    </div>
+    <div class="slabel">02 — Execute</div>
+    <div class="card">
+      <button class="run" id="mg-run" disabled>⊕ Merge All</button>
+      <div class="proc-area" id="mg-proc"><div class="ptrack"><div class="pfill" id="mg-pf"></div></div><div class="log" id="mg-log"></div></div>
+    </div>
+    <div class="slabel" id="mg-dlab" style="display:none">03 — Download</div>
+    <div class="card" id="mg-dsect" style="display:none"><div class="dl-list" id="mg-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: SPLIT ══════════ -->
+<div id="tool-split" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">✂ PDF Split</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('sp-d')">ℹ Split Modes ▾</button>
+      <div id="sp-d" class="desc-body">
+        <b>Custom Ranges</b> — e.g. <code>1-5, 8, 10-12</code> — each token = one output file.<br>
+        <b>Uniform Interval</b> — chop into equal N-page batches.<br>
+        <b>Granular Extraction</b> — e.g. <code>3, 7, 12</code> — each page = its own file.
+      </div>
+    </div>
+    <div class="slabel">01 — Source</div>
+    <div class="card">
+      <div class="sess-tray" id="sp-sess"><b>Session:</b><div class="sess-file-list" id="sp-slist"></div></div>
+      <div class="dz" id="sp-dz"><input type="file" id="sp-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="sp-pill"><span>✅</span><div><div class="pill-name" id="sp-pname">—</div><div class="pill-meta" id="sp-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Method</div>
+    <div class="card">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="spTab(0,this)">Ranges</button>
+        <button class="tab-btn" onclick="spTab(1,this)">Interval</button>
+        <button class="tab-btn" onclick="spTab(2,this)">Extract Pages</button>
+      </div>
+      <div class="tab-pane active" id="sp-t0"><div style="font-size:.75rem;color:var(--dim);margin-bottom:6px">Page ranges e.g. <code style="color:var(--gold)">1-5, 8, 10-12</code></div><input type="text" id="sp-ranges" placeholder="1-5, 8, 10-12"/></div>
+      <div class="tab-pane" id="sp-t1"><div class="ctrl" style="margin-top:6px"><label>Pages per batch</label><div class="rrow"><input type="range" id="sp-n" min="1" max="50" value="10"/><span class="rv" id="sp-nV">10</span></div></div></div>
+      <div class="tab-pane" id="sp-t2"><div style="font-size:.75rem;color:var(--dim);margin-bottom:6px">Individual pages e.g. <code style="color:var(--gold)">3, 7, 12</code></div><input type="text" id="sp-extract" placeholder="3, 7, 12"/></div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn-sm primary" onclick="spPreview()">👁 Preview Splits</button></div>
+      <div id="sp-prv-area" style="display:none;margin-top:8px"><div class="fl-box" id="sp-prv-list"></div><div style="font-size:.7rem;color:var(--muted);font-family:var(--mono);margin-top:4px" id="sp-prv-count"></div></div>
+    </div>
+    <div class="slabel">03 — Execute</div>
+    <div class="card">
+      <button class="run" id="sp-run" disabled>✂ Split PDF</button>
+      <div class="proc-area" id="sp-proc"><div class="ptrack"><div class="pfill" id="sp-pf"></div></div><div class="log" id="sp-log"></div></div>
+    </div>
+    <div class="slabel" id="sp-dlab" style="display:none">04 — Output Files</div>
+    <div class="card" id="sp-dsect" style="display:none"><div class="dl-list" id="sp-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: COMPRESS ══════════ -->
+<div id="tool-compress" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⊘ PDF Compress</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('cp-d')">ℹ What Compression Does ▾</button>
+      <div id="cp-d" class="desc-body"><b>Lossless only:</b> Re-serialises the PDF with DEFLATE compression on uncompressed data streams and packs objects into clustered streams. Removes structural bloat and orphaned objects. Does <b>not</b> downsample images — image-heavy PDFs need a server-side tool for large reductions.</div>
+    </div>
+    <div class="slabel">01 — Source</div>
+    <div class="card">
+      <div class="sess-tray" id="cp-sess"><b>Session:</b><div class="sess-file-list" id="cp-slist"></div></div>
+      <div class="dz" id="cp-dz"><input type="file" id="cp-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="cp-pill"><span>✅</span><div><div class="pill-name" id="cp-pname">—</div><div class="pill-meta" id="cp-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Execute</div>
+    <div class="card">
+      <button class="run" id="cp-run" disabled>⊘ Compress PDF</button>
+      <div class="proc-area" id="cp-proc"><div class="ptrack"><div class="pfill" id="cp-pf"></div></div><div class="log" id="cp-log"></div></div>
+    </div>
+    <div class="slabel" id="cp-dlab" style="display:none">03 — Output</div>
+    <div class="card" id="cp-dsect" style="display:none"><div class="dl-list" id="cp-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: N-UP ══════════ -->
+<div id="tool-nup" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⊞ N-up Layout</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('nu-d')">ℹ What is N-up? ▾</button>
+      <div id="nu-d" class="desc-body"><b>N-up</b> places N source pages onto one output sheet in a grid. "2-up" = 2 side by side; "4-up" = 2×2 grid. Uses: printing lecture slides (6 per page), compact study notes, or proof printing.<br><br><b>Cell size:</b> (sheet width − 2×margin − (cols−1)×spacing) / cols, and similarly for height.</div>
+    </div>
+    <div class="slabel">01 — Source</div>
+    <div class="card">
+      <div class="sess-tray" id="nu-sess"><b>Session:</b><div class="sess-file-list" id="nu-slist"></div></div>
+      <div class="dz" id="nu-dz"><input type="file" id="nu-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="nu-pill"><span>✅</span><div><div class="pill-name" id="nu-pname">—</div><div class="pill-meta" id="nu-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Grid</div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Rows</label><div class="rrow"><input type="range" id="nu-rows" min="1" max="4" value="2"/><span class="rv" id="nu-rowsV">2</span></div></div>
+        <div class="ctrl"><label>Columns</label><div class="rrow"><input type="range" id="nu-cols" min="1" max="4" value="2"/><span class="rv" id="nu-colsV">2</span></div></div>
+        <div class="ctrl"><label>Cell gap (mm)</label><div class="rrow"><input type="range" id="nu-sp" min="0" max="20" value="4"/><span class="rv" id="nu-spV">4</span></div></div>
+        <div class="ctrl"><label>Margin (mm)</label><div class="rrow"><input type="range" id="nu-mg" min="0" max="30" value="8"/><span class="rv" id="nu-mgV">8</span></div></div>
+      </div>
+      <div class="ctrl" style="margin-top:10px"><label>Output Paper</label>
+        <select id="nu-size">
+          <option value="595,842">A4 Portrait</option><option value="842,595">A4 Landscape</option>
+          <option value="842,1190">A3 Portrait</option><option value="612,792">US Letter</option>
+        </select>
+      </div>
+      <div class="info" id="nu-info">Grid: 2×2 = <b>4 source pages per sheet</b></div>
+    </div>
+    <div class="slabel">03 — Execute</div>
+    <div class="card">
+      <button class="run" id="nu-run" disabled>⊞ Build N-up</button>
+      <div class="proc-area" id="nu-proc"><div class="ptrack"><div class="pfill" id="nu-pf"></div></div><div class="log" id="nu-log"></div></div>
+    </div>
+    <div class="slabel" id="nu-dlab" style="display:none">04 — Output</div>
+    <div class="card" id="nu-dsect" style="display:none"><div class="dl-list" id="nu-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: REARRANGE ══════════ -->
+<div id="tool-rearrange" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⇅ Rearrange Pages</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('ra-d')">ℹ How to Use ▾</button>
+      <div id="ra-d" class="desc-body">Click a row to select it (highlighted gold), then use the action buttons. <b>Clone</b> duplicates a page. <b>Reset</b> restores the original order. The original file is never modified.</div>
+    </div>
+    <div class="slabel">01 — Source</div>
+    <div class="card">
+      <div class="sess-tray" id="ra-sess"><b>Session:</b><div class="sess-file-list" id="ra-slist"></div></div>
+      <div class="dz" id="ra-dz"><input type="file" id="ra-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="ra-pill"><span>✅</span><div><div class="pill-name" id="ra-pname">—</div><div class="pill-meta" id="ra-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Page Sequence</div>
+    <div class="card">
+      <div class="btn-row">
+        <button class="btn-sm" onclick="raShift(-1)">↑ Up</button><button class="btn-sm" onclick="raShift(1)">↓ Down</button>
+        <button class="btn-sm" onclick="raDup()">Clone</button><button class="btn-sm danger" onclick="raDel()">✕ Delete</button>
+        <button class="btn-sm" onclick="raReset()">↺ Reset</button>
+      </div>
+      <div class="fl-box" id="ra-list"><div style="padding:10px;color:var(--muted);font-size:.75rem">Load a document to see pages here.</div></div>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:4px;font-family:var(--mono)" id="ra-count"></div>
+    </div>
+    <div class="slabel">03 — Execute</div>
+    <div class="card">
+      <button class="run" id="ra-run" disabled>⇅ Build Reordered PDF</button>
+      <div class="proc-area" id="ra-proc"><div class="ptrack"><div class="pfill" id="ra-pf"></div></div><div class="log" id="ra-log"></div></div>
+    </div>
+    <div class="slabel" id="ra-dlab" style="display:none">04 — Output</div>
+    <div class="card" id="ra-dsect" style="display:none"><div class="dl-list" id="ra-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: PDF→IMAGE ══════════ -->
+<div id="tool-toimage" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">◫ PDF → Image</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('ti-d')">ℹ DPI &amp; Format Guide ▾</button>
+      <div id="ti-d" class="desc-body"><b>DPI:</b> 72–96 = screen only · 150 = presentations · 200–300 = print quality.<br><b>PNG</b> = lossless, larger, ideal for text. <b>JPEG</b> = lossy, smaller, better for photos.<br><b>Note:</b> Requires pdf.js — loads from CDN unless ./js/pdf.min.js is present.</div>
+    </div>
+    <div class="slabel">01 — Source</div>
+    <div class="card">
+      <div class="sess-tray" id="ti-sess"><b>Session:</b><div class="sess-file-list" id="ti-slist"></div></div>
+      <div class="dz" id="ti-dz"><input type="file" id="ti-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="ti-pill"><span>✅</span><div><div class="pill-name" id="ti-pname">—</div><div class="pill-meta" id="ti-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Settings</div>
+    <div class="card">
+      <div class="ctrl" style="margin-bottom:10px"><label>DPI</label>
+        <div class="radio-row"><label><input type="radio" name="ti-dpi" value="72"/> 72</label><label><input type="radio" name="ti-dpi" value="96"/> 96</label><label><input type="radio" name="ti-dpi" value="150" checked/> 150</label><label><input type="radio" name="ti-dpi" value="200"/> 200</label><label><input type="radio" name="ti-dpi" value="300"/> 300</label></div>
+      </div>
+      <div class="ctrl" style="margin-bottom:10px"><label>Format</label>
+        <div class="radio-row"><label><input type="radio" name="ti-fmt" value="png" checked/> PNG</label><label><input type="radio" name="ti-fmt" value="jpeg"/> JPEG</label></div>
+      </div>
+      <div class="ctrl"><label>Pages (blank = all, or e.g. 1-3, 5)</label><input type="text" id="ti-pages" placeholder="All pages"/></div>
+    </div>
+    <div class="slabel">03 — Execute</div>
+    <div class="card">
+      <button class="run" id="ti-run" disabled>◫ Render Images</button>
+      <div class="proc-area" id="ti-proc"><div class="ptrack"><div class="pfill" id="ti-pf"></div></div><div class="log" id="ti-log"></div></div>
+    </div>
+    <div class="slabel" id="ti-dlab" style="display:none">04 — Images</div>
+    <div class="card" id="ti-dsect" style="display:none"><div class="dl-list" id="ti-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: ADD WATERMARK ══════════ -->
+<div id="tool-wmadd" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⬡ Add Watermark</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('wa-d')">ℹ Parameters ▾</button>
+      <div id="wa-d" class="desc-body"><b>Opacity:</b> 100% = fully visible. 15–30% = classic transparent stamp.<br><b>Rotation:</b> −45° gives the diagonal watermark look. 0° = horizontal.<br><b>Colour:</b> Enter any hex code e.g. <code>#FF0000</code> for red.</div>
+    </div>
+    <div class="slabel">01 — Source</div>
+    <div class="card">
+      <div class="sess-tray" id="wa-sess"><b>Session:</b><div class="sess-file-list" id="wa-slist"></div></div>
+      <div class="dz" id="wa-dz"><input type="file" id="wa-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="wa-pill"><span>✅</span><div><div class="pill-name" id="wa-pname">—</div><div class="pill-meta" id="wa-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Stamp Settings</div>
+    <div class="card">
+      <div class="ctrl" style="margin-bottom:10px"><label>Watermark Text</label><input type="text" id="wa-text" value="CONFIDENTIAL"/></div>
+      <div class="cgrid">
+        <div class="ctrl"><label>Font Size (pt)</label><div class="rrow"><input type="range" id="wa-fs" min="12" max="120" value="52"/><span class="rv" id="wa-fsV">52</span></div></div>
+        <div class="ctrl"><label>Opacity (%)</label><div class="rrow"><input type="range" id="wa-op" min="5" max="100" value="25"/><span class="rv" id="wa-opV">25%</span></div></div>
+        <div class="ctrl"><label>Rotation (°)</label><div class="rrow"><input type="range" id="wa-rot" min="-180" max="180" value="-45"/><span class="rv" id="wa-rotV">-45°</span></div></div>
+        <div class="ctrl"><label>Colour (hex)</label><input type="text" id="wa-col" value="#4F8EF7"/></div>
+      </div>
+      <div class="ctrl" style="margin-top:10px"><label>Position</label>
+        <select id="wa-pos">
+          <option value="diag">Centre — Diagonal</option><option value="center">Centre — Horizontal</option>
+          <option value="tl">Top-left</option><option value="tr">Top-right</option>
+          <option value="bl">Bottom-left</option><option value="br">Bottom-right</option>
+        </select>
+      </div>
+    </div>
+    <div class="slabel">03 — Execute</div>
+    <div class="card">
+      <button class="run" id="wa-run" disabled>⬡ Apply Watermark</button>
+      <div class="proc-area" id="wa-proc"><div class="ptrack"><div class="pfill" id="wa-pf"></div></div><div class="log" id="wa-log"></div></div>
+    </div>
+    <div class="slabel" id="wa-dlab" style="display:none">04 — Output</div>
+    <div class="card" id="wa-dsect" style="display:none"><div class="dl-list" id="wa-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: REMOVE WATERMARK ══════════ -->
+<div id="tool-wmremove" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">◌ Remove Watermark</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('wr-d')">ℹ Detection Methods &amp; Honest Limits ▾</button>
+      <div id="wr-d" class="desc-body">
+        <b>Where watermarks live in a PDF:</b><br>
+        <ul><li><b>Annotation layer</b> — Separate overlay, added by tools like Acrobat stamps. Fully removable.</li><li><b>XObject overlays</b> — Embedded graphic templates. Detectable and strippable.</li><li><b>Content stream</b> — Drawn directly into the page during original creation. Cannot be removed without re-rasterizing the entire page (needs Ghostscript/server-side tool).</li></ul>
+        <b>Strategy 1:</b> Strips the <code>Annots</code> array — handles most stamp/sticker watermarks.<br>
+        <b>Strategy 2:</b> Searches content stream text for your keyword and blanks the region. Works on simple text watermarks.<br><br>
+        <b>Always Scan first</b> — the result recommends which strategy applies.
+      </div>
+    </div>
+    <div class="slabel">01 — Source</div>
+    <div class="card">
+      <div class="sess-tray" id="wr-sess"><b>Session:</b><div class="sess-file-list" id="wr-slist"></div></div>
+      <div class="dz" id="wr-dz"><input type="file" id="wr-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="wr-pill"><span>✅</span><div><div class="pill-name" id="wr-pname">—</div><div class="pill-meta" id="wr-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Detect &amp; Strategy</div>
+    <div class="card">
+      <div class="btn-row"><button class="btn-sm primary" onclick="wrScan()">🔍 Scan Document First</button></div>
+      <div class="log" id="wr-scanlog" style="margin-top:8px;display:none"></div>
+      <div style="margin-top:12px">
+        <div class="cb-row"><input type="checkbox" id="wr-ann" checked/><label><b>Strategy 1:</b> Strip annotation layer</label></div>
+        <div class="cb-row" style="margin-top:5px"><input type="checkbox" id="wr-txt"/><label><b>Strategy 2:</b> Blank region containing keyword:</label></div>
+        <input type="text" id="wr-txtval" placeholder="e.g. DRAFT" style="margin-top:5px"/>
+        <div class="info" style="margin-top:8px">Scan first — the result will tell you which strategy fits your file.</div>
+      </div>
+    </div>
+    <div class="slabel">03 — Execute</div>
+    <div class="card">
+      <button class="run" id="wr-run" disabled>◌ Clean Document</button>
+      <div class="proc-area" id="wr-proc"><div class="ptrack"><div class="pfill" id="wr-pf"></div></div><div class="log" id="wr-log"></div></div>
+      <div id="wr-prv-area" style="display:none;margin-top:10px">
+        <div class="slabel" style="margin-top:10px">Preview a page after cleaning</div>
+        <div style="display:flex;gap:7px;align-items:center;margin-bottom:7px">
+          <input type="number" id="wr-prv-pg" min="1" value="1" style="width:65px"/>
+          <button class="btn-sm primary" onclick="wrPreviewPage()">👁 Preview</button>
+        </div>
+        <div id="wr-prv-wrap" style="display:none" class="img-wrap"><canvas id="wr-prv-cv" class="img-canvas"></canvas></div>
+      </div>
+    </div>
+    <div class="slabel" id="wr-dlab" style="display:none">04 — Output</div>
+    <div class="card" id="wr-dsect" style="display:none"><div class="dl-list" id="wr-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: UNLOCK ══════════ -->
+<div id="tool-unlock" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">🔓 Unlock PDF</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('un-d')">ℹ What Unlock Does ▾</button>
+      <div id="un-d" class="desc-body"><b>Strips RC4/AES encryption</b> from a password-protected PDF. You must supply the correct password — no brute-force.<br><br><b>Aadhaar PDFs</b> are usually locked with your date of birth in DDMMYYYY format. Bank statements often use account number or DOB.<br><br>Owner-password-only files (restrict printing but not opening) are handled automatically — leave the password blank.</div>
+    </div>
+    <div class="slabel">01 — Locked Document</div>
+    <div class="card">
+      <div class="dz" id="un-dz"><input type="file" id="un-fi" accept=".pdf"/><div class="dz-icon">🔒</div><div class="dz-txt"><b>Click or drop a locked PDF</b></div></div>
+      <div class="pill" id="un-pill"><span>✅</span><div><div class="pill-name" id="un-pname">—</div><div class="pill-meta" id="un-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Password &amp; Execute</div>
+    <div class="card">
+      <div class="ctrl" style="margin-bottom:10px"><label>Password (Aadhaar: try DDMMYYYY)</label><input type="password" id="un-pwd" placeholder="Enter password"/></div>
+      <button class="run" id="un-run" disabled>🔓 Decrypt &amp; Remove Password</button>
+      <div class="proc-area" id="un-proc"><div class="log" id="un-log"></div></div>
+    </div>
+    <div class="slabel" id="un-dlab" style="display:none">03 — Output</div>
+    <div class="card" id="un-dsect" style="display:none"><div class="dl-list" id="un-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: VERIFIED STAMP ══════════ -->
+<div id="tool-verified" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">✅ Verified Stamp</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('vf-d')">ℹ What This Stamp Does ▾</button>
+      <div id="vf-d" class="desc-body"><b>Adds a visual rubber-stamp graphic</b> to your PDF — a bordered rectangle with a ✓ checkmark, the selected text, and an optional date. Common use: self-attesting Aadhaar cards, mark sheets, or government documents before submission.<br><br><b>This is a visual mark only</b> — not a cryptographic digital signature. For legal DSC/eSign, use Aadhaar eSign or a licensed DSC tool.</div>
+    </div>
+    <div class="slabel">01 — Source</div>
+    <div class="card">
+      <div class="sess-tray" id="vf-sess"><b>Session:</b><div class="sess-file-list" id="vf-slist"></div></div>
+      <div class="dz" id="vf-dz"><input type="file" id="vf-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
+      <div class="pill" id="vf-pill"><span>✅</span><div><div class="pill-name" id="vf-pname">—</div><div class="pill-meta" id="vf-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Stamp Options</div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Stamp Text</label>
+          <select id="vf-txt"><option>VERIFIED</option><option>SELF ATTESTED</option><option>TRUE COPY</option><option>CERTIFIED COPY</option></select>
+        </div>
+        <div class="ctrl"><label>Colour</label>
+          <select id="vf-col"><option value="green">Green</option><option value="blue">Blue</option><option value="red">Red</option></select>
+        </div>
+        <div class="ctrl"><label>Position</label>
+          <select id="vf-pos"><option value="br">Bottom-right</option><option value="bl">Bottom-left</option><option value="tr">Top-right</option><option value="tl">Top-left</option></select>
+        </div>
+        <div class="ctrl"><label>Apply to pages (e.g. 1, or "all")</label><input type="text" id="vf-pages" value="all"/></div>
+      </div>
+      <div class="tog-row">
+        <div class="tog-txt">Include today's date<small>Printed below stamp text</small></div>
+        <label class="tog"><input type="checkbox" id="vf-date"/><span class="knob"></span></label>
+      </div>
+    </div>
+    <div class="slabel">03 — Execute</div>
+    <div class="card">
+      <button class="run" id="vf-run" disabled>✅ Apply Stamp</button>
+      <div class="proc-area" id="vf-proc"><div class="ptrack"><div class="pfill" id="vf-pf"></div></div><div class="log" id="vf-log"></div></div>
+    </div>
+    <div class="slabel" id="vf-dlab" style="display:none">04 — Output</div>
+    <div class="card" id="vf-dsect" style="display:none"><div class="dl-list" id="vf-dlist"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: IMAGE COMPRESS ══════════ -->
+<div id="tool-imgcompress" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">🗜 Image Compressor</span><div class="nav-right"><a href="https://squoosh.app" target="_blank" class="btn-sm green">🌐 Squoosh</a></div></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('ic-d')">ℹ Compression Guide ▾</button>
+      <div id="ic-d" class="desc-body"><b>Quality %:</b> Controls data discarded during JPEG/WebP encoding. 100% = no compression. 60–80% = sweet spot (visually near-identical, ~50–70% smaller).<br><b>PNG:</b> Quality % has no effect — PNG is lossless. Reduce dimensions for PNG size reduction.<br><b>WebP:</b> Better quality-to-size ratio than JPEG. Widely browser-supported.<br><b>Squoosh</b> (link in nav bar) = Google's tool with more codecs (AVIF, oxipng, etc.).</div>
+    </div>
+    <div class="slabel">01 — Source Image</div>
+    <div class="card">
+      <div class="dz" id="ic-dz"><input type="file" id="ic-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt"><b>Click or drop an image</b> — JPEG, PNG, WebP, GIF</div></div>
+      <div class="pill" id="ic-pill"><span>✅</span><div><div class="pill-name" id="ic-pname">—</div><div class="pill-meta" id="ic-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Settings</div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Output Format</label>
+          <select id="ic-fmt" onchange="icUpdate()"><option value="image/jpeg">JPEG — photos</option><option value="image/png">PNG — lossless</option><option value="image/webp">WebP — modern</option></select>
+        </div>
+        <div class="ctrl"><label>Quality: <span id="ic-qV" style="color:var(--gold);font-family:var(--mono)">80%</span></label>
+          <div class="rrow"><input type="range" id="ic-q" min="1" max="100" value="80" oninput="this.nextElementSibling.style.display='none';icUpdate()"/></div>
+        </div>
+      </div>
+    </div>
+    <div class="slabel">03 — Before / After</div>
+    <div class="card">
+      <div class="cmp-grid">
+        <div><div class="cmp-lbl">Original</div><div class="img-wrap"><canvas id="ic-orig" class="img-canvas"></canvas></div><div class="cmp-sz" id="ic-orig-sz">—</div></div>
+        <div><div class="cmp-lbl">Compressed</div><div class="img-wrap"><canvas id="ic-out" class="img-canvas"></canvas></div><div class="cmp-sz" id="ic-out-sz">—</div></div>
+      </div>
+    </div>
+    <div class="slabel">04 — Download</div>
+    <div class="card"><button class="run" id="ic-run" disabled>⬇ Download Compressed</button></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: IMAGE RESIZE ══════════ -->
+<div id="tool-imgresize" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">📐 Image Resize</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('ir-d')">ℹ Dimensions, DPI &amp; File Size ▾</button>
+      <div id="ir-d" class="desc-body">
+        <b>Pixels vs Physical Size:</b> Physical size only has meaning with DPI. Formula: <code>pixels = size × DPI</code>. E.g. 3.5 cm at 200 DPI = <code>3.5 ÷ 2.54 × 200 ≈ 276 px</code>.<br><br>
+        <b>Common exam/govt requirements:</b><br>
+        <ul><li>Photograph: 3.5 × 4.5 cm, 200 DPI, max 50 KB, JPEG</li><li>Signature: 3.5 × 1.5 cm, 200 DPI, max 20 KB, JPEG</li></ul>
+        <b>Target KB:</b> The tool iteratively adjusts JPEG quality via binary search until output is within ~5% of your target.<br>
+        <b>Keep Aspect Ratio:</b> Changing one dimension auto-scales the other.
+      </div>
+    </div>
+    <div class="slabel">01 — Source Image</div>
+    <div class="card">
+      <div class="dz" id="ir-dz"><input type="file" id="ir-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt"><b>Click or drop an image</b></div></div>
+      <div class="pill" id="ir-pill"><span>✅</span><div><div class="pill-name" id="ir-pname">—</div><div class="pill-meta" id="ir-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Target Dimensions</div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Width</label><input type="number" id="ir-w" placeholder="e.g. 200" min="1" oninput="irAspect('w')"/></div>
+        <div class="ctrl"><label>Height</label><input type="number" id="ir-h" placeholder="e.g. 200" min="1" oninput="irAspect('h')"/></div>
+        <div class="ctrl"><label>Unit</label>
+          <select id="ir-unit" onchange="irCalcInfo()"><option value="px">px — pixels</option><option value="cm">cm</option><option value="in">inch</option></select>
+        </div>
+        <div class="ctrl"><label>DPI</label>
+          <select id="ir-dpi" onchange="irCalcInfo()">
+            <option value="72">72</option><option value="96">96</option><option value="100">100</option>
+            <option value="150">150</option><option value="200" selected>200</option>
+            <option value="300">300</option><option value="400">400</option>
+            <option value="600">600</option><option value="1200">1200</option>
+          </select>
+        </div>
+        <div class="ctrl"><label>Max KB (0 = no limit)</label><input type="number" id="ir-maxkb" value="0" min="0"/></div>
+        <div class="ctrl"><label>Format</label>
+          <select id="ir-fmt"><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select>
+        </div>
+        <div class="ctrl" style="grid-column:1/-1"><label>Filename (no extension)</label><input type="text" id="ir-name" placeholder="resized_photo"/></div>
+      </div>
+      <div class="tog-row">
+        <div class="tog-txt">Keep Aspect Ratio<small>Adjusting one dimension auto-scales the other</small></div>
+        <label class="tog"><input type="checkbox" id="ir-asp" checked/><span class="knob"></span></label>
+      </div>
+      <div class="info" id="ir-info">Enter dimensions above to see pixel calculation.</div>
+    </div>
+    <div class="slabel">03 — Resize &amp; Download</div>
+    <div class="card">
+      <button class="run" id="ir-run" disabled>📐 Resize &amp; Download</button>
+      <div class="proc-area" id="ir-proc"><div class="log" id="ir-log"></div></div>
+      <div id="ir-prv-wrap" style="display:none;margin-top:9px" class="img-wrap"><canvas id="ir-cv" class="img-canvas"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: PASSPORT PHOTO ══════════ -->
+<div id="tool-passport" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">🪪 Passport Photo Maker</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('pp-d')">ℹ Photo Size Requirements ▾</button>
+      <div id="pp-d" class="desc-body"><b>Common Indian photo sizes:</b><ul><li><b>Indian Passport:</b> 51×51 mm, white/light-blue background</li><li><b>Aadhaar/PAN:</b> 35×45 mm, white background</li><li><b>UPSC/SSC:</b> 3.5×4.5 cm at 200 DPI (≈276×354 px)</li><li><b>US Visa:</b> 51×51 mm at 300 DPI (≈600×600 px)</li></ul><b>Crop tips:</b> Use the crop sliders to frame your face. Adjustments help if background is slightly grey.</div>
+    </div>
+    <div class="slabel">01 — Portrait</div>
+    <div class="card">
+      <div class="dz" id="pp-dz"><input type="file" id="pp-fi" accept="image/*"/><div class="dz-icon">🪪</div><div class="dz-txt"><b>Click or drop a portrait photo</b> — use white/light background</div></div>
+      <div class="pill" id="pp-pill"><span>✅</span><div><div class="pill-name" id="pp-pname">—</div><div class="pill-meta" id="pp-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Crop &amp; Rotate</div>
+    <div class="card">
+      <div class="cgrid">
+        <div class="ctrl"><label>Crop Left %</label><div class="rrow"><input type="range" id="pp-cl" min="0" max="49" value="0" oninput="ppPreview()"/><span class="rv" id="pp-clV">0%</span></div></div>
+        <div class="ctrl"><label>Crop Right %</label><div class="rrow"><input type="range" id="pp-cr" min="0" max="49" value="0" oninput="ppPreview()"/><span class="rv" id="pp-crV">0%</span></div></div>
+        <div class="ctrl"><label>Crop Top %</label><div class="rrow"><input type="range" id="pp-ct" min="0" max="49" value="0" oninput="ppPreview()"/><span class="rv" id="pp-ctV">0%</span></div></div>
+        <div class="ctrl"><label>Crop Bottom %</label><div class="rrow"><input type="range" id="pp-cb" min="0" max="49" value="0" oninput="ppPreview()"/><span class="rv" id="pp-cbV">0%</span></div></div>
+        <div class="ctrl" style="grid-column:1/-1"><label>Rotate °</label><div class="rrow"><input type="range" id="pp-rot" min="-45" max="45" value="0" oninput="ppPreview()"/><span class="rv" id="pp-rotV">0°</span></div></div>
+      </div>
+    </div>
+    <div class="slabel">03 — Adjustments</div>
+    <div class="card">
+      <div class="ctrl" style="margin-bottom:9px"><label>Brightness</label><div class="rrow"><input type="range" id="pp-br" min="-100" max="100" value="0" oninput="ppPreview()"/><span class="rv" id="pp-brV">0</span></div></div>
+      <div class="ctrl" style="margin-bottom:9px"><label>Contrast</label><div class="rrow"><input type="range" id="pp-con" min="-100" max="100" value="0" oninput="ppPreview()"/><span class="rv" id="pp-conV">0</span></div></div>
+      <div class="ctrl"><label>Saturation</label><div class="rrow"><input type="range" id="pp-sat" min="-100" max="100" value="0" oninput="ppPreview()"/><span class="rv" id="pp-satV">0</span></div></div>
+    </div>
+    <div class="slabel">04 — Output Size</div>
+    <div class="card">
+      <div class="ctrl" style="margin-bottom:10px"><label>Preset</label>
+        <select id="pp-preset" onchange="ppPreset()">
+          <option value="">Custom</option>
+          <option value="51,51,200">Indian Passport — 51×51mm @200DPI</option>
+          <option value="35,45,200">Aadhaar/PAN — 35×45mm @200DPI</option>
+          <option value="35,45,300">UPSC/SSC — 35×45mm @300DPI</option>
+          <option value="51,51,300">US Visa — 51×51mm @300DPI</option>
+        </select>
+      </div>
+      <div class="cgrid">
+        <div class="ctrl"><label>Width (mm)</label><input type="number" id="pp-wmm" value="51" min="1" oninput="ppInfo()"/></div>
+        <div class="ctrl"><label>Height (mm)</label><input type="number" id="pp-hmm" value="51" min="1" oninput="ppInfo()"/></div>
+        <div class="ctrl"><label>DPI</label><select id="pp-dpi" onchange="ppInfo()"><option value="150">150</option><option value="200" selected>200</option><option value="300">300</option><option value="600">600</option></select></div>
+        <div class="ctrl"><label>Format</label><select id="pp-fmt"><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option></select></div>
+        <div class="ctrl" style="grid-column:1/-1"><label>Filename</label><input type="text" id="pp-name" value="passport_photo"/></div>
+      </div>
+      <div class="info" id="pp-info">Select a preset or enter dimensions.</div>
+    </div>
+    <div class="slabel">05 — Preview &amp; Download</div>
+    <div class="card">
+      <button class="run" id="pp-run" disabled>🪪 Generate &amp; Download</button>
+      <div id="pp-prv-wrap" style="display:none;margin-top:9px;max-width:200px" class="img-wrap"><canvas id="pp-cv" class="img-canvas"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: SIGNATURE CLEANER ══════════ -->
+<div id="tool-signature" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">✒ Signature Cleaner</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('sg-d')">ℹ How Background Removal Works ▾</button>
+      <div id="sg-d" class="desc-body"><b>Threshold (0–254):</b> Every pixel's luminance (brightness) is measured. Pixels brighter than the threshold become transparent. Set to ~200–230 for dark ink on white paper. If signature looks too thin, reduce threshold. If white patches remain, increase it.<br><br><b>Output:</b> A PNG with a transparent background (shown as checkerboard pattern in preview). Can be placed over any background colour in Word, PowerPoint, or PDF tools.</div>
+    </div>
+    <div class="slabel">01 — Upload Signature</div>
+    <div class="card">
+      <div class="dz" id="sg-dz"><input type="file" id="sg-fi" accept="image/*"/><div class="dz-icon">✒</div><div class="dz-txt"><b>Click or drop a scanned signature</b> — dark ink on white/light paper works best</div></div>
+      <div class="pill" id="sg-pill"><span>✅</span><div><div class="pill-name" id="sg-pname">—</div><div class="pill-meta" id="sg-pmeta">—</div></div></div>
+    </div>
+    <div class="slabel">02 — Adjustments</div>
+    <div class="card">
+      <div class="ctrl" style="margin-bottom:9px"><label>Background Threshold — pixels above this become transparent</label><div class="rrow"><input type="range" id="sg-th" min="50" max="254" value="210" oninput="sgProcess()"/><span class="rv" id="sg-thV">210</span></div></div>
+      <div class="ctrl" style="margin-bottom:9px"><label>Brightness</label><div class="rrow"><input type="range" id="sg-br" min="-100" max="100" value="0" oninput="sgProcess()"/><span class="rv" id="sg-brV">0</span></div></div>
+      <div class="ctrl"><label>Contrast</label><div class="rrow"><input type="range" id="sg-con" min="-100" max="100" value="0" oninput="sgProcess()"/><span class="rv" id="sg-conV">0</span></div></div>
+    </div>
+    <div class="slabel">03 — Preview</div>
+    <div class="card">
+      <div class="cmp-grid">
+        <div><div class="cmp-lbl">Original</div><div class="img-wrap"><canvas id="sg-orig" class="img-canvas"></canvas></div></div>
+        <div><div class="cmp-lbl">Cleaned (transparent)</div><div class="img-wrap checker-bg"><canvas id="sg-out" class="img-canvas"></canvas></div></div>
+      </div>
+    </div>
+    <div class="slabel">04 — Download</div>
+    <div class="card"><button class="run" id="sg-run" disabled>⬇ Download Transparent PNG</button></div>
+  </div>
+</div>
+
+<!-- ══════════ TOOL: CALCULATOR ══════════ -->
+<div id="tool-calc" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">∑ Scientific &amp; Graphing Calc</span><div class="nav-right"><button class="btn-sm primary" onclick="calcFullscreen()">⛶</button></div></div>
+  <div class="page" id="calc-wrap">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('cc-d')">ℹ Syntax Guide ▾</button>
+      <div id="cc-d" class="desc-body">
+        <b>Variable:</b> Use <code>x</code> in graph mode.<br>
+        <b>Functions:</b> <code>sin(x)</code> <code>cos(x)</code> <code>tan(x)</code> <code>log(x)</code> <code>log10(x)</code> <code>sqrt(x)</code> <code>abs(x)</code><br>
+        <b>Constants:</b> <code>pi</code> <code>e</code> <code>tau</code><br>
+        <b>Powers:</b> <code>x^2</code> or <code>x**2</code><br>
+        <b>Important:</b> Write <code>2*x</code> not <code>2x</code>. Graph mode: stack up to 5 functions.
+      </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="calcTab(0,this)">Graph Plotter</button>
+      <button class="tab-btn" onclick="calcTab(1,this)">Console</button>
+      <button class="tab-btn" onclick="calcTab(2,this)">History</button>
+    </div>
+    <div class="tab-pane active" id="cc-t0" style="padding-top:10px">
+      <div id="g-inputs"></div>
+      <div class="btn-row" style="margin-bottom:10px">
+        <button class="btn-sm primary" onclick="gAddFn()">+ Function</button>
+        <button class="btn-sm" onclick="gPlot()">▶ Plot</button>
+      </div>
+      <div class="g-row">
+        <span style="font-size:.7rem;color:var(--muted)">x from</span>
+        <input class="g-inp g-mini" id="g-xmin" value="-10"/>
+        <span style="font-size:.7rem;color:var(--muted)">to</span>
+        <input class="g-inp g-mini" id="g-xmax" value="10"/>
+      </div>
+      <canvas id="graphCanvas"></canvas>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:6px;font-family:var(--mono)" id="g-status">Awaiting plot.</div>
+    </div>
+    <div class="tab-pane" id="cc-t1" style="padding-top:10px">
       <div class="calc-disp"><div class="calc-expr" id="c-expr"></div><div class="calc-result" id="c-result">0</div></div>
       <div class="calc-grid" id="c-grid"></div>
     </div>
-  </div>
-  <div class="tab-pane" id="calc-t1">
-    <div class="card">
-      <div class="g-row">
-        <span style="font-family:var(--mono);font-size:.85rem;color:var(--muted)">f(x) =</span>
-        <input class="g-inp" id="g-fn" value="sin(x)" placeholder="e.g. sin(x) * x"/>
-        <button class="btn-sm primary" onclick="graphPlot()">Plot</button>
-      </div>
-      <canvas id="graphCanvas"></canvas>
+    <div class="tab-pane" id="cc-t2" style="padding-top:10px">
+      <div class="btn-row"><button class="btn-sm danger" onclick="calcClearHist()">Clear History</button></div>
+      <div class="hist-box" id="c-hist"><div style="padding:10px;color:var(--muted);font-size:.75rem">No history yet.</div></div>
     </div>
   </div>
 </div>
 
-<!-- ==========================================
-     JAVASCRIPT CORE LOGIC ENGINE (Unified)
-=========================================== -->
+<!-- GoatCounter — enable "Allow visitor counts on website" in your GoatCounter Settings -->
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    /* ── 1. GLOBAL STATE & UI ROUTING ── */
-    const UI = {
-        log: (id, msg, type='li') => { const b=document.getElementById(id); if(b){ b.innerHTML += `<div class="${type}">System › ${msg}</div>`; b.scrollTop=b.scrollHeight; } },
-        clear: id => { const b=document.getElementById(id); if(b) b.innerHTML=''; },
-        setPct: (id, p) => { const el=document.getElementById(id); if(el) el.style.width=p+'%'; },
-        dl: (id, blob, fname, title, ext) => {
-            const url = URL.createObjectURL(blob);
-            document.getElementById(id).innerHTML = `<div class="dl-item"><div><div class="dl-title">${title}</div><div class="dl-desc">${ext}</div></div><a href="${url}" download="${fname}" class="dl-btn">⬇ Export</a></div>`;
-            document.getElementById(id.replace('-dl', '-out')).style.display = 'block';
-        }
-    };
-
-    const themeBtn = document.getElementById('themeToggleBtn');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            const current = document.body.getAttribute('data-theme');
-            const next = current === 'light' ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', next);
-            localStorage.setItem('suite-theme', next);
-        });
+(function(){
+  var t=setInterval(function(){
+    if(window.goatcounter&&window.goatcounter.visit_count){
+      clearInterval(t);
+      window.goatcounter.visit_count({
+        append:'#gc-counter',path:'TOTAL',no_branding:false,
+        style:'div{font-family:var(--mono);font-size:.7rem;color:var(--dim);display:inline-block;border-color:var(--border2)}'
+      });
     }
-    if(localStorage.getItem('suite-theme') === 'light') document.body.setAttribute('data-theme', 'light');
-
-    document.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            const filter = e.target.dataset.filter;
-            document.querySelectorAll('.tool-card').forEach(card => {
-                if (filter === 'all' || card.dataset.category.includes(filter)) card.classList.remove('hidden');
-                else card.classList.add('hidden');
-            });
-        });
-    });
-
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const parent = e.target.closest('.card, .page');
-            parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            parent.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            e.target.classList.add('active');
-            document.getElementById(e.target.dataset.tgt).classList.add('active');
-        });
-    });
-
-    function showLanding() {
-        document.querySelectorAll('.tool-panel').forEach(p => p.style.display = 'none');
-        document.getElementById('landing').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    window.openTool = function(id) {
-        document.getElementById('landing').style.display = 'none';
-        document.querySelectorAll('.tool-panel').forEach(p => p.style.display = 'none');
-        const target = document.getElementById('tool-' + id);
-        if(target) target.style.display = 'block';
-        history.pushState({ tool: id }, '', '#' + id);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    window.addEventListener('popstate', (e) => {
-        if (e.state && e.state.tool) window.openTool(e.state.tool);
-        else showLanding();
-    });
-
-    document.querySelectorAll('.tool-card').forEach(card => card.addEventListener('click', () => window.openTool(card.dataset.target)));
-    document.querySelectorAll('.nav-back').forEach(btn => btn.addEventListener('click', () => history.back()));
-
-    document.querySelectorAll('.desc-toggle').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const body = e.target.nextElementSibling;
-            if (body.style.display === 'none' || body.style.display === '') {
-                body.style.display = 'block'; e.target.innerHTML = e.target.innerHTML.replace('▾', '▴');
-            } else {
-                body.style.display = 'none'; e.target.innerHTML = e.target.innerHTML.replace('▴', '▾');
-            }
-        });
-    });
-
-    // Mobile specific fixes
-    document.addEventListener('mousemove', (e) => {
-        document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
-        document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
-    });
-
-    /* ── 2. UNIVERSAL FILE INGESTION ── */
-    window.setupDZ = function(prefix) {
-        const dz = document.getElementById(`${prefix}-dz`);
-        const fi = document.getElementById(`${prefix}-fi`);
-        if (!dz || !fi) return;
-
-        const handle = async (file) => {
-            const isPDF = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
-            const isImg = file.type.startsWith('image/');
-            if (!isPDF && !isImg) return alert('Invalid format. PDF or Image required.');
-
-            const buf = await file.arrayBuffer();
-            window[`${prefix}Bytes`] = new Uint8Array(buf);
-            window[`${prefix}File`] = file;
-
-            document.getElementById(`${prefix}-pname`).textContent = file.name;
-            document.getElementById(`${prefix}-pill`).classList.add('on');
-            document.getElementById(`${prefix}-run`).disabled = false;
-            
-            if (isPDF && typeof PDFLib !== 'undefined') {
-                try {
-                    const doc = await PDFLib.PDFDocument.load(window[`${prefix}Bytes`], { ignoreEncryption: true });
-                    document.getElementById(`${prefix}-pmeta`).textContent = `${(buf.byteLength/1024).toFixed(0)} KB · ${doc.getPageCount()} Pages`;
-                } catch(e) { console.warn(e); }
-            } else {
-                document.getElementById(`${prefix}-pmeta`).textContent = `${(buf.byteLength/1024).toFixed(0)} KB`;
-            }
-            // Trigger auto-render for image previews
-            if(isImg && (prefix === 'sg' || prefix === 'pp')) window[`${prefix}Render`]();
-        };
-
-        fi.addEventListener('change', e => e.target.files[0] && handle(e.target.files[0]));
-        dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
-        dz.addEventListener('dragleave', () => dz.classList.remove('over'));
-        dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer.files[0]) handle(e.dataTransfer.files[0]); });
-        dz.addEventListener('click', e => { if (e.target !== fi) fi.click(); });
-    };
-
-    const tick = () => new Promise(r => setTimeout(r, 10));
-
-    /* ── 3. TOOL LOGIC: BOOKLET IMPOSITION ── */
-    setupDZ('bk');
-    document.getElementById('bk-run')?.addEventListener('click', async () => {
-        if(!window.bkBytes || typeof PDFLib === 'undefined') return;
-        document.getElementById('bk-run').disabled = true;
-        document.getElementById('bk-proc').style.display = 'block';
-        UI.clear('bk-log'); UI.setPct('bk-pfill', 10);
-        UI.log('bk-log', 'Mapping saddle-stitch matrix...', 'st');
-        try {
-            const src = await PDFLib.PDFDocument.load(window.bkBytes, { ignoreEncryption: true });
-            const out = await PDFLib.PDFDocument.create();
-            // Simplified copy for un-truncated code structure. True imposition requires deep bounding box manipulation.
-            const pgs = await out.copyPages(src, src.getPageIndices());
-            pgs.forEach(p => out.addPage(p)); 
-            UI.setPct('bk-pfill', 80); await tick();
-            const outBytes = await out.save();
-            UI.setPct('bk-pfill', 100);
-            UI.log('bk-log', 'Architecture Imposed.', 'ok');
-            UI.dl('bk-dl', new Blob([outBytes], {type:'application/pdf'}), 'imposed_booklet.pdf', 'Saddle-Stitch Booklet', 'PDF');
-        } catch(e) { UI.log('bk-log', e.message, 'er'); }
-        document.getElementById('bk-run').disabled = false;
-    });
-
-    /* ── 4. TOOL LOGIC: MERGE ── */
-    const mgFiles = [];
-    document.getElementById('mg-fi')?.addEventListener('change', async e => {
-        for(let f of e.target.files) {
-            if(f.name.toLowerCase().endsWith('.pdf')) {
-                mgFiles.push({ name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) });
-            }
-        }
-        document.getElementById('mg-list').innerHTML = mgFiles.map((f,i) => `<div style="padding:4px 0; border-bottom:1px solid var(--border);">${i+1}. ${f.name}</div>`).join('');
-        document.getElementById('mg-run').disabled = mgFiles.length < 2;
-    });
-    
-    document.getElementById('mg-up')?.addEventListener('click', () => { if(mgFiles.length>1){ const t=mgFiles[0]; mgFiles[0]=mgFiles[1]; mgFiles[1]=t; document.getElementById('mg-fi').dispatchEvent(new Event('change')); } });
-    document.getElementById('mg-rm')?.addEventListener('click', () => { mgFiles.pop(); document.getElementById('mg-fi').dispatchEvent(new Event('change')); });
-
-    document.getElementById('mg-run')?.addEventListener('click', async () => {
-        if(mgFiles.length < 2 || typeof PDFLib === 'undefined') return;
-        document.getElementById('mg-proc').style.display = 'block'; UI.clear('mg-log'); UI.setPct('mg-pfill', 10);
-        try {
-            const out = await PDFLib.PDFDocument.create();
-            for(let i=0; i<mgFiles.length; i++) {
-                const src = await PDFLib.PDFDocument.load(mgFiles[i].bytes, { ignoreEncryption: true });
-                const pgs = await out.copyPages(src, src.getPageIndices());
-                pgs.forEach(p => out.addPage(p));
-                UI.setPct('mg-pfill', 10 + (i/mgFiles.length)*80); await tick();
-            }
-            const outBytes = await out.save();
-            UI.setPct('mg-pfill', 100);
-            UI.log('mg-log', 'Fusion complete.', 'ok');
-            UI.dl('mg-dl', new Blob([outBytes], {type:'application/pdf'}), 'merged_document.pdf', 'Merged PDF', 'PDF');
-        } catch(e) { UI.log('mg-log', e.message, 'er'); }
-    });
-
-    /* ── 5. TOOL LOGIC: SPLIT ── */
-    setupDZ('sp');
-    document.getElementById('sp-run')?.addEventListener('click', async () => {
-        if(!window.spBytes || typeof PDFLib === 'undefined') return;
-        document.getElementById('sp-proc').style.display = 'block'; UI.clear('sp-log'); UI.setPct('sp-pfill', 10);
-        try {
-            const src = await PDFLib.PDFDocument.load(window.spBytes, { ignoreEncryption: true });
-            const total = src.getPageCount();
-            const ranges = document.getElementById('sp-ranges').value.split(',').map(s=>s.trim());
-            
-            // Simple logic: just split first range for demo
-            let bounds = [0, total-1];
-            if(ranges[0] && ranges[0].includes('-')) bounds = ranges[0].split('-').map(n=>parseInt(n)-1);
-            
-            const out = await PDFLib.PDFDocument.create();
-            const indices = Array.from({length: bounds[1]-bounds[0]+1}, (_, i) => bounds[0]+i);
-            const pgs = await out.copyPages(src, indices);
-            pgs.forEach(p => out.addPage(p));
-            
-            UI.setPct('sp-pfill', 80); await tick();
-            const outBytes = await out.save();
-            UI.setPct('sp-pfill', 100);
-            UI.log('sp-log', 'Dissection complete.', 'ok');
-            UI.dl('sp-dl', new Blob([outBytes], {type:'application/pdf'}), 'split_document.pdf', 'Split PDF', 'PDF');
-        } catch(e) { UI.log('sp-log', e.message, 'er'); }
-    });
-
-    /* ── 6. TOOL LOGIC: COMPRESS ── */
-    setupDZ('cp');
-    document.getElementById('cp-run')?.addEventListener('click', async () => {
-        if(!window.cpBytes || typeof PDFLib === 'undefined') return;
-        document.getElementById('cp-proc').style.display = 'block'; UI.clear('cp-log'); UI.setPct('cp-pfill', 20);
-        try {
-            const doc = await PDFLib.PDFDocument.load(window.cpBytes, { ignoreEncryption: true });
-            const outBytes = await doc.save({ useObjectStreams: true });
-            UI.setPct('cp-pfill', 100);
-            UI.log('cp-log', `Optimized: ${(window.cpBytes.length/1024).toFixed(0)}KB -> ${(outBytes.length/1024).toFixed(0)}KB`, 'ok');
-            UI.dl('cp-dl', new Blob([outBytes], {type:'application/pdf'}), 'optimized.pdf', 'Optimized PDF', 'PDF');
-        } catch(e) { UI.log('cp-log', e.message, 'er'); }
-    });
-
-    /* ── 7. TOOL LOGIC: N-UP LAYOUT ── */
-    setupDZ('nu');
-    document.getElementById('nu-run')?.addEventListener('click', async () => {
-        if(!window.nuBytes || typeof PDFLib === 'undefined') return;
-        document.getElementById('nu-proc').style.display = 'block'; UI.clear('nu-log'); UI.setPct('nu-pfill', 20);
-        try {
-            const src = await PDFLib.PDFDocument.load(window.nuBytes, { ignoreEncryption: true });
-            const out = await PDFLib.PDFDocument.create();
-            // Complex N-up tiling omitted to save tokens, duplicating basic copy to ensure strict execution
-            const pgs = await out.copyPages(src, src.getPageIndices());
-            pgs.forEach(p => out.addPage(p));
-            UI.setPct('nu-pfill', 80); await tick();
-            const outBytes = await out.save();
-            UI.setPct('nu-pfill', 100);
-            UI.log('nu-log', 'Grid Layout Mapped.', 'ok');
-            UI.dl('nu-dl', new Blob([outBytes], {type:'application/pdf'}), 'nup_layout.pdf', 'N-up PDF', 'PDF');
-        } catch(e) { UI.log('nu-log', e.message, 'er'); }
-    });
-
-    /* ── 8. TOOL LOGIC: REARRANGE ── */
-    setupDZ('ra');
-    document.getElementById('ra-run')?.addEventListener('click', async () => {
-        if(!window.raBytes || typeof PDFLib === 'undefined') return;
-        document.getElementById('ra-proc').style.display = 'block'; UI.clear('ra-log'); UI.setPct('ra-pfill', 20);
-        try {
-            const src = await PDFLib.PDFDocument.load(window.raBytes, { ignoreEncryption: true });
-            const out = await PDFLib.PDFDocument.create();
-            const pgs = await out.copyPages(src, src.getPageIndices().reverse()); // Simple reverse for demo
-            pgs.forEach(p => out.addPage(p));
-            const outBytes = await out.save();
-            UI.setPct('ra-pfill', 100);
-            UI.log('ra-log', 'Sequence Mapped.', 'ok');
-            UI.dl('ra-dl', new Blob([outBytes], {type:'application/pdf'}), 'rearranged.pdf', 'Rearranged PDF', 'PDF');
-        } catch(e) { UI.log('ra-log', e.message, 'er'); }
-    });
-
-    /* ── 9. TOOL LOGIC: VERIFIED TAG ── */
-    setupDZ('vf');
-    document.getElementById('vf-run')?.addEventListener('click', async () => {
-        if(!window.vfBytes || typeof PDFLib === 'undefined') return;
-        document.getElementById('vf-proc').style.display = 'block'; UI.clear('vf-log'); UI.setPct('vf-pfill', 20);
-        try {
-            const doc = await PDFLib.PDFDocument.load(window.vfBytes, { ignoreEncryption: true });
-            const font = await doc.embedFont(PDFLib.StandardFonts.HelveticaBold);
-            const check = 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z';
-            const str = document.getElementById('vf-text').value;
-            const quad = document.getElementById('vf-quad').value;
-            
-            doc.getPages().forEach(pg => {
-                const { width, height } = pg.getSize();
-                let x = 40, y = 40;
-                if (quad === 'BR') { x = width - 150; y = 40; }
-                pg.drawSvgPath(check, { x, y: y+25, scale: 1.5, color: PDFLib.rgb(0.2, 0.8, 0.2) });
-                pg.drawText(str, { x: x+40, y: y+10, size: 14, font, color: PDFLib.rgb(0.1, 0.5, 0.1) });
-            });
-            const outBytes = await doc.save();
-            UI.setPct('vf-pfill', 100);
-            UI.log('vf-log', 'Verification vectors injected.', 'ok');
-            UI.dl('vf-dl', new Blob([outBytes], {type:'application/pdf'}), 'verified.pdf', 'Verified PDF', 'PDF');
-        } catch(e) { UI.log('vf-log', e.message, 'er'); }
-    });
-
-    /* ── 10. TOOL LOGIC: DIAGNOSTIC WM REMOVAL ── */
-    setupDZ('rm');
-    document.getElementById('rm-run')?.addEventListener('click', async () => {
-        if(!window.rmBytes || typeof PDFLib === 'undefined') return;
-        document.getElementById('rm-proc').style.display = 'block'; UI.clear('rm-log'); UI.setPct('rm-pfill', 10);
-        try {
-            const doc = await PDFLib.PDFDocument.load(window.rmBytes, { ignoreEncryption: true });
-            const opt1 = document.getElementById('rm-opt1').checked;
-            const opt2 = document.getElementById('rm-opt2').checked;
-            const opt3 = document.getElementById('rm-opt3').checked;
-            
-            doc.getPages().forEach(pg => {
-                const { width, height } = pg.getSize();
-                if (opt1) { try { pg.node.delete(PDFLib.PDFName.of('Annots')); } catch(e){} }
-                if (opt2) pg.drawRectangle({ x: 0, y: height * 0.85, width, height: height * 0.15, color: PDFLib.rgb(1,1,1) });
-                if (opt3) pg.drawRectangle({ x: 0, y: 0, width, height: height * 0.15, color: PDFLib.rgb(1,1,1) });
-            });
-            const outBytes = await doc.save();
-            UI.setPct('rm-pfill', 100);
-            UI.log('rm-log', 'Heuristic cleanse complete.', 'ok');
-            UI.dl('rm-dl', new Blob([outBytes], {type:'application/pdf'}), 'cleansed.pdf', 'Cleansed PDF', 'PDF');
-        } catch(e) { UI.log('rm-log', e.message, 'er'); }
-    });
-
-    /* ── 11. TOOL LOGIC: ADD WATERMARK ── */
-    setupDZ('wa');
-    ['wa-fs','wa-op','wa-rot'].forEach(id=>{
-        document.getElementById(id)?.addEventListener('input', e => document.getElementById(id+'V').textContent = e.target.value);
-    });
-    document.getElementById('wa-run')?.addEventListener('click', async () => {
-        if(!window.waBytes || typeof PDFLib === 'undefined') return;
-        document.getElementById('wa-proc').style.display = 'block'; UI.clear('wa-log'); UI.setPct('wa-pfill', 10);
-        try {
-            const doc = await PDFLib.PDFDocument.load(window.waBytes, { ignoreEncryption: true });
-            const font = await doc.embedFont(PDFLib.StandardFonts.Helvetica);
-            const str = document.getElementById('wa-text').value;
-            const size = parseInt(document.getElementById('wa-fs').value);
-            const op = parseInt(document.getElementById('wa-op').value)/100;
-            const rot = parseInt(document.getElementById('wa-rot').value);
-
-            doc.getPages().forEach(pg => {
-                const { width, height } = pg.getSize();
-                pg.drawText(str, { x: width/2 - 50, y: height/2, size, font, color: PDFLib.rgb(1,0,0), opacity: op, rotate: PDFLib.degrees(rot) });
-            });
-            const outBytes = await doc.save();
-            UI.setPct('wa-pfill', 100);
-            UI.log('wa-log', 'Watermark vectors stamped.', 'ok');
-            UI.dl('wa-dl', new Blob([outBytes], {type:'application/pdf'}), 'watermarked.pdf', 'Watermarked PDF', 'PDF');
-        } catch(e) { UI.log('wa-log', e.message, 'er'); }
-    });
-
-    /* ── 12. TOOL LOGIC: UNLOCK PDF ── */
-    setupDZ('ul');
-    document.getElementById('ul-run')?.addEventListener('click', async () => {
-        if(!window.ulBytes || typeof PDFLib === 'undefined') return;
-        document.getElementById('ul-proc').style.display = 'block'; UI.clear('ul-log');
-        try {
-            const pwd = document.getElementById('ul-pwd').value;
-            const doc = await PDFLib.PDFDocument.load(window.ulBytes, { password: pwd });
-            const outBytes = await doc.save();
-            UI.log('ul-log', 'Decryption successful.', 'ok');
-            UI.dl('ul-dl', new Blob([outBytes], {type:'application/pdf'}), 'unlocked.pdf', 'Unlocked PDF', 'PDF');
-        } catch(e) { UI.log('ul-log', 'Decryption Failed: ' + e.message, 'er'); }
-    });
-
-    /* ── 13. TOOL LOGIC: IMAGE COMPRESSOR ── */
-    setupDZ('ic');
-    document.getElementById('ic-q')?.addEventListener('input', e => document.getElementById('ic-qV').textContent = e.target.value + '%');
-    document.getElementById('ic-run')?.addEventListener('click', async () => {
-        if(!window.icFile) return;
-        document.getElementById('ic-proc').style.display = 'block'; UI.clear('ic-log');
-        try {
-            const q = parseInt(document.getElementById('ic-q').value) / 100;
-            const img = new Image();
-            img.src = URL.createObjectURL(window.icFile);
-            await new Promise(r => img.onload = r);
-            const cvs = document.createElement('canvas');
-            cvs.width = img.width; cvs.height = img.height;
-            cvs.getContext('2d').drawImage(img, 0, 0);
-            cvs.toBlob(blob => {
-                UI.log('ic-log', `Matrix quantified at ${q*100}%`, 'ok');
-                UI.dl('ic-dl', blob, 'compressed.jpg', 'Compressed Artifact', 'JPEG');
-            }, 'image/jpeg', q);
-        } catch(e) { UI.log('ic-log', e.message, 'er'); }
-    });
-
-    /* ── 14. TOOL LOGIC: FORMAT & RESIZE ── */
-    setupDZ('ir');
-    document.getElementById('ir-run')?.addEventListener('click', async () => {
-        if(!window.irFile) return;
-        document.getElementById('ir-proc').style.display = 'block'; UI.clear('ir-log');
-        try {
-            const tw = parseInt(document.getElementById('ir-w').value) || 800;
-            const th = parseInt(document.getElementById('ir-h').value) || 600;
-            const img = new Image();
-            img.src = URL.createObjectURL(window.irFile);
-            await new Promise(r => img.onload = r);
-            const cvs = document.createElement('canvas');
-            cvs.width = tw; cvs.height = th;
-            cvs.getContext('2d').drawImage(img, 0, 0, tw, th);
-            cvs.toBlob(blob => {
-                UI.log('ir-log', `Scaled to ${tw}x${th}`, 'ok');
-                UI.dl('ir-dl', blob, document.getElementById('ir-name').value + '.jpg', 'Resized Image', 'JPEG');
-            }, 'image/jpeg', 0.9);
-        } catch(e) { UI.log('ir-log', e.message, 'er'); }
-    });
-
-    /* ── 15. TOOL LOGIC: PASSPORT PHOTO MAKER ── */
-    setupDZ('pp');
-    window.ppRender = async () => {
-        if(!window.ppFile) return;
-        const img = new Image(); img.src = URL.createObjectURL(window.ppFile);
-        await new Promise(r => img.onload = r);
-        const cvs = document.getElementById('pp-canvas');
-        cvs.width = img.width; cvs.height = img.height;
-        const ctx = cvs.getContext('2d');
-        const rot = parseInt(document.getElementById('pp-rot').value);
-        const br = parseInt(document.getElementById('pp-br').value);
-        const con = parseInt(document.getElementById('pp-con').value);
-        const sat = parseInt(document.getElementById('pp-sat').value);
-        
-        ctx.filter = `brightness(${br}%) contrast(${con}%) saturate(${sat}%)`;
-        ctx.translate(cvs.width/2, cvs.height/2);
-        ctx.rotate(rot * Math.PI / 180);
-        ctx.drawImage(img, -img.width/2, -img.height/2);
-    };
-    ['pp-rot','pp-br','pp-con','pp-sat'].forEach(id=>{
-        document.getElementById(id)?.addEventListener('input', e => {
-            document.getElementById(id+'V').textContent = e.target.value + (id.includes('rot')?'°':'%');
-            window.ppRender();
-        });
-    });
-    document.getElementById('pp-run')?.addEventListener('click', () => {
-        const cvs = document.getElementById('pp-canvas');
-        if(!cvs) return;
-        document.getElementById('pp-proc').style.display = 'block'; UI.clear('pp-log');
-        cvs.toBlob(blob => {
-            UI.log('pp-log', 'Biometric transforms applied.', 'ok');
-            UI.dl('pp-dl', blob, 'passport_ready.jpg', 'Passport Photo', 'JPEG');
-        }, 'image/jpeg', 1.0);
-    });
-
-    /* ── 16. TOOL LOGIC: SIGNATURE DIGITIZER ── */
-    setupDZ('sg');
-    window.sgRender = async () => {
-        if(!window.sgFile) return;
-        const sgImg = new Image(); sgImg.src = URL.createObjectURL(window.sgFile);
-        await new Promise(r => sgImg.onload = r);
-        
-        const sgCvs = document.getElementById('sg-canvas');
-        const ctx = sgCvs.getContext('2d', { willReadFrequently: true });
-        sgCvs.width = sgImg.width; sgCvs.height = sgImg.height;
-        ctx.drawImage(sgImg, 0, 0);
-        
-        const data = ctx.getImageData(0,0,sgCvs.width,sgCvs.height);
-        const d = data.data;
-        const lumT = parseInt(document.getElementById('sg-lum').value);
-        const c = parseInt(document.getElementById('sg-con').value);
-        const f = (259 * (c + 255)) / (255 * (259 - c)); 
-        
-        for(let i=0; i<d.length; i+=4) {
-            const l = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
-            if (l > lumT) d[i+3] = 0; // Transparent BG
-            else {
-                d[i] = Math.min(255, Math.max(0, f*(d[i]-128)+128));
-                d[i+1] = Math.min(255, Math.max(0, f*(d[i+1]-128)+128));
-                d[i+2] = Math.min(255, Math.max(0, f*(d[i+2]-128)+128));
-            }
-        }
-        ctx.putImageData(data, 0, 0);
-    };
-    document.getElementById('sg-lum')?.addEventListener('input', window.sgRender);
-    document.getElementById('sg-con')?.addEventListener('input', window.sgRender);
-    document.getElementById('sg-run')?.addEventListener('click', () => {
-        const sgCvs = document.getElementById('sg-canvas');
-        if(!sgCvs) return;
-        document.getElementById('sg-proc').style.display = 'block'; UI.clear('sg-log');
-        sgCvs.toBlob(blob => {
-            UI.log('sg-log', 'Alpha channel inverted. Ink extracted.', 'ok');
-            UI.dl('sg-dl', blob, 'digitized_signature.png', 'Digital Signature', 'PNG');
-        }, 'image/png');
-    });
-
-    /* ── 17. TOOL LOGIC: SCIENTIFIC CALCULATOR ── */
-    const BTNS = [ ['sin','sin('], ['cos','cos('], ['tan','tan('], ['log','Math.log10('], ['ln','Math.log('], ['√','Math.sqrt('], ['π','Math.PI'], ['e','Math.E'], ['^','**'], ['(','('], [')',')'], ['%','%'], ['7','7'], ['8','8'], ['9','9'], ['÷','/'], ['4','4'], ['5','5'], ['6','6'], ['×','*'], ['1','1'], ['2','2'], ['3','3'], ['−','-'], ['0','0'], ['.','.'], ['C','C'], ['+','+'], ['←','B'], ['=','='] ];
-    const cGrid = document.getElementById('c-grid');
-    let cExpr = '';
-    if(cGrid) {
-        BTNS.forEach(b => {
-            const btn = document.createElement('button'); btn.className = 'cbtn'; btn.textContent = b[0];
-            if(b[0]==='C') btn.classList.add('cls'); if(b[0]==='=') btn.classList.add('eq');
-            if(['÷','×','−','+','%'].includes(b[0])) btn.classList.add('op');
-            btn.addEventListener('click', () => {
-                if(b[1]==='C') cExpr='';
-                else if(b[1]==='B') cExpr=cExpr.slice(0,-1);
-                else if(b[1]==='=') {
-                    try { const res = new Function('return ' + cExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/\^/g,'**'))(); document.getElementById('c-result').textContent = res; }
-                    catch(e) { document.getElementById('c-result').textContent = 'Error'; }
-                    return;
-                } else cExpr += b[1];
-                document.getElementById('c-expr').textContent = cExpr.replace(/Math\.[a-z0-9]+\(/gi, x => x.split('.')[1]);
-            });
-            cGrid.appendChild(btn);
-        });
-    }
-
-    function graphPlot(){
-        const fn=document.getElementById('g-fn').value.trim();
-        const canvas=document.getElementById('graphCanvas');
-        if(!canvas || !fn) return;
-        const W=canvas.width=canvas.offsetWidth||600; const H=canvas.height=240;
-        const ctx=canvas.getContext('2d'); ctx.fillStyle='#12141a'; ctx.fillRect(0,0,W,H);
-        
-        ctx.strokeStyle='#2e3347'; ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
-
-        ctx.strokeStyle='#f0a500'; ctx.lineWidth=2; ctx.beginPath();
-        for(let i=0; i<W; i++){
-            const x = (i - W/2) / 20; // scale
-            try {
-                const y = new Function('x', 'return ' + fn.replace(/sin/g,'Math.sin').replace(/cos/g,'Math.cos'))(x);
-                const py = H/2 - (y * 20);
-                if(i===0) ctx.moveTo(i, py); else ctx.lineTo(i, py);
-            } catch(e){}
-        }
-        ctx.stroke();
-    }
-    window.graphPlot = graphPlot;
-
-});
+  },300);
+})();
 </script>
-
-<!-- ==========================================
-     TELEMETRY INTEGRATION (GOATCOUNTER)
-=========================================== -->
 <script data-goatcounter="https://suvadip.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-<script>
-    var gc_t = setInterval(function() {
-        if (window.goatcounter && window.goatcounter.visit_count) {
-            clearInterval(gc_t);
-            let r = new XMLHttpRequest();
-            r.addEventListener('load', function() {
-                try { document.getElementById('visitor-counter-container').innerHTML = `Total Visitors: <span style="color:var(--gold);">${JSON.parse(this.responseText).count}</span>`; }
-                catch(e) {}
-            });
-            r.open('GET', 'https://suvadip.goatcounter.com/counter/TOTAL.json');
-            r.send();
-        }
-    }, 100);
-</script>
-
+<script src="./app.js"></script>
 </body>
 </html>
