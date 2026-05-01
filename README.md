@@ -125,6 +125,7 @@ Processing happens on the device using the browser's own JavaScript engine. This
 | Tool | What it does | Extreme capability |
 |---|---|---|
 | **Scientific & Graphing Calculator** | Full scientific console + multi-function graph plotter. Calculates history. | Plot 5 functions simultaneously on one canvas with auto y-range scaling. Evaluate factorial(170) (≈7.26×10³⁰⁶) without overflow. |
+| **Matrix Calculator** | Evaluates a comprehensive array of linear algebra operations, spanning inverses, determinants, LU decomposition, and reduced row echelon form (RREF). The tool presents algorithmic working steps, which appears to facilitate deeper mathematical comprehension. | Processes matrices up to 6×6 locally. The implementation seems to compute recursive cofactor expansions for determinants and provides analytical resolutions for 2×2 eigenvalues without relying on external server dependencies. |
 
 ---
 
