@@ -302,9 +302,29 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
     <div class="tool-card" data-cat="image" onclick="openTool('imgresize')"><div class="tc-icon">📐</div><div class="tc-body"><div class="tc-name">Image Resize</div><div class="tc-desc">Resize to exact px/cm/inch with DPI and target KB control for exam forms.</div></div></div>
     <div class="tool-card" data-cat="image" onclick="openTool('passport')"><div class="tc-icon">🪪</div><div class="tc-body"><div class="tc-name">Passport Photo Maker</div><div class="tc-desc">Crop, rotate, adjust a portrait and export at exact ID/passport dimensions.</div></div></div>
     <div class="tool-card" data-cat="image" onclick="openTool('signature')"><div class="tc-icon">✒</div><div class="tc-body"><div class="tc-name">Signature Cleaner</div><div class="tc-desc">Remove white backgrounds from scanned signatures. Export as transparent PNG.</div></div></div>
+    
+    
+    
+    
+    
     <div class="tool-card" data-cat="maths" onclick="openTool('calc')" style="grid-column:1/-1"><div class="tc-icon">∑</div><div class="tc-body"><div class="tc-name">Scientific &amp; Graphing Calculator</div><div class="tc-desc">Evaluate complex expressions, plot multiple functions on a dynamic graph.</div></div></div>
-  </div>
+
+    
+    <div class="tool-card" data-cat="maths" onclick="openTool('matrix')">
+      <div class="tc-icon">⊞</div>
+      <div class="tc-body">
+        <div class="tc-name">Matrix Calculator</div>
+        <div class="tc-desc">Add, multiply, invert, find determinant, RREF, eigenvalues and more — up to 6×6.</div>
+      </div>
+    </div>
+    </div>
   <div id="gc-counter"></div>
+
+
+
+
+
+
   <div class="site-footer">
     <span>By <a href="https://github.com/Joydip1" target="_blank">Suvadip Patra (@Joydip1)</a></span>
     <a href="#" target="_blank" id="feedbackLink">📝 Feedback / Google Form</a>
@@ -955,6 +975,623 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
     </div>
   </div>
 </div>
+
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+  PASTE THIS BLOCK into index.html
+  Location: just before the GoatCounter <script> tags at the bottom
+  (i.e. just before the line: <script> (function(){ var t=setInterval...)
+═══════════════════════════════════════════════════════════ -->
+
+<!-- STEP 1: Add this card to the tools-grid div in index.html
+     Find the calc tool-card and paste this AFTER it: -->
+<!--
+<div class="tool-card" data-cat="maths" onclick="openTool('matrix')">
+  <div class="tc-icon">⊞</div>
+  <div class="tc-body">
+    <div class="tc-name">Matrix Calculator</div>
+    <div class="tc-desc">Add, multiply, invert, find determinant, RREF, eigenvalues and more — up to 6×6.</div>
+  </div>
+</div>
+-->
+
+<!-- STEP 2: Paste the tool panel below into index.html just before GoatCounter scripts -->
+
+<div id="tool-matrix" class="tool-panel">
+  <div class="nav-bar">
+    <button class="nav-back" onclick="goBack()">← Back</button>
+    <span class="nav-title">⊞ Matrix Calculator</span>
+    <div class="nav-right">
+      <a href="https://matrixcalc.org" target="_blank" class="btn-sm green">🌐 matrixcalc.org</a>
+    </div>
+  </div>
+  <div class="page">
+
+    <!-- Description -->
+    <div class="card">
+      <button class="desc-toggle" onclick="tDesc('mx-d')">ℹ Terms &amp; Operations Guide ▾</button>
+      <div id="mx-d" class="desc-body">
+        <b>Matrix:</b> A rectangular grid of numbers with rows (horizontal) and columns (vertical). Written as m×n where m = rows, n = columns.<br><br>
+        <b>Square matrix:</b> Same number of rows and columns (2×2, 3×3, etc.). Determinant and inverse only exist for square matrices.<br><br>
+        <b>Determinant (det A):</b> A single number that summarises a square matrix. If det = 0, the matrix has no inverse (called "singular").<br><br>
+        <b>Inverse (A⁻¹):</b> A matrix such that A × A⁻¹ = Identity matrix. Only exists when det ≠ 0.<br><br>
+        <b>Transpose (Aᵀ):</b> Flip rows and columns. Row 1 becomes Column 1.<br><br>
+        <b>Rank:</b> The number of linearly independent rows (or columns). Tells you how much "real information" is in the matrix.<br><br>
+        <b>RREF (Reduced Row Echelon Form):</b> A standardised form reached by row operations. Used to solve systems of linear equations.<br><br>
+        <b>Eigenvalues:</b> Special numbers λ where A×v = λ×v for some non-zero vector v. Supported for 2×2 matrices.<br><br>
+        <b>Operations needing two matrices (A and B):</b> Add, Subtract, Multiply. For A+B and A−B, both matrices must have the same dimensions. For A×B, columns of A must equal rows of B.
+      </div>
+    </div>
+
+    <!-- Matrix size controls -->
+    <div class="slabel">01 — Matrix Dimensions</div>
+    <div class="card">
+      <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end">
+        <div class="ctrl" style="flex:1;min-width:130px">
+          <label>Matrix A — rows × cols</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="mx-ar" onchange="mxBuildGrid()" style="flex:1">
+              <option>1</option><option>2</option><option selected>3</option>
+              <option>4</option><option>5</option><option>6</option>
+            </select>
+            <span style="color:var(--muted);font-size:.9rem">×</span>
+            <select id="mx-ac" onchange="mxBuildGrid()" style="flex:1">
+              <option>1</option><option>2</option><option selected>3</option>
+              <option>4</option><option>5</option><option>6</option>
+            </select>
+          </div>
+        </div>
+        <div class="ctrl" style="flex:1;min-width:130px" id="mx-b-size-ctrl">
+          <label>Matrix B — rows × cols</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="mx-br" onchange="mxBuildGrid()" style="flex:1">
+              <option>1</option><option>2</option><option selected>3</option>
+              <option>4</option><option>5</option><option>6</option>
+            </select>
+            <span style="color:var(--muted);font-size:.9rem">×</span>
+            <select id="mx-bc" onchange="mxBuildGrid()" style="flex:1">
+              <option>1</option><option>2</option><option selected>3</option>
+              <option>4</option><option>5</option><option>6</option>
+            </select>
+          </div>
+        </div>
+        <div class="ctrl" style="flex:1;min-width:120px" id="mx-scalar-ctrl" style="display:none">
+          <label>Scalar value (k)</label>
+          <input type="number" id="mx-scalar" value="2" step="any"/>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn-sm primary" onclick="mxFillIdentity('A')">Identity A</button>
+        <button class="btn-sm primary" onclick="mxFillIdentity('B')">Identity B</button>
+        <button class="btn-sm" onclick="mxFillRandom('A')">Random A</button>
+        <button class="btn-sm" onclick="mxFillRandom('B')">Random B</button>
+        <button class="btn-sm danger" onclick="mxClear('A')">Clear A</button>
+        <button class="btn-sm danger" onclick="mxClear('B')">Clear B</button>
+      </div>
+    </div>
+
+    <!-- Matrix input grids -->
+    <div class="slabel">02 — Enter Values</div>
+    <div class="card">
+      <div style="display:flex;gap:18px;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:.75rem;color:var(--gold);font-family:var(--mono);margin-bottom:7px;font-weight:600">Matrix A</div>
+          <div id="mx-grid-a"></div>
+        </div>
+        <div style="flex:1;min-width:160px" id="mx-b-grid-wrap">
+          <div style="font-size:.75rem;color:var(--gold);font-family:var(--mono);margin-bottom:7px;font-weight:600">Matrix B</div>
+          <div id="mx-grid-b"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Operation selector -->
+    <div class="slabel">03 — Choose Operation</div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:6px" id="mx-ops">
+
+        <div style="font-size:.7rem;color:var(--muted);grid-column:1/-1;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-top:2px">Single Matrix (A only)</div>
+
+        <button class="btn-sm primary" onclick="mxRun('det')">det(A) — Determinant</button>
+        <button class="btn-sm primary" onclick="mxRun('inv')">A⁻¹ — Inverse</button>
+        <button class="btn-sm primary" onclick="mxRun('trans')">Aᵀ — Transpose</button>
+        <button class="btn-sm primary" onclick="mxRun('trace')">tr(A) — Trace</button>
+        <button class="btn-sm primary" onclick="mxRun('rank')">rank(A) — Rank</button>
+        <button class="btn-sm primary" onclick="mxRun('rref')">RREF(A) — Row Reduction</button>
+        <button class="btn-sm primary" onclick="mxRun('scalar')">k×A — Scalar Multiply</button>
+        <button class="btn-sm primary" onclick="mxRun('power')">Aⁿ — Matrix Power</button>
+        <button class="btn-sm primary" onclick="mxRun('eigen')">λ — Eigenvalues (2×2)</button>
+        <button class="btn-sm primary" onclick="mxRun('lu')">LU — Decomposition</button>
+
+        <div style="font-size:.7rem;color:var(--muted);grid-column:1/-1;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-top:8px">Two Matrices (A and B)</div>
+
+        <button class="btn-sm" onclick="mxRun('add')">A + B — Addition</button>
+        <button class="btn-sm" onclick="mxRun('sub')">A − B — Subtraction</button>
+        <button class="btn-sm" onclick="mxRun('mul')">A × B — Multiplication</button>
+        <button class="btn-sm" onclick="mxRun('atb')">Aᵀ × B</button>
+        <button class="btn-sm" onclick="mxRun('abt')">A × Bᵀ</button>
+      </div>
+
+      <!-- Power input (shown only for power op) -->
+      <div id="mx-power-ctrl" style="display:none;margin-top:10px">
+        <div class="ctrl"><label>Exponent n (integer ≥ 0)</label><input type="number" id="mx-power-n" value="2" min="0" max="20" step="1"/></div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="slabel">04 — Result</div>
+    <div class="card">
+      <div id="mx-result-area">
+        <div style="color:var(--muted);font-size:.8rem">Choose an operation above to see the result here.</div>
+      </div>
+      <div id="mx-steps-area" style="display:none;margin-top:12px">
+        <button class="desc-toggle" onclick="mxToggleSteps()">📋 Show / Hide Working Steps ▾</button>
+        <div id="mx-steps-body" class="desc-body" style="font-family:var(--mono);font-size:.72rem;white-space:pre-wrap;line-height:1.9"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+  STOP HERE for index.html
+  Everything below goes into app.js
+  Location: paste at the very bottom of app.js, before the final
+  comment block that says END
+═══════════════════════════════════════════════════════════ -->
+
+<!-- app.js addition starts here — remove this comment line when pasting -->
+<script id="matrix-logic-paste-into-appjs">
+/* ══════════════════════════════════════════════════════════
+   MATRIX CALCULATOR
+   All operations: det, inv, transpose, trace, rank, RREF,
+   scalar multiply, matrix power, eigenvalues (2×2), LU,
+   add, subtract, multiply, Aᵀ×B, A×Bᵀ
+══════════════════════════════════════════════════════════ */
+
+// ── Build input grids ──────────────────────────────────
+function mxBuildGrid() {
+  const ar = +document.getElementById('mx-ar').value;
+  const ac = +document.getElementById('mx-ac').value;
+  const br = +document.getElementById('mx-br').value;
+  const bc = +document.getElementById('mx-bc').value;
+  mxDrawGrid('mx-grid-a', ar, ac, 'A');
+  mxDrawGrid('mx-grid-b', br, bc, 'B');
+}
+
+function mxDrawGrid(containerId, rows, cols, label) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  // Preserve existing values
+  const old = {};
+  container.querySelectorAll('input[data-r][data-c]').forEach(inp => {
+    old[inp.dataset.r + '_' + inp.dataset.c] = inp.value;
+  });
+  container.innerHTML = '';
+  const tbl = document.createElement('div');
+  tbl.style.cssText = 'display:inline-flex;flex-direction:column;gap:3px';
+  for (let r = 0; r < rows; r++) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:3px';
+    for (let c = 0; c < cols; c++) {
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.step = 'any';
+      inp.dataset.r = r; inp.dataset.c = c; inp.dataset.mat = label;
+      inp.value = old[r + '_' + c] !== undefined ? old[r + '_' + c] : '0';
+      inp.style.cssText = 'width:52px;padding:5px 4px;text-align:center;font-family:var(--mono);font-size:.78rem;background:var(--surface);border:1px solid var(--border2);border-radius:5px;color:var(--text);outline:none';
+      inp.addEventListener('focus', function () { this.style.borderColor = 'var(--gold)'; });
+      inp.addEventListener('blur',  function () { this.style.borderColor = 'var(--border2)'; });
+      row.appendChild(inp);
+    }
+    tbl.appendChild(row);
+  }
+  container.appendChild(tbl);
+}
+
+function mxFillIdentity(lbl) {
+  const rId = lbl === 'A' ? 'mx-ar' : 'mx-br';
+  const cId = lbl === 'A' ? 'mx-ac' : 'mx-bc';
+  const n   = Math.min(+document.getElementById(rId).value, +document.getElementById(cId).value);
+  // Set square
+  document.getElementById(rId).value = n;
+  document.getElementById(cId).value = n;
+  mxBuildGrid();
+  const gId = lbl === 'A' ? 'mx-grid-a' : 'mx-grid-b';
+  document.querySelectorAll('#' + gId + ' input').forEach(inp => {
+    inp.value = +inp.dataset.r === +inp.dataset.c ? '1' : '0';
+  });
+}
+function mxFillRandom(lbl) {
+  const gId = lbl === 'A' ? 'mx-grid-a' : 'mx-grid-b';
+  document.querySelectorAll('#' + gId + ' input').forEach(inp => {
+    inp.value = Math.floor(Math.random() * 9) - 4 || 1;
+  });
+}
+function mxClear(lbl) {
+  const gId = lbl === 'A' ? 'mx-grid-a' : 'mx-grid-b';
+  document.querySelectorAll('#' + gId + ' input').forEach(inp => { inp.value = '0'; });
+}
+
+// ── Read matrix from grid ──────────────────────────────
+function mxRead(gridId) {
+  const container = document.getElementById(gridId);
+  const inputs = container.querySelectorAll('input[data-r][data-c]');
+  const rows = Math.max(...[...inputs].map(i => +i.dataset.r)) + 1;
+  const cols = Math.max(...[...inputs].map(i => +i.dataset.c)) + 1;
+  const M = Array.from({ length: rows }, () => Array(cols).fill(0));
+  inputs.forEach(inp => { M[+inp.dataset.r][+inp.dataset.c] = parseFloat(inp.value) || 0; });
+  return M;
+}
+
+// ── Matrix display ─────────────────────────────────────
+function mxDisplay(M, label) {
+  const rows = M.length, cols = M[0].length;
+  let html = '<div style="margin-bottom:8px;font-size:.75rem;color:var(--gold);font-family:var(--mono);font-weight:600">' + label + ' (' + rows + '×' + cols + ')</div>';
+  html += '<div style="display:inline-flex;flex-direction:column;gap:3px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px">';
+  M.forEach(row => {
+    html += '<div style="display:flex;gap:5px">';
+    row.forEach(v => {
+      const disp = mxFmt(v);
+      html += '<div style="min-width:64px;padding:4px 6px;background:var(--card);border:1px solid var(--border2);border-radius:4px;font-family:var(--mono);font-size:.76rem;text-align:center;color:var(--text)">' + disp + '</div>';
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+function mxFmt(v) {
+  if (!isFinite(v)) return '∞';
+  if (Math.abs(v) < 1e-10) return '0';
+  if (Number.isInteger(v) || Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+  const rounded = Math.round(v * 10000) / 10000;
+  return String(rounded);
+}
+function mxScalar(v, label) {
+  return '<div style="margin-bottom:8px;font-size:.75rem;color:var(--gold);font-family:var(--mono);font-weight:600">' + label + '</div>' +
+    '<div style="font-family:var(--mono);font-size:1.4rem;color:var(--text);padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:inline-block">' + mxFmt(v) + '</div>';
+}
+function mxError(msg) {
+  return '<div style="color:var(--red);font-size:.82rem;font-family:var(--mono);padding:10px 0">' + msg + '</div>';
+}
+
+// ── Core linear algebra ────────────────────────────────
+
+// Deep copy matrix
+function mxCopy(M) { return M.map(r => [...r]); }
+
+// Matrix multiply
+function mxMul(A, B) {
+  const m = A.length, k = A[0].length, n = B[0].length;
+  if (k !== B.length) return null;
+  const C = Array.from({ length: m }, () => Array(n).fill(0));
+  for (let i = 0; i < m; i++)
+    for (let j = 0; j < n; j++)
+      for (let p = 0; p < k; p++) C[i][j] += A[i][p] * B[p][j];
+  return C;
+}
+
+// Matrix add/sub
+function mxAdd(A, B, sign) {
+  if (A.length !== B.length || A[0].length !== B[0].length) return null;
+  return A.map((row, i) => row.map((v, j) => v + sign * B[i][j]));
+}
+
+// Transpose
+function mxTranspose(A) {
+  return A[0].map((_, j) => A.map(row => row[j]));
+}
+
+// Trace
+function mxTrace(A) {
+  if (A.length !== A[0].length) return NaN;
+  return A.reduce((s, row, i) => s + row[i], 0);
+}
+
+// Determinant (recursive cofactor expansion — exact for up to 6×6)
+function mxDet(M) {
+  const n = M.length;
+  if (n !== M[0].length) return NaN;
+  if (n === 1) return M[0][0];
+  if (n === 2) return M[0][0] * M[1][1] - M[0][1] * M[1][0];
+  let det = 0;
+  for (let j = 0; j < n; j++) {
+    const minor = M.slice(1).map(row => row.filter((_, c) => c !== j));
+    det += Math.pow(-1, j) * M[0][j] * mxDet(minor);
+  }
+  return det;
+}
+
+// RREF with step tracking
+function mxRREF(M, trackSteps) {
+  const mat  = M.map(r => r.map(v => v)); // deep copy
+  const rows = mat.length, cols = mat[0].length;
+  const steps = [];
+  let pivotRow = 0;
+  for (let col = 0; col < cols && pivotRow < rows; col++) {
+    // Find pivot
+    let maxRow = pivotRow;
+    for (let r = pivotRow + 1; r < rows; r++)
+      if (Math.abs(mat[r][col]) > Math.abs(mat[maxRow][col])) maxRow = r;
+    if (Math.abs(mat[maxRow][col]) < 1e-12) continue;
+    // Swap
+    if (maxRow !== pivotRow) {
+      [mat[pivotRow], mat[maxRow]] = [mat[maxRow], mat[pivotRow]];
+      if (trackSteps) steps.push('R' + (pivotRow+1) + ' ↔ R' + (maxRow+1));
+    }
+    // Scale pivot row
+    const pivotVal = mat[pivotRow][col];
+    if (Math.abs(pivotVal - 1) > 1e-12) {
+      const scale = 1 / pivotVal;
+      mat[pivotRow] = mat[pivotRow].map(v => v * scale);
+      if (trackSteps) steps.push('R' + (pivotRow+1) + ' × ' + mxFmt(scale));
+    }
+    // Eliminate column
+    for (let r = 0; r < rows; r++) {
+      if (r === pivotRow || Math.abs(mat[r][col]) < 1e-12) continue;
+      const factor = mat[r][col];
+      mat[r] = mat[r].map((v, c) => v - factor * mat[pivotRow][c]);
+      if (trackSteps) steps.push('R' + (r+1) + ' − ' + mxFmt(factor) + '×R' + (pivotRow+1));
+    }
+    pivotRow++;
+  }
+  return { rref: mat, steps };
+}
+
+// Rank
+function mxRank(M) {
+  const { rref } = mxRREF(M, false);
+  return rref.filter(row => row.some(v => Math.abs(v) > 1e-10)).length;
+}
+
+// Inverse via augmented RREF [A|I]
+function mxInverse(A) {
+  const n = A.length;
+  if (n !== A[0].length) return null;
+  const det = mxDet(A);
+  if (Math.abs(det) < 1e-12) return null; // singular
+  // Build [A|I]
+  const aug = A.map((row, i) => {
+    const id = Array(n).fill(0); id[i] = 1;
+    return [...row, ...id];
+  });
+  const { rref } = mxRREF(aug, false);
+  // Extract right half
+  return rref.map(row => row.slice(n));
+}
+
+// Matrix power (integer n ≥ 0)
+function mxPower(A, n) {
+  const size = A.length;
+  if (size !== A[0].length) return null;
+  if (n === 0) { // identity
+    return Array.from({ length: size }, (_, i) => Array.from({ length: size }, (_, j) => i === j ? 1 : 0));
+  }
+  let result = mxCopy(A);
+  for (let i = 1; i < n; i++) {
+    result = mxMul(result, A);
+    if (!result) return null;
+  }
+  return result;
+}
+
+// Eigenvalues — 2×2 only (quadratic formula)
+// λ² − tr(A)λ + det(A) = 0
+function mxEigen2x2(A) {
+  if (A.length !== 2 || A[0].length !== 2) return null;
+  const tr  = mxTrace(A);
+  const det = mxDet(A);
+  const disc = tr * tr - 4 * det;
+  const steps = ['Characteristic equation: λ² − ' + mxFmt(tr) + 'λ + ' + mxFmt(det) + ' = 0',
+    'Discriminant = ' + mxFmt(tr) + '² − 4×' + mxFmt(det) + ' = ' + mxFmt(disc)];
+  if (disc < -1e-10) {
+    const re = tr / 2, im = Math.sqrt(-disc) / 2;
+    steps.push('Complex eigenvalues: λ = ' + mxFmt(re) + ' ± ' + mxFmt(im) + 'i');
+    return { type: 'complex', l1: re + ' + ' + mxFmt(im) + 'i', l2: re + ' − ' + mxFmt(im) + 'i', steps };
+  }
+  const l1 = (tr + Math.sqrt(Math.max(0, disc))) / 2;
+  const l2 = (tr - Math.sqrt(Math.max(0, disc))) / 2;
+  steps.push('λ₁ = (' + mxFmt(tr) + ' + √' + mxFmt(disc) + ') / 2 = ' + mxFmt(l1));
+  steps.push('λ₂ = (' + mxFmt(tr) + ' − √' + mxFmt(disc) + ') / 2 = ' + mxFmt(l2));
+  return { type: 'real', l1, l2, steps };
+}
+
+// LU Decomposition (Doolittle method, no pivoting for clarity)
+function mxLU(A) {
+  const n = A.length;
+  if (n !== A[0].length) return null;
+  const L = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => i === j ? 1 : 0));
+  const U = A.map(r => [...r]);
+  const steps = [];
+  for (let k = 0; k < n; k++) {
+    if (Math.abs(U[k][k]) < 1e-12) {
+      steps.push('Warning: zero pivot at (' + (k+1) + ',' + (k+1) + ') — LU may be unreliable without pivoting');
+    }
+    for (let i = k + 1; i < n; i++) {
+      if (Math.abs(U[k][k]) < 1e-12) continue;
+      const factor = U[i][k] / U[k][k];
+      L[i][k] = factor;
+      for (let j = k; j < n; j++) U[i][j] -= factor * U[k][j];
+      steps.push('L[' + (i+1) + '][' + (k+1) + '] = ' + mxFmt(factor));
+    }
+  }
+  return { L, U, steps };
+}
+
+// ── Main dispatch ──────────────────────────────────────
+let mxLastSteps = [];
+
+function mxRun(op) {
+  const resultArea = document.getElementById('mx-result-area');
+  const stepsArea  = document.getElementById('mx-steps-area');
+  const stepsBody  = document.getElementById('mx-steps-body');
+  mxLastSteps = [];
+
+  try {
+    const A = mxRead('mx-grid-a');
+    let html = '';
+
+    if (op === 'det') {
+      if (A.length !== A[0].length) { resultArea.innerHTML = mxError('Determinant requires a square matrix (n×n).'); stepsArea.style.display='none'; return; }
+      const d = mxDet(A);
+      html  = mxScalar(d, 'det(A)');
+      mxLastSteps = ['det(A) computed by cofactor expansion', 'Result: ' + mxFmt(d), d === 0 ? '→ Matrix is SINGULAR (no inverse exists).' : '→ Matrix is invertible.'];
+    }
+
+    else if (op === 'inv') {
+      if (A.length !== A[0].length) { resultArea.innerHTML = mxError('Inverse requires a square matrix.'); stepsArea.style.display='none'; return; }
+      const inv = mxInverse(A);
+      if (!inv) { resultArea.innerHTML = mxError('Matrix is singular (det = 0). Inverse does not exist.'); stepsArea.style.display='none'; return; }
+      html = mxDisplay(inv, 'A⁻¹ (Inverse of A)');
+      mxLastSteps = ['Method: RREF on augmented matrix [A|I]', 'det(A) = ' + mxFmt(mxDet(A)), 'Inverse extracted from right half after reduction.'];
+    }
+
+    else if (op === 'trans') {
+      html = mxDisplay(mxTranspose(A), 'Aᵀ (Transpose of A)');
+      mxLastSteps = ['Rows and columns swapped.', 'Original: ' + A.length + '×' + A[0].length, 'Transposed: ' + A[0].length + '×' + A.length];
+    }
+
+    else if (op === 'trace') {
+      if (A.length !== A[0].length) { resultArea.innerHTML = mxError('Trace requires a square matrix.'); stepsArea.style.display='none'; return; }
+      const t = mxTrace(A);
+      html = mxScalar(t, 'tr(A) = sum of diagonal elements');
+      const diag = A.map((row, i) => mxFmt(row[i]));
+      mxLastSteps = ['Diagonal elements: ' + diag.join(', '), 'Sum = ' + mxFmt(t)];
+    }
+
+    else if (op === 'rank') {
+      const r = mxRank(A);
+      html = mxScalar(r, 'rank(A)');
+      mxLastSteps = ['Rank determined by counting non-zero rows in RREF(A).', 'rank = ' + r, r === Math.min(A.length, A[0].length) ? '→ Matrix has full rank.' : '→ Matrix is rank-deficient (linearly dependent rows/columns exist).'];
+    }
+
+    else if (op === 'rref') {
+      const { rref, steps } = mxRREF(A, true);
+      html = mxDisplay(rref, 'RREF(A)');
+      mxLastSteps = ['Row operations performed:'].concat(steps.length ? steps : ['No operations needed — already in RREF.']);
+    }
+
+    else if (op === 'scalar') {
+      const k = parseFloat(document.getElementById('mx-scalar').value) || 1;
+      const result = A.map(row => row.map(v => v * k));
+      html = mxDisplay(result, k + ' × A');
+      mxLastSteps = ['Each element multiplied by k = ' + k];
+      document.getElementById('mx-scalar-ctrl').style.display = 'block';
+    }
+
+    else if (op === 'power') {
+      document.getElementById('mx-power-ctrl').style.display = 'block';
+      if (A.length !== A[0].length) { resultArea.innerHTML = mxError('Matrix power requires a square matrix.'); stepsArea.style.display='none'; return; }
+      const n = Math.max(0, Math.min(20, parseInt(document.getElementById('mx-power-n').value) || 2));
+      const result = mxPower(A, n);
+      if (!result) { resultArea.innerHTML = mxError('Matrix multiplication failed — check dimensions.'); stepsArea.style.display='none'; return; }
+      html = mxDisplay(result, 'A^' + n);
+      mxLastSteps = ['A multiplied by itself ' + n + ' time(s).', n === 0 ? 'A^0 = Identity matrix.' : ''];
+    }
+
+    else if (op === 'eigen') {
+      if (A.length !== 2 || A[0].length !== 2) { resultArea.innerHTML = mxError('Eigenvalues in this tool are only supported for 2×2 matrices.\nFor larger matrices, use matrixcalc.org.'); stepsArea.style.display='none'; return; }
+      const res = mxEigen2x2(A);
+      if (res.type === 'complex') {
+        html = '<div style="font-family:var(--mono);font-size:.82rem;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;line-height:2">' +
+          '<div style="color:var(--gold);font-weight:600;margin-bottom:6px">Eigenvalues (complex)</div>' +
+          'λ₁ = <span style="color:var(--blue)">' + res.l1 + '</span><br>' +
+          'λ₂ = <span style="color:var(--blue)">' + res.l2 + '</span></div>';
+      } else {
+        html = '<div style="font-family:var(--mono);font-size:.82rem;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;line-height:2">' +
+          '<div style="color:var(--gold);font-weight:600;margin-bottom:6px">Eigenvalues (real)</div>' +
+          'λ₁ = <span style="color:var(--green)">' + mxFmt(res.l1) + '</span><br>' +
+          'λ₂ = <span style="color:var(--green)">' + mxFmt(res.l2) + '</span></div>';
+      }
+      mxLastSteps = res.steps;
+    }
+
+    else if (op === 'lu') {
+      if (A.length !== A[0].length) { resultArea.innerHTML = mxError('LU Decomposition requires a square matrix.'); stepsArea.style.display='none'; return; }
+      const res = mxLU(A);
+      if (!res) { resultArea.innerHTML = mxError('LU failed.'); stepsArea.style.display='none'; return; }
+      html = '<div style="display:flex;gap:14px;flex-wrap:wrap">' + mxDisplay(res.L, 'L (lower triangular)') + mxDisplay(res.U, 'U (upper triangular)') + '</div>';
+      html += '<div style="font-size:.73rem;color:var(--muted);margin-top:8px">Verify: L × U should equal A (check with A×B operation)</div>';
+      mxLastSteps = ['LU Decomposition (Doolittle method)', 'L has 1s on diagonal, zeros above diagonal.', 'U is the upper triangular factor.'].concat(res.steps);
+    }
+
+    else if (op === 'add' || op === 'sub') {
+      const B    = mxRead('mx-grid-b');
+      const sign = op === 'add' ? 1 : -1;
+      const res  = mxAdd(A, B, sign);
+      if (!res) { resultArea.innerHTML = mxError('A and B must have the same dimensions for ' + (op === 'add' ? 'addition' : 'subtraction') + '.\nA is ' + A.length + '×' + A[0].length + ', B is ' + B.length + '×' + B[0].length + '.'); stepsArea.style.display='none'; return; }
+      html = mxDisplay(res, op === 'add' ? 'A + B' : 'A − B');
+      mxLastSteps = ['Element-wise ' + (op === 'add' ? 'addition' : 'subtraction') + '.', 'Dimensions: ' + A.length + '×' + A[0].length];
+    }
+
+    else if (op === 'mul') {
+      const B   = mxRead('mx-grid-b');
+      const res = mxMul(A, B);
+      if (!res) { resultArea.innerHTML = mxError('Multiplication requires columns of A = rows of B.\nA is ' + A.length + '×' + A[0].length + ' (needs B to be ' + A[0].length + '×n).\nB is ' + B.length + '×' + B[0].length + '.'); stepsArea.style.display='none'; return; }
+      html = mxDisplay(res, 'A × B');
+      mxLastSteps = ['Matrix multiplication: (A×B)[i][j] = sum of A[i][k] × B[k][j]', 'Input A: ' + A.length + '×' + A[0].length + '  ×  B: ' + B.length + '×' + B[0].length, 'Output: ' + res.length + '×' + res[0].length];
+    }
+
+    else if (op === 'atb') {
+      const B   = mxRead('mx-grid-b');
+      const At  = mxTranspose(A);
+      const res = mxMul(At, B);
+      if (!res) { resultArea.innerHTML = mxError('Aᵀ×B: rows of B must equal rows of A (since Aᵀ has same cols as A rows).\nAᵀ is ' + At.length + '×' + At[0].length + ', B is ' + B.length + '×' + B[0].length + '.'); stepsArea.style.display='none'; return; }
+      html = mxDisplay(res, 'Aᵀ × B');
+      mxLastSteps = ['Transposed A first, then multiplied by B.'];
+    }
+
+    else if (op === 'abt') {
+      const B   = mxRead('mx-grid-b');
+      const Bt  = mxTranspose(B);
+      const res = mxMul(A, Bt);
+      if (!res) { resultArea.innerHTML = mxError('A×Bᵀ: cols of A must equal cols of B.\nA is ' + A.length + '×' + A[0].length + ', Bᵀ is ' + Bt.length + '×' + Bt[0].length + '.'); stepsArea.style.display='none'; return; }
+      html = mxDisplay(res, 'A × Bᵀ');
+      mxLastSteps = ['Transposed B first, then multiplied A × Bᵀ.'];
+    }
+
+    resultArea.innerHTML = html;
+    if (mxLastSteps.length) {
+      stepsBody.textContent = mxLastSteps.filter(Boolean).join('\n');
+      stepsArea.style.display = 'block';
+      document.getElementById('mx-steps-body').style.display = 'none'; // collapsed by default
+    } else {
+      stepsArea.style.display = 'none';
+    }
+
+  } catch (e) {
+    resultArea.innerHTML = mxError('Error: ' + e.message);
+    stepsArea.style.display = 'none';
+  }
+}
+
+function mxToggleSteps() {
+  const body = document.getElementById('mx-steps-body');
+  body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── Init: build default 3×3 grids on page load ────────
+// This runs when the matrix tool is first opened.
+// Add this call to your openTool() function OR call it here with a delay.
+(function mxInit() {
+  // Wait for DOM to be ready (in case this script loads before tool panel renders)
+  function tryBuild() {
+    if (document.getElementById('mx-grid-a')) {
+      mxBuildGrid();
+    } else {
+      setTimeout(tryBuild, 200);
+    }
+  }
+  tryBuild();
+})();
+</script>
+<!-- END of paste block -->
+
+
+
+
+
 
 <!-- GoatCounter — enable "Allow visitor counts on website" in your GoatCounter Settings -->
 <script>
