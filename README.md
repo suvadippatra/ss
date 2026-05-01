@@ -2,18 +2,18 @@
 
 # 📚 Student's Suite
 
-### An offline-first academic document processor — no server, no upload, no cost.
+## An offline-first academic document processor — no server, no upload, no cost.
 
+[![Visitors](https://suvadip.goatcounter.com/counter/TOTAL.svg)](https://suvadip.goatcounter.com)
+&nbsp;&nbsp;
+
+<br/>
 [![GitHub Pages](https://img.shields.io/badge/Live%20on-GitHub%20Pages-gold?style=flat-square&logo=github)](https://suvadippatra.github.io/students-suite/)
 &nbsp;&nbsp;
 [![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey?style=flat-square)](LICENSE)
 &nbsp;&nbsp;
 ![No Server](https://img.shields.io/badge/Server-None-3ecf8e?style=flat-square)
 ![No Upload](https://img.shields.io/badge/Upload-Never-3ecf8e?style=flat-square)
-
-<br/>
-[![Visitors](https://suvadip.goatcounter.com/counter/TOTAL.svg)](https://suvadip.goatcounter.com)
-&nbsp;&nbsp;
 
 <br/>
 
