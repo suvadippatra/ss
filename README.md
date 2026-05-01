@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📚 Student's Suite
+# 📚 Student's Suite (https://bit.ly/spatra26)
 
 ## An offline-first academic document processor — no server, no upload, no cost.
 
