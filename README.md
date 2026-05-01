@@ -6,7 +6,7 @@
 
 [![Visitors](https://suvadip.goatcounter.com/counter/TOTAL.svg)](https://suvadip.goatcounter.com)
 &nbsp;&nbsp;
-[![GitHub Pages](https://img.shields.io/badge/Live%20on-GitHub%20Pages-gold?style=flat-square&logo=github)](https://joydip1.github.io/students-suite/)
+[![GitHub Pages](https://img.shields.io/badge/Live%20on-GitHub%20Pages-gold?style=flat-square&logo=github)](https://suvadippatra.github.io/students-suite/)
 &nbsp;&nbsp;
 [![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey?style=flat-square)](LICENSE)
 &nbsp;&nbsp;
@@ -15,7 +15,7 @@
 
 <br/>
 
-*The visitor count badge above is live — powered by GoatCounter.*
+*The visitor count badge above is live — powered by GoatCounter. This is the only way i can track*
 
 </div>
 
@@ -60,9 +60,7 @@ students-suite/
 │   └── pdf.worker.min.js      ← PDF.js worker thread file.
 │                                Must be kept alongside pdf.min.js.
 │
-├── logo.png                   ← (optional) Drop your own logo here.
-│                                The HTML already has the img tag commented in,
-│                                waiting for this file.
+├── logo.png                   ← My own logo here (rough design).
 │
 └── README.md                  ← This file.
 ```
@@ -79,7 +77,7 @@ This is the most important question about this project, and it deserves a real a
 
 When a student in India needs to resize a photograph before submitting an online exam form, the existing paths are roughly these:
 
-- Use an online tool like ILovePDF or Smallpdf → your document travels to a server in Europe or the US, is processed there, and you download the result. You have no way to verify what was retained, logged, or associated with your account. For an Aadhaar card or a mark sheet, this is a genuine privacy concern.
+- Use an online tool like ILovePDF or Smallpdf → your document travels to a server in Europe or the US, is processed there, and you download the result. You have no way to verify what was retained, logged, or associated with your account. For an Aadhaar card or personal document, this is a genuine privacy concern.
 - Use desktop software like Adobe Acrobat or GIMP → requires installation, a license, a learning curve, and in many cases administrative access to a college computer. Most students in India are working on shared lab machines or low-end phones where none of this is realistic.
 - Use Microsoft Office or Google Docs → works for basic tasks, but fails immediately when the requirement is "signature in JPEG, max 20 KB, exactly 3.5 × 1.5 cm at 200 DPI, white background removed." No menu in Word leads you there without several painful intermediate steps.
 
@@ -130,7 +128,7 @@ Processing happens on the device using the browser's own JavaScript engine. This
 
 ## § 5 — How Your Data Is Processed
 
-**No file you open in this suite ever leaves your device.**
+**No file you open in this suite ever leaves your device. This is a client-side web-app**
 
 Here is exactly what happens when you use any tool:
 
@@ -212,7 +210,7 @@ All libraries are used in accordance with their respective licences. No modifica
 ### This project's licence
 
 ```
-Copyright © 2025 Suvadip Patra (@Joydip1)
+Copyright © 2026 Suvadip Patra (@suvadippatra)
 
 This work is licensed under the Creative Commons
 Attribution-NonCommercial 4.0 International License.
