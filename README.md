@@ -4,10 +4,10 @@
 
 ## An offline-first academic document processor — no server, no upload, no cost.
 
+<br/>
+
 [![Visitors](https://suvadip.goatcounter.com/counter/TOTAL.svg)](https://suvadip.goatcounter.com)
 &nbsp;&nbsp;
-
-<br/>
 [![GitHub Pages](https://img.shields.io/badge/Live%20on-GitHub%20Pages-gold?style=flat-square&logo=github)](https://suvadippatra.github.io/students-suite/)
 &nbsp;&nbsp;
 [![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey?style=flat-square)](LICENSE)
