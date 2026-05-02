@@ -11,61 +11,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --bg:#0b0c10;--surface:#12141a;--card:#181b24;
-  --border:#222632;--border2:#2e3347;
-  --gold:#f0a500;--gold2:#d08800;--goldbg:rgba(240,165,0,.07);
-  --green:#3ecf8e;--red:#e05c5c;--blue:#5c9cf5;
-  --muted:#5a6180;--dim:#8892b0;--text:#cdd6f4;
-  --nav-bg:rgba(11,12,16,0.92);
-  --mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;
-  --mx:50%;--my:50%;
-}
-[data-theme="light"]{
-  --bg:#f5f7fa;--surface:#ffffff;--card:#ffffff;
-  --border:#e4e7eb;--border2:#cbd2d9;
-  --gold:#c07800;--gold2:#9a5f00;--goldbg:rgba(192,120,0,.07);
-  --green:#2a9065;--red:#c43d3d;--blue:#2563eb;
-  --muted:#7b8794;--dim:#52606d;--text:#1f2933;
-  --nav-bg:rgba(245,247,250,0.92);
-}
+:root{--bg:#0b0c10;--surface:#12141a;--card:#181b24;--border:#222632;--border2:#2e3347;--gold:#f0a500;--gold2:#d08800;--goldbg:rgba(240,165,0,.07);--green:#3ecf8e;--red:#e05c5c;--blue:#5c9cf5;--muted:#5a6180;--dim:#8892b0;--text:#cdd6f4;--nav-bg:rgba(11,12,16,0.92);--mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;--mx:50%;--my:50%;}
+[data-theme="light"]{--bg:#f5f7fa;--surface:#ffffff;--card:#ffffff;--border:#e4e7eb;--border2:#cbd2d9;--gold:#c07800;--gold2:#9a5f00;--goldbg:rgba(192,120,0,.07);--green:#2a9065;--red:#c43d3d;--blue:#2563eb;--muted:#7b8794;--dim:#52606d;--text:#1f2933;--nav-bg:rgba(245,247,250,0.92);}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:
-    radial-gradient(circle 260px at var(--mx) var(--my),rgba(240,165,0,.06) 0%,transparent 100%),
-    radial-gradient(var(--border2) 1px,transparent 1px);
-  background-size:100% 100%,28px 28px;
-}
-[data-theme="light"] body::before{
-  background-image:
-    radial-gradient(circle 260px at var(--mx) var(--my),rgba(192,120,0,.08) 0%,transparent 100%),
-    radial-gradient(#cbd2d9 1px,transparent 1px);
-  background-size:100% 100%,28px 28px;
-}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(circle 260px at var(--mx) var(--my),rgba(240,165,0,.06) 0%,transparent 100%),radial-gradient(var(--border2) 1px,transparent 1px);background-size:100% 100%,28px 28px;}
+[data-theme="light"] body::before{background-image:radial-gradient(circle 260px at var(--mx) var(--my),rgba(192,120,0,.08) 0%,transparent 100%),radial-gradient(#cbd2d9 1px,transparent 1px);background-size:100% 100%,28px 28px;}
 .page{position:relative;z-index:1;max-width:840px;margin:0 auto;padding:26px 14px 90px}
 .tool-panel{display:none}
-
-/* Theme toggle */
 .theme-btn{position:fixed;top:13px;right:13px;z-index:400;background:var(--surface);border:1px solid var(--border);border-radius:50%;width:38px;height:38px;display:grid;place-items:center;cursor:pointer;font-size:1rem;box-shadow:0 3px 10px rgba(0,0,0,.15);transition:transform .15s,border-color .15s}
 .theme-btn:hover{transform:scale(1.08);border-color:var(--gold)}
-
-/* Session badge */
 #gBadge{position:fixed;bottom:16px;right:13px;z-index:400;background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.25);border-radius:16px;padding:5px 12px;color:var(--gold);font-family:var(--mono);font-size:.7rem;display:none;cursor:pointer;backdrop-filter:blur(8px)}
 #gBadge.on{display:block}
-
-/* Nav bar — FIX: uses CSS var not rgba(var()) */
 .nav-bar{position:sticky;top:0;z-index:200;background:var(--nav-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;padding:9px 13px}
 .nav-back{background:none;border:1px solid var(--border2);border-radius:6px;color:var(--gold);font-family:var(--sans);font-size:.75rem;font-weight:600;cursor:pointer;padding:5px 11px;transition:background .13s;flex-shrink:0}
 .nav-back:hover{background:var(--goldbg)}
 .nav-title{font-size:.85rem;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nav-right{margin-left:auto;display:flex;gap:5px;flex-shrink:0}
-
-/* Landing */
-.hd{margin-bottom:18px}
-.hd-brand{display:flex;align-items:center;gap:13px;margin-bottom:9px}
+.hd{margin-bottom:18px}.hd-brand{display:flex;align-items:center;gap:13px;margin-bottom:9px}
 .hd-icon{width:48px;height:48px;background:var(--gold);border-radius:11px;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;color:#111}
 .hd-logo-img{width:48px;height:48px;border-radius:11px;object-fit:cover;flex-shrink:0;border:1px solid var(--border);background:var(--surface)}
 .hd-title{font-size:1.65rem;font-weight:700;letter-spacing:-.03em;line-height:1;margin-bottom:4px}
@@ -73,14 +37,10 @@ body::before{
 .hd-sub{color:var(--muted);font-size:.8rem;line-height:1.6}
 .disc{background:var(--goldbg);border-left:4px solid var(--gold);padding:10px 14px;margin-bottom:16px;border-radius:0 7px 7px 0;font-size:.78rem;color:var(--dim);line-height:1.6}
 .disc b{color:var(--text)}
-
-/* Category tabs */
 .cat-bar{display:flex;gap:3px;margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:3px;overflow-x:auto}
 .cat-btn{flex:1;background:none;border:none;border-radius:6px;color:var(--muted);font-family:var(--sans);font-size:.76rem;font-weight:600;padding:7px 5px;cursor:pointer;transition:background .13s,color .13s;white-space:nowrap;min-width:60px}
 .cat-btn.active{background:var(--goldbg);color:var(--gold)}
 .cat-btn:hover:not(.active){color:var(--text);background:var(--card)}
-
-/* Tools grid */
 .tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
 .tool-card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:13px 14px;display:flex;align-items:flex-start;gap:11px;cursor:pointer;transition:border-color .15s,transform .1s}
 .tool-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.08)}
@@ -88,57 +48,39 @@ body::before{
 .tc-body{flex:1;min-width:0}
 .tc-name{font-size:.88rem;font-weight:600;margin-bottom:2px}
 .tc-desc{font-size:.72rem;color:var(--muted);line-height:1.5}
-
-/* Footer */
 .site-footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
 .site-footer a{color:var(--gold);text-decoration:none}
 #gc-counter{margin-top:18px;min-height:22px;text-align:center}
-
-/* Local notepad */
 .notepad{margin-top:22px;background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:13px}
 .notepad textarea{width:100%;height:68px;background:var(--card);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:8px;font-family:var(--sans);font-size:.78rem;resize:vertical;outline:none;transition:border-color .15s;margin-top:7px}
 .notepad textarea:focus{border-color:var(--gold)}
-
-/* Lib status */
 #libStatus{display:none;padding:7px 11px;border-radius:7px;font-size:.75rem;margin-bottom:9px;border:1px solid}
 #libStatus.err{background:rgba(224,92,92,.1);border-color:rgba(224,92,92,.4);color:#e05c5c}
 #libStatus.ok{background:rgba(62,207,142,.07);border-color:rgba(62,207,142,.3);color:#3ecf8e}
-
-/* Components */
 .slabel{font-family:var(--mono);font-size:.63rem;font-weight:500;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:8px;margin-bottom:7px;margin-top:2px}
 .slabel::after{content:'';flex:1;height:1px;background:var(--border)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:13px 15px;margin-bottom:10px}
-
-/* Desc toggles */
 .desc-toggle{background:none;border:1px solid var(--border2);border-radius:5px;color:var(--gold);font-family:var(--sans);font-size:.72rem;font-weight:600;padding:4px 10px;cursor:pointer;transition:background .13s}
 .desc-toggle:hover{background:var(--goldbg)}
 .desc-body{margin-top:9px;font-size:.78rem;color:var(--dim);line-height:1.8;border-left:3px solid var(--gold);padding:9px 12px;background:var(--goldbg);border-radius:0 7px 7px 0;display:none}
 .desc-body b{color:var(--text)}
 .desc-body code{font-family:var(--mono);font-size:.7rem;color:var(--gold);background:var(--surface);padding:1px 5px;border-radius:3px}
 .desc-body ul{margin:7px 0 3px 15px}.desc-body li{margin-bottom:3px}
-
-/* Session tray */
 .sess-tray{display:none;background:rgba(62,207,142,.05);border:1px solid rgba(62,207,142,.2);border-radius:7px;padding:7px 11px;font-size:.72rem;color:var(--green);margin-bottom:8px}
 .sess-tray.on{display:block}
 .sess-file-list{margin-top:4px;display:flex;flex-direction:column;gap:2px}
 .sess-file-btn{background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.15);border-radius:4px;padding:4px 9px;color:var(--green);font-size:.69rem;cursor:pointer;text-align:left;width:100%;transition:background .1s}
 .sess-file-btn:hover{background:rgba(62,207,142,.16)}
-
-/* Drop zone */
 .dz{border:2px dashed var(--border2);border-radius:8px;padding:20px 16px;text-align:center;cursor:pointer;position:relative;transition:border-color .18s,background .18s}
 .dz:hover,.dz.over{border-color:var(--gold);background:var(--goldbg)}
 .dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .dz-icon{font-size:1.4rem;margin-bottom:3px}
 .dz-txt{color:var(--muted);font-size:.76rem}
 .dz-txt b{color:var(--gold)}
-
-/* Pill */
 .pill{display:none;align-items:center;gap:9px;margin-top:7px;padding:7px 11px;background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.22);border-radius:7px}
 .pill.on{display:flex}
 .pill-name{font-weight:600;font-size:.8rem;word-break:break-all}
 .pill-meta{color:var(--muted);font-size:.67rem;margin-top:1px}
-
-/* Controls */
 .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 15px}
 @media(max-width:500px){.cgrid{grid-template-columns:1fr}}
 .ctrl{display:flex;flex-direction:column;gap:5px}
@@ -149,8 +91,6 @@ select:focus,input[type=text]:focus,input[type=number]:focus,input[type=password
 input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
 .rv{font-family:var(--mono);font-size:.72rem;color:var(--gold);min-width:46px;text-align:right;font-weight:500}
 .computed{padding:7px 9px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;font-family:var(--mono);font-size:.74rem;color:var(--gold)}
-
-/* Toggle switch */
 .tog-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:11px;padding-top:11px;gap:11px}
 .tog-txt{font-size:.8rem}.tog-txt small{display:block;color:var(--muted);font-size:.68rem;margin-top:1px}
 .tog{position:relative;width:40px;height:22px;flex-shrink:0}
@@ -159,26 +99,18 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
 .knob::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .18s}
 .tog input:checked+.knob{background:var(--gold)}
 .tog input:checked+.knob::after{left:21px}
-
-/* Info box */
 .info{border-left:3px solid var(--gold);border-radius:0 6px 6px 0;background:var(--goldbg);padding:8px 11px;font-size:.72rem;color:var(--muted);line-height:1.65;margin-top:9px}
 .info b{color:var(--text)}
-
-/* Checkbox / radio */
 .cb-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
 .cb-row input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:pointer;flex-shrink:0}
 .cb-row label{font-size:.79rem;cursor:pointer}
 .radio-row{display:flex;flex-wrap:wrap;gap:3px 12px;margin-top:4px}
 .radio-row label{display:flex;align-items:center;gap:4px;font-size:.79rem;cursor:pointer}
 .radio-row input[type=radio]{accent-color:var(--gold);cursor:pointer}
-
-/* Tabs */
 .tab-bar{display:flex;border-bottom:1px solid var(--border);margin-bottom:10px;overflow-x:auto}
 .tab-btn{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:var(--sans);font-size:.76rem;font-weight:500;padding:6px 11px;cursor:pointer;transition:color .13s,border-color .13s;margin-bottom:-1px;white-space:nowrap}
 .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
 .tab-pane{display:none}.tab-pane.active{display:block}
-
-/* File list */
 .fl-box{background:var(--surface);border:1px solid var(--border);border-radius:7px;max-height:180px;overflow-y:auto;margin-bottom:6px}
 .fl-item{display:flex;align-items:center;gap:7px;padding:6px 10px;border-bottom:1px solid var(--border);font-size:.76rem;cursor:pointer}
 .fl-item:last-child{border-bottom:none}
@@ -186,8 +118,6 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
 .fl-name{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fl-meta{color:var(--muted);font-size:.66rem;white-space:nowrap}
 .fl-item.sel{background:var(--goldbg)}
-
-/* Buttons */
 .btn-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px}
 .btn-sm{background:var(--surface);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--sans);font-size:.72rem;font-weight:500;padding:5px 9px;cursor:pointer;transition:background .1s,border-color .1s;text-decoration:none;display:inline-block}
 .btn-sm:hover{border-color:var(--gold);color:var(--gold)}
@@ -196,14 +126,10 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
 .btn-sm.primary:hover{background:rgba(240,165,0,.13)}
 .btn-sm.green{background:rgba(62,207,142,.08);border-color:rgba(62,207,142,.25);color:var(--green)}
 .btn-sm.green:hover{background:rgba(62,207,142,.16)}
-
-/* Run button */
 .run{width:100%;padding:11px;background:var(--gold);color:#000;border:none;border-radius:8px;font-family:var(--sans);font-size:.89rem;font-weight:700;cursor:pointer;transition:background .13s,transform .09s;display:flex;align-items:center;justify-content:center;gap:7px}
 .run:hover:not(:disabled){background:#f8b820;transform:translateY(-1px)}
 .run:active:not(:disabled){transform:translateY(0)}
 .run:disabled{opacity:.28;cursor:not-allowed;background:var(--border2);color:var(--muted)}
-
-/* Progress */
 .proc-area{display:none;margin-top:10px}
 .ptrack{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:7px}
 .pfill{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));width:0%;transition:width .35s ease;border-radius:2px}
@@ -211,20 +137,15 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
 .step-chip{flex:1;padding:4px 2px;text-align:center;border-radius:4px;font-size:.61rem;font-family:var(--mono);background:var(--surface);border:1px solid var(--border);color:var(--muted);transition:all .25s}
 .step-chip.active{background:var(--goldbg);border-color:var(--gold);color:var(--gold)}
 .step-chip.done{background:rgba(62,207,142,.07);border-color:rgba(62,207,142,.28);color:var(--green)}
-
-/* Log */
 .log{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:var(--mono);font-size:.66rem;line-height:1.9;max-height:180px;overflow-y:auto;color:var(--muted)}
 .log .ok{color:var(--green)}.log .er{color:var(--red)}.log .st{color:var(--gold);font-weight:500}.log .wn{color:#d4a849}.log .li{color:var(--muted)}
-
-/* Downloads */
 .dl-list{display:flex;flex-direction:column;gap:6px}
-.dl-item{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:7px;gap:8px;flex-wrap:wrap}
+.dl-item{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:7px;gap:8px;flex-wrap:wrap}
 .dl-title{font-size:.8rem;font-weight:600}.dl-desc{font-size:.68rem;color:var(--muted);margin-top:1px}
 .dl-btn{background:rgba(62,207,142,.09);color:var(--green);border:1px solid rgba(62,207,142,.28);border-radius:5px;padding:5px 10px;font-family:var(--sans);font-size:.7rem;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background .13s;display:inline-block}
 .dl-btn:hover{background:rgba(62,207,142,.18)}
 .sess-btn{background:var(--goldbg);color:var(--gold);border:1px solid rgba(240,165,0,.22);border-radius:5px;padding:5px 10px;font-family:var(--sans);font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .13s}
 .sess-btn:hover{background:rgba(240,165,0,.13)}
-
 /* Image tools */
 .img-wrap{background:var(--surface);border:1px solid var(--border);border-radius:7px;overflow:hidden;text-align:center}
 .img-canvas{max-width:100%;display:block;margin:0 auto}
@@ -234,7 +155,6 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
 .cmp-sz{font-size:.68rem;color:var(--gold);font-family:var(--mono);text-align:center;padding:3px 4px}
 .checker-bg{background-image:linear-gradient(45deg,#555 25%,transparent 25%),linear-gradient(-45deg,#555 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#555 75%),linear-gradient(-45deg,transparent 75%,#555 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
 [data-theme="light"] .checker-bg{background-image:linear-gradient(45deg,#ccc 25%,transparent 25%),linear-gradient(-45deg,#ccc 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ccc 75%),linear-gradient(-45deg,transparent 75%,#ccc 75%);background-size:16px 16px}
-
 /* Calculator */
 .fullscreen-calc{position:fixed!important;top:0;left:0;width:100vw;height:100vh;z-index:500;background:var(--bg);overflow-y:auto;border-radius:0!important}
 .calc-disp{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;margin-bottom:9px}
@@ -259,27 +179,27 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
 .hist-item:last-child{border-bottom:none}
 .hist-expr{color:var(--muted);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis}
 .hist-res{color:var(--gold);font-family:var(--mono);font-weight:600;white-space:nowrap}
+/* Preview area */
+.prv-area{display:none;margin-top:10px}
+.prv-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;flex-wrap:wrap}
+.prv-canvas{max-width:100%;display:block;border:1px solid var(--border);border-radius:6px;margin-top:6px}
 </style>
 </head>
 <body>
-
 <button class="theme-btn" onclick="toggleTheme()" title="Toggle Light/Dark">🌓</button>
 <div id="gBadge" onclick="showSessionModal()">📋 <span id="gBadgeCount">0</span> in session</div>
 
-<!-- ══════════ LANDING ══════════ -->
+<!-- LANDING -->
 <div id="landing" class="page">
   <div id="libStatus"></div>
   <div class="hd">
     <div class="hd-brand">
-      <!-- Swap the div below for: <img src="./logo.png" class="hd-logo-img" alt="Logo"/> -->
+      <!-- To use your own logo: <img src="./logo.png" class="hd-logo-img" alt="Logo"/> -->
       <div class="hd-icon">📚</div>
-      <div>
-        <div class="hd-title">Student's <span>Suite</span></div>
-        <div class="hd-sub">Offline-first · No upload · No server · All processing in your browser</div>
-      </div>
+      <div><div class="hd-title">Student's <span>Suite</span></div><div class="hd-sub">Offline-first · No upload · No server · All processing in your browser</div></div>
     </div>
   </div>
-  <div class="disc"><b>Privacy:</b> Every file is processed locally in your browser tab. Nothing is sent to any server. On low-RAM devices, tap the session badge (bottom-right) to purge memory after heavy operations.</div>
+  <div class="disc"><b>Privacy:</b> Every file is processed locally in your browser. Nothing is sent to any server. Tap the session badge (bottom-right) to purge memory after heavy operations.</div>
   <div class="cat-bar">
     <button class="cat-btn active" onclick="filterCat('all')">All Tools</button>
     <button class="cat-btn" onclick="filterCat('pdf')">📄 PDF</button>
@@ -287,230 +207,176 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
     <button class="cat-btn" onclick="filterCat('maths')">∑ Maths</button>
   </div>
   <div class="tools-grid" id="toolsGrid">
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('booklet')"><div class="tc-icon">📖</div><div class="tc-body"><div class="tc-name">Booklet Imposition</div><div class="tc-desc">Reorder pages for saddle-stitch booklet printing with fold guides and registration marks.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('merge')"><div class="tc-icon">⊕</div><div class="tc-body"><div class="tc-name">PDF Merge</div><div class="tc-desc">Combine multiple PDFs into one document in any order you choose.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('split')"><div class="tc-icon">✂</div><div class="tc-body"><div class="tc-name">PDF Split</div><div class="tc-desc">Extract specific pages or split at fixed intervals into separate files.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('compress')"><div class="tc-icon">⊘</div><div class="tc-body"><div class="tc-name">PDF Compress</div><div class="tc-desc">Lossless structural re-compression to strip metadata bloat.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('nup')"><div class="tc-icon">⊞</div><div class="tc-body"><div class="tc-name">N-up Layout</div><div class="tc-desc">Place multiple source pages onto each output sheet in a grid.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('rearrange')"><div class="tc-icon">⇅</div><div class="tc-body"><div class="tc-name">Rearrange Pages</div><div class="tc-desc">Interactively reorder, duplicate, or delete individual pages.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('toimage')"><div class="tc-icon">◫</div><div class="tc-body"><div class="tc-name">PDF → Image</div><div class="tc-desc">Render each page as a high-resolution PNG or JPEG.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('wmadd')"><div class="tc-icon">⬡</div><div class="tc-body"><div class="tc-name">Add Watermark</div><div class="tc-desc">Stamp text watermarks across all pages with opacity and position control.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('wmremove')"><div class="tc-icon">◌</div><div class="tc-body"><div class="tc-name">Remove Watermark</div><div class="tc-desc">Scan and strip annotation-layer and overlay watermarks.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('unlock')"><div class="tc-icon">🔓</div><div class="tc-body"><div class="tc-name">Unlock PDF</div><div class="tc-desc">Decrypt a password-protected PDF using your known password.</div></div></div>
-    <div class="tool-card" data-cat="pdf"   onclick="openTool('verified')"><div class="tc-icon">✅</div><div class="tc-body"><div class="tc-name">Add Verified Stamp</div><div class="tc-desc">Apply a visible VERIFIED / SELF ATTESTED rubber stamp to govt/Aadhaar PDFs.</div></div></div>
-    <div class="tool-card" data-cat="image" onclick="openTool('imgcompress')"><div class="tc-icon">🗜</div><div class="tc-body"><div class="tc-name">Image Compressor</div><div class="tc-desc">Reduce image file size by quality percentage. Side-by-side preview.</div></div></div>
-    <div class="tool-card" data-cat="image" onclick="openTool('imgresize')"><div class="tc-icon">📐</div><div class="tc-body"><div class="tc-name">Image Resize</div><div class="tc-desc">Resize to exact px/cm/inch with DPI and target KB control for exam forms.</div></div></div>
-    <div class="tool-card" data-cat="image" onclick="openTool('passport')"><div class="tc-icon">🪪</div><div class="tc-body"><div class="tc-name">Passport Photo Maker</div><div class="tc-desc">Crop, rotate, adjust a portrait and export at exact ID/passport dimensions.</div></div></div>
-    <div class="tool-card" data-cat="image" onclick="openTool('signature')"><div class="tc-icon">✒</div><div class="tc-body"><div class="tc-name">Signature Cleaner</div><div class="tc-desc">Remove white backgrounds from scanned signatures. Export as transparent PNG.</div></div></div>
-    
-    
-    
-    
-    
+    <div class="tool-card" data-cat="pdf" onclick="openTool('booklet')"><div class="tc-icon">📖</div><div class="tc-body"><div class="tc-name">Booklet Imposition</div><div class="tc-desc">Reorder pages for saddle-stitch booklet printing with fold guides and registration marks.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('merge')"><div class="tc-icon">⊕</div><div class="tc-body"><div class="tc-name">PDF Merge</div><div class="tc-desc">Combine multiple PDFs into one document in any order you choose.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('split')"><div class="tc-icon">✂</div><div class="tc-body"><div class="tc-name">PDF Split</div><div class="tc-desc">Extract specific pages or split at fixed intervals into separate files.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('compress')"><div class="tc-icon">⊘</div><div class="tc-body"><div class="tc-name">PDF Compress</div><div class="tc-desc">Lossless structural re-compression to reduce file size without losing content.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('nup')"><div class="tc-icon">⊞</div><div class="tc-body"><div class="tc-name">N-up Layout</div><div class="tc-desc">Print multiple source pages onto each sheet -- great for lecture slides and study notes.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('rearrange')"><div class="tc-icon">⇅</div><div class="tc-body"><div class="tc-name">Rearrange Pages</div><div class="tc-desc">Interactively reorder, duplicate, or delete individual pages from a PDF.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('toimage')"><div class="tc-icon">◫</div><div class="tc-body"><div class="tc-name">PDF → Image</div><div class="tc-desc">Render each page as a high-resolution PNG or JPEG image at chosen DPI.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('wmadd')"><div class="tc-icon">⬡</div><div class="tc-body"><div class="tc-name">Add Watermark</div><div class="tc-desc">Stamp text or image watermarks across all pages with opacity and position control.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('wmremove')"><div class="tc-icon">◌</div><div class="tc-body"><div class="tc-name">Remove Watermark</div><div class="tc-desc">4-strategy watermark removal: annotation strip, text redact, image overdraw, vector neutralize.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('unlock')"><div class="tc-icon">🔓</div><div class="tc-body"><div class="tc-name">Unlock PDF</div><div class="tc-desc">Decrypt a password-protected PDF. Works with Aadhaar, bank statements, mark sheets.</div></div></div>
+    <div class="tool-card" data-cat="pdf" onclick="openTool('verified')"><div class="tc-icon">✅</div><div class="tc-body"><div class="tc-name">Add Verified Stamp</div><div class="tc-desc">Apply a VERIFIED / SELF ATTESTED rubber stamp visual to govt/Aadhaar PDFs.</div></div></div>
+    <div class="tool-card" data-cat="image" onclick="openTool('imgcompress')"><div class="tc-icon">🗜</div><div class="tc-body"><div class="tc-name">Image Compressor</div><div class="tc-desc">Reduce image file size by quality percentage with live before/after preview.</div></div></div>
+    <div class="tool-card" data-cat="image" onclick="openTool('imgresize')"><div class="tc-icon">📐</div><div class="tc-body"><div class="tc-name">Image Resize</div><div class="tc-desc">Resize to exact px/cm/inch with DPI selection and target KB control for exam forms.</div></div></div>
+    <div class="tool-card" data-cat="image" onclick="openTool('passport')"><div class="tc-icon">🪪</div><div class="tc-body"><div class="tc-name">Passport Photo Maker</div><div class="tc-desc">Crop, rotate, and adjust a portrait. Export at preset ID/passport/visa dimensions.</div></div></div>
+    <div class="tool-card" data-cat="image" onclick="openTool('signature')"><div class="tc-icon">✒</div><div class="tc-body"><div class="tc-name">Signature Cleaner</div><div class="tc-desc">Remove white/light backgrounds from scanned signatures. Export as transparent PNG.</div></div></div>
+    <div class="tool-card" data-cat="image" onclick="openTool('exif')"><div class="tc-icon">🧹</div><div class="tc-body"><div class="tc-name">EXIF / Metadata Cleaner</div><div class="tc-desc">Strip all EXIF, GPS, camera info from images. Clear Author/Creator/dates from PDFs.</div></div></div>
     <div class="tool-card" data-cat="maths" onclick="openTool('calc')"><div class="tc-icon">∑</div><div class="tc-body"><div class="tc-name">Scientific &amp; Graphing Calculator</div><div class="tc-desc">Evaluate complex expressions, plot multiple functions on a dynamic graph.</div></div></div>
-
-    
-    <div class="tool-card" data-cat="maths" onclick="openTool('matrix')">
-      <div class="tc-icon">⊞</div>
-      <div class="tc-body">
-        <div class="tc-name">Matrix Calculator</div>
-        <div class="tc-desc">Add, multiply, invert, find determinant, RREF, eigenvalues and more — up to 6×6.</div>
-      </div>
-    </div>
-    </div>
+    <div class="tool-card" data-cat="maths" onclick="openTool('matrix')"><div class="tc-icon">⊟</div><div class="tc-body"><div class="tc-name">Matrix Calculator</div><div class="tc-desc">Det, inverse, RREF, transpose, trace, rank, eigenvalues, LU, multiply -- up to 6×6.</div></div></div>
+  </div>
   <div id="gc-counter"></div>
-
-
-
-
   <div class="site-footer">
     <span><a href="https://github.com/suvadippatra/ss" target="_blank">A dream project</a> of Suvadip Patra (<a href="https://github.com/suvadippatra" target="_blank">@suvadippatra</a>)</span>
     <a href="#" target="_blank" id="feedbackLink">📝 Feedback / Google Form</a>
-    <span>v3.0.0</span>
+    <span>v4.0.0</span>
   </div>
-  
-  <div style="font-size:.72rem;color:var(--muted);margin-top:10px;display:flex;justify-content:space-between">
-    <span>Session operations: <span id="localOpCount">0</span></span>
-  </div>
+  <div style="font-size:.72rem;color:var(--muted);margin-top:10px;display:flex;justify-content:space-between"><span>Session operations: <span id="localOpCount">0</span></span></div>
   <div class="notepad">
-    <div style="font-size:.78rem;font-weight:600;color:var(--text)">🗒 Private Notes <span style="font-size:.68rem;color:var(--muted);font-weight:400">(browser-only, never shared)</span></div>
+    <div style="font-size:.78rem;font-weight:600;color:var(--text)">🗒 Private Notes <span style="font-size:.68rem;color:var(--muted);font-weight:400">(browser-only)</span></div>
     <textarea id="localNoteArea" placeholder="Jot formulas, page ranges, or task reminders…"></textarea>
-    <div style="margin-top:6px;display:flex;align-items:center;gap:9px">
-      <button class="btn-sm primary" onclick="saveNote()">💾 Save</button>
-      <span id="noteSt" style="font-size:.7rem;color:var(--green);display:none">✓ Saved</span>
-    </div>
+    <div style="margin-top:6px;display:flex;align-items:center;gap:9px"><button class="btn-sm primary" onclick="saveNote()">💾 Save</button><span id="noteSt" style="font-size:.7rem;color:var(--green);display:none">✓ Saved</span></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: BOOKLET ══════════ -->
+<!-- MACRO: reusable preview block for PDF output -->
+<!-- Each tool has: toolid-prv-area, toolid-prv-pg, toolid-prv-cv, toolid-prv-wrap -->
+
+<!-- TOOL: BOOKLET -->
 <div id="tool-booklet" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">📖 Booklet Imposition</span></div>
   <div class="page">
     <div class="card"><button class="desc-toggle" onclick="tDesc('bk-d')">ℹ Terms &amp; How It Works ▾</button>
       <div id="bk-d" class="desc-body">
-        <b>Saddle-stitch booklet:</b> Sheets are nested and stapled through the centre fold. Like a magazine — pages 1 and the last page are printed on the same outer sheet, back-to-back.<br><br>
-        <b>Signature:</b> A group of sheets folded together. Choosing "4 sheets per signature" nests 4 physical sheets, giving 16 page positions per signature group (4 sheets × 2 sides × 2 columns per side).<br><br>
-        <b>Spine / Binding Gap:</b> The blank space in the centrefold reserved for the staple. Increase for thicker paper stock.<br><br>
-        <b>Registration Marks:</b> After printing, you need to fold and staple accurately. Marks include a dashed fold guide, a <i>"Signature 1 · Sheet 2 of 4"</i> label so you know the assembly order, and four alignment dots along the spine.<br><br>
-        <b>Three Processing Steps:</b><br>
-        <code>① Resize</code> — Pages are stretched to fill exactly half the canvas width (277 mm / 2).<br>
-        <code>② Impose</code> — Pages are reordered onto A4-landscape sheets in the correct saddle-stitch sequence.<br>
-        <code>③ Marks</code> — Fold guides, "Sig. N · Sheet N of N" labels and binding dots are drawn on every sheet.
+        <b>Saddle-stitch booklet:</b> Sheets are nested and stapled through the centre fold. Like a magazine -- the first and last pages are printed on the same outer sheet, back-to-back.<br><br>
+        <b>Signature:</b> A nested group of sheets. "4 sheets per signature" means 4 physical sheets folded together, giving 16 page positions (4 sheets × 2 sides × 2 pages per side).<br><br>
+        <b>Spine Gap:</b> Blank space at the centre fold reserved for the staple. Increase for thicker paper.<br><br>
+        <b>Registration Marks:</b> Dashed fold guide line + "Sig. N · Sheet N of N" label (so you know assembly order) + 4 alignment dots along the spine.<br><br>
+        <b>Three Steps:</b><br>
+        <code>① Resize</code> -- Pages stretched to fill exactly half the canvas width.<br>
+        <code>② Impose</code> -- Pages reordered onto A4-landscape sheets in correct saddle-stitch sequence.<br>
+        <code>③ Marks</code> -- Fold guides, labels, and binding dots drawn on every sheet.
       </div>
     </div>
-    <div class="slabel">01 — Document Input</div>
+    <div class="slabel">01 -- Document Input</div>
     <div class="card">
       <div class="sess-tray" id="bk-sess"><b>Session files:</b><div class="sess-file-list" id="bk-slist"></div></div>
       <div class="dz" id="bk-dz"><input type="file" id="bk-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
-      <div class="pill" id="bk-pill"><span>✅</span><div><div class="pill-name" id="bk-pname">—</div><div class="pill-meta" id="bk-pmeta">—</div></div></div>
+      <div class="pill" id="bk-pill"><span>✅</span><div><div class="pill-name" id="bk-pname">--</div><div class="pill-meta" id="bk-pmeta">--</div></div></div>
+      <div class="file-meta" id="bk-meta"></div>
     </div>
-    <div class="slabel">02 — Parameters</div>
+    <div class="slabel">02 -- Parameters</div>
     <div class="card">
       <div class="cgrid">
-        <div class="ctrl"><label>Sheets per Signature</label>
-          <select id="bk-sheets">
-            <option value="1">1 sheet → 4 pages per sig</option>
-            <option value="2">2 sheets → 8 pages per sig</option>
-            <option value="3">3 sheets → 12 pages per sig</option>
-            <option value="4" selected>4 sheets → 16 pages per sig</option>
-          </select>
-        </div>
-        <div class="ctrl"><label>Computed Sub-page Width</label><div class="computed" id="bk-pw">—</div></div>
+        <div class="ctrl"><label>Sheets per Signature</label><select id="bk-sheets"><option value="1">1 sheet → 4 pages</option><option value="2">2 sheets → 8 pages</option><option value="3">3 sheets → 12 pages</option><option value="4" selected>4 sheets → 16 pages</option></select></div>
+        <div class="ctrl"><label>Computed Sub-page Width</label><div class="computed" id="bk-pw">--</div></div>
         <div class="ctrl"><label>Spine Gap (mm)</label><div class="rrow"><input type="range" id="bk-gap" min="20" max="60" value="30"/><span class="rv" id="bk-gapV">30</span></div></div>
         <div class="ctrl"><label>Outer Trim (mm)</label><div class="rrow"><input type="range" id="bk-out" min="0" max="30" value="0"/><span class="rv" id="bk-outV">0</span></div></div>
       </div>
-      <div class="tog-row">
-        <div class="tog-txt">Include Registration Marks<small>Fold guide, "Sig. N · Sheet N of N" label, 4 binding dots</small></div>
-        <label class="tog"><input type="checkbox" id="bk-marks" checked/><span class="knob"></span></label>
-      </div>
-      <div class="info">Canvas fixed at <b>277 × 190 mm</b> (A4 landscape − 10 mm print borders). Sub-page = <b>(277 − gap − 2×outer) / 2</b>. Pages are stretched (no aspect ratio lock).</div>
+      <div class="tog-row"><div class="tog-txt">Registration Marks<small>Fold guide, Sig. labels, 4 binding dots</small></div><label class="tog"><input type="checkbox" id="bk-marks" checked/><span class="knob"></span></label></div>
+      <div class="info">Canvas fixed at <b>277 × 190 mm</b> (A4 landscape − 10 mm borders). Sub-page = <b>(277 − gap − 2×outer) / 2</b>. Pages are stretched to fill.</div>
     </div>
-    <div class="slabel">03 — Process</div>
+    <div class="slabel">03 -- Process</div>
     <div class="card">
       <button class="run" id="bk-run" disabled>📖 Process Booklet</button>
-      <div class="proc-area" id="bk-proc">
-        <div class="steps-row"><div class="step-chip" id="bk-c1">① Resize</div><div class="step-chip" id="bk-c2">② Impose</div><div class="step-chip" id="bk-c3">③ Marks</div></div>
-        <div class="ptrack"><div class="pfill" id="bk-pf"></div></div>
-        <div class="log" id="bk-log"></div>
-      </div>
+      <div class="proc-area" id="bk-proc"><div class="steps-row"><div class="step-chip" id="bk-c1">① Resize</div><div class="step-chip" id="bk-c2">② Impose</div><div class="step-chip" id="bk-c3">③ Marks</div></div><div class="ptrack"><div class="pfill" id="bk-pf"></div></div><div class="log" id="bk-log"></div></div>
+      <div class="prv-area" id="bk-prv-area"><div class="slabel" style="margin-top:10px">Preview output page</div><div class="prv-row"><input type="number" id="bk-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('bk')">👁 Preview</button></div><div id="bk-prv-wrap" style="display:none"><canvas id="bk-prv-cv" class="prv-canvas"></canvas></div></div>
     </div>
-    <div class="slabel" id="bk-dlab" style="display:none">04 — Downloads</div>
+    <div class="slabel" id="bk-dlab" style="display:none">04 -- Downloads</div>
     <div class="card" id="bk-dsect" style="display:none"><div class="dl-list" id="bk-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: MERGE ══════════ -->
+<!-- TOOL: MERGE -->
 <div id="tool-merge" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⊕ PDF Merge</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('mg-d')">ℹ How Merge Works ▾</button>
-      <div id="mg-d" class="desc-body"><b>What it does:</b> Concatenates multiple PDF files into one output document, preserving all pages from each source. Files are appended in the queue order shown below — use Up/Down to reorder before running.<br><br><b>Tip:</b> You can add the same file twice to duplicate its contents.</div>
-    </div>
-    <div class="slabel">01 — File Queue</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('mg-d')">ℹ How Merge Works ▾</button><div id="mg-d" class="desc-body"><b>What it does:</b> Joins multiple PDF files into one output document, appending pages in the queue order shown below. Use Up/Down to reorder before running. You can add the same file twice to duplicate its contents.</div></div>
+    <div class="slabel">01 -- File Queue</div>
     <div class="card">
       <div class="sess-tray" id="mg-sess"><b>Session:</b><div class="sess-file-list" id="mg-slist"></div></div>
-      <div class="btn-row">
-        <button class="btn-sm primary" onclick="mgAdd()">+ Add PDFs</button>
-        <button class="btn-sm" onclick="mgMove(-1)">↑ Up</button>
-        <button class="btn-sm" onclick="mgMove(1)">↓ Down</button>
-        <button class="btn-sm danger" onclick="mgRem()">✕ Remove</button>
-        <button class="btn-sm" onclick="mgClear()">Clear All</button>
-      </div>
+      <div class="btn-row"><button class="btn-sm primary" onclick="mgAdd()">+ Add PDFs</button><button class="btn-sm" onclick="mgMove(-1)">↑ Up</button><button class="btn-sm" onclick="mgMove(1)">↓ Down</button><button class="btn-sm danger" onclick="mgRem()">✕ Remove</button><button class="btn-sm" onclick="mgClear()">Clear All</button></div>
       <input type="file" id="mg-fi" accept=".pdf" multiple style="display:none"/>
-      <div class="dz" id="mg-dz" style="margin-bottom:8px" onclick="mgAdd()">
-        <div class="dz-icon">📄</div>
-        <div class="dz-txt"><b>Drag &amp; drop PDFs here</b> or use + Add button</div>
-      </div>
+      <div class="dz" id="mg-dz" style="margin-bottom:8px"><div class="dz-icon">📄</div><div class="dz-txt"><b>Drag &amp; drop PDFs here</b> or use + Add button</div></div>
       <div class="fl-box" id="mg-list"><div style="padding:10px;color:var(--muted);font-size:.75rem">Queue empty. Add PDFs above.</div></div>
       <div style="font-size:.68rem;color:var(--muted);margin-top:4px;font-family:var(--mono)" id="mg-stats"></div>
     </div>
-    <div class="slabel">02 — Execute</div>
+    <div class="slabel">02 -- Execute</div>
     <div class="card">
       <button class="run" id="mg-run" disabled>⊕ Merge All</button>
       <div class="proc-area" id="mg-proc"><div class="ptrack"><div class="pfill" id="mg-pf"></div></div><div class="log" id="mg-log"></div></div>
+      <div class="prv-area" id="mg-prv-area"><div class="slabel" style="margin-top:10px">Preview output page</div><div class="prv-row"><input type="number" id="mg-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('mg')">👁 Preview</button></div><div id="mg-prv-wrap" style="display:none"><canvas id="mg-prv-cv" class="prv-canvas"></canvas></div></div>
     </div>
-    <div class="slabel" id="mg-dlab" style="display:none">03 — Download</div>
+    <div class="slabel" id="mg-dlab" style="display:none">03 -- Download</div>
     <div class="card" id="mg-dsect" style="display:none"><div class="dl-list" id="mg-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: SPLIT ══════════ -->
+<!-- TOOL: SPLIT -->
 <div id="tool-split" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">✂ PDF Split</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('sp-d')">ℹ Split Modes ▾</button>
-      <div id="sp-d" class="desc-body">
-        <b>Custom Ranges</b> — e.g. <code>1-5, 8, 10-12</code> — each token = one output file.<br>
-        <b>Uniform Interval</b> — chop into equal N-page batches.<br>
-        <b>Granular Extraction</b> — e.g. <code>3, 7, 12</code> — each page = its own file.
-      </div>
-    </div>
-    <div class="slabel">01 — Source</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('sp-d')">ℹ Split Modes ▾</button><div id="sp-d" class="desc-body"><b>Custom Ranges</b> -- e.g. <code>1-5, 8, 10-12</code> -- each token = one output file.<br><b>Uniform Interval</b> -- chop into equal N-page batches.<br><b>Granular Extraction</b> -- e.g. <code>3, 7, 12</code> -- each page becomes its own file. Use "Preview Splits" to verify before running.</div></div>
+    <div class="slabel">01 -- Source</div>
     <div class="card">
       <div class="sess-tray" id="sp-sess"><b>Session:</b><div class="sess-file-list" id="sp-slist"></div></div>
       <div class="dz" id="sp-dz"><input type="file" id="sp-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
-      <div class="pill" id="sp-pill"><span>✅</span><div><div class="pill-name" id="sp-pname">—</div><div class="pill-meta" id="sp-pmeta">—</div></div></div>
+      <div class="pill" id="sp-pill"><span>✅</span><div><div class="pill-name" id="sp-pname">--</div><div class="pill-meta" id="sp-pmeta">--</div></div></div>
+      <div class="file-meta" id="sp-meta"></div>
     </div>
-    <div class="slabel">02 — Method</div>
+    <div class="slabel">02 -- Method</div>
     <div class="card">
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="spTab(0,this)">Ranges</button>
-        <button class="tab-btn" onclick="spTab(1,this)">Interval</button>
-        <button class="tab-btn" onclick="spTab(2,this)">Extract Pages</button>
-      </div>
+      <div class="tab-bar"><button class="tab-btn active" onclick="spTab(0,this)">Ranges</button><button class="tab-btn" onclick="spTab(1,this)">Interval</button><button class="tab-btn" onclick="spTab(2,this)">Extract Pages</button></div>
       <div class="tab-pane active" id="sp-t0"><div style="font-size:.75rem;color:var(--dim);margin-bottom:6px">Page ranges e.g. <code style="color:var(--gold)">1-5, 8, 10-12</code></div><input type="text" id="sp-ranges" placeholder="1-5, 8, 10-12"/></div>
       <div class="tab-pane" id="sp-t1"><div class="ctrl" style="margin-top:6px"><label>Pages per batch</label><div class="rrow"><input type="range" id="sp-n" min="1" max="50" value="10"/><span class="rv" id="sp-nV">10</span></div></div></div>
       <div class="tab-pane" id="sp-t2"><div style="font-size:.75rem;color:var(--dim);margin-bottom:6px">Individual pages e.g. <code style="color:var(--gold)">3, 7, 12</code></div><input type="text" id="sp-extract" placeholder="3, 7, 12"/></div>
       <div class="btn-row" style="margin-top:10px"><button class="btn-sm primary" onclick="spPreview()">👁 Preview Splits</button></div>
       <div id="sp-prv-area" style="display:none;margin-top:8px"><div class="fl-box" id="sp-prv-list"></div><div style="font-size:.7rem;color:var(--muted);font-family:var(--mono);margin-top:4px" id="sp-prv-count"></div></div>
     </div>
-    <div class="slabel">03 — Execute</div>
-    <div class="card">
-      <button class="run" id="sp-run" disabled>✂ Split PDF</button>
-      <div class="proc-area" id="sp-proc"><div class="ptrack"><div class="pfill" id="sp-pf"></div></div><div class="log" id="sp-log"></div></div>
-    </div>
-    <div class="slabel" id="sp-dlab" style="display:none">04 — Output Files</div>
+    <div class="slabel">03 -- Execute</div>
+    <div class="card"><button class="run" id="sp-run" disabled>✂ Split PDF</button><div class="proc-area" id="sp-proc"><div class="ptrack"><div class="pfill" id="sp-pf"></div></div><div class="log" id="sp-log"></div></div></div>
+    <div class="slabel" id="sp-dlab" style="display:none">04 -- Output Files</div>
     <div class="card" id="sp-dsect" style="display:none"><div class="dl-list" id="sp-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: COMPRESS ══════════ -->
+<!-- TOOL: COMPRESS -->
 <div id="tool-compress" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⊘ PDF Compress</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('cp-d')">ℹ What Compression Does ▾</button>
-      <div id="cp-d" class="desc-body"><b>Lossless only:</b> Re-serialises the PDF with DEFLATE compression on uncompressed data streams and packs objects into clustered streams. Removes structural bloat and orphaned objects. Does <b>not</b> downsample images — image-heavy PDFs need a server-side tool for large reductions.</div>
-    </div>
-    <div class="slabel">01 — Source</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('cp-d')">ℹ What Compression Does ▾</button><div id="cp-d" class="desc-body"><b>Lossless only:</b> Re-serialises the PDF with DEFLATE compression and packs objects into clustered streams. Removes structural bloat and orphaned objects. Does <b>not</b> downsample images -- for large image-heavy PDFs, reductions are typically 5–20%. Best results on PDFs with lots of uncompressed text or metadata.</div></div>
+    <div class="slabel">01 -- Source</div>
     <div class="card">
       <div class="sess-tray" id="cp-sess"><b>Session:</b><div class="sess-file-list" id="cp-slist"></div></div>
       <div class="dz" id="cp-dz"><input type="file" id="cp-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
-      <div class="pill" id="cp-pill"><span>✅</span><div><div class="pill-name" id="cp-pname">—</div><div class="pill-meta" id="cp-pmeta">—</div></div></div>
+      <div class="pill" id="cp-pill"><span>✅</span><div><div class="pill-name" id="cp-pname">--</div><div class="pill-meta" id="cp-pmeta">--</div></div></div>
+      <div class="file-meta" id="cp-meta"></div>
     </div>
-    <div class="slabel">02 — Execute</div>
+    <div class="slabel">02 -- Execute</div>
     <div class="card">
       <button class="run" id="cp-run" disabled>⊘ Compress PDF</button>
       <div class="proc-area" id="cp-proc"><div class="ptrack"><div class="pfill" id="cp-pf"></div></div><div class="log" id="cp-log"></div></div>
+      <div class="prv-area" id="cp-prv-area"><div class="slabel" style="margin-top:10px">Preview output page</div><div class="prv-row"><input type="number" id="cp-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('cp')">👁 Preview</button></div><div id="cp-prv-wrap" style="display:none"><canvas id="cp-prv-cv" class="prv-canvas"></canvas></div></div>
     </div>
-    <div class="slabel" id="cp-dlab" style="display:none">03 — Output</div>
+    <div class="slabel" id="cp-dlab" style="display:none">03 -- Output</div>
     <div class="card" id="cp-dsect" style="display:none"><div class="dl-list" id="cp-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: N-UP ══════════ -->
+<!-- TOOL: N-UP -->
 <div id="tool-nup" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⊞ N-up Layout</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('nu-d')">ℹ What is N-up? ▾</button>
-      <div id="nu-d" class="desc-body"><b>N-up</b> places N source pages onto one output sheet in a grid. "2-up" = 2 side by side; "4-up" = 2×2 grid. Uses: printing lecture slides (6 per page), compact study notes, or proof printing.<br><br><b>Cell size:</b> (sheet width − 2×margin − (cols−1)×spacing) / cols, and similarly for height.</div>
-    </div>
-    <div class="slabel">01 — Source</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('nu-d')">ℹ What is N-up? ▾</button><div id="nu-d" class="desc-body"><b>N-up printing</b> places N source pages onto one output sheet in a grid. "2-up" = 2 pages side by side; "4-up" = 2×2 grid. Useful for printing lecture slides compactly, creating study note booklets, or proof-printing a large document cheaply.<br><br><b>Cell size:</b> (sheet width − 2×margin − (cols−1)×spacing) ÷ cols, and similarly for height.</div></div>
+    <div class="slabel">01 -- Source</div>
     <div class="card">
       <div class="sess-tray" id="nu-sess"><b>Session:</b><div class="sess-file-list" id="nu-slist"></div></div>
       <div class="dz" id="nu-dz"><input type="file" id="nu-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
-      <div class="pill" id="nu-pill"><span>✅</span><div><div class="pill-name" id="nu-pname">—</div><div class="pill-meta" id="nu-pmeta">—</div></div></div>
+      <div class="pill" id="nu-pill"><span>✅</span><div><div class="pill-name" id="nu-pname">--</div><div class="pill-meta" id="nu-pmeta">--</div></div></div>
+      <div class="file-meta" id="nu-meta"></div>
     </div>
-    <div class="slabel">02 — Grid</div>
+    <div class="slabel">02 -- Grid</div>
     <div class="card">
       <div class="cgrid">
         <div class="ctrl"><label>Rows</label><div class="rrow"><input type="range" id="nu-rows" min="1" max="4" value="2"/><span class="rv" id="nu-rowsV">2</span></div></div>
@@ -518,325 +384,286 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
         <div class="ctrl"><label>Cell gap (mm)</label><div class="rrow"><input type="range" id="nu-sp" min="0" max="20" value="4"/><span class="rv" id="nu-spV">4</span></div></div>
         <div class="ctrl"><label>Margin (mm)</label><div class="rrow"><input type="range" id="nu-mg" min="0" max="30" value="8"/><span class="rv" id="nu-mgV">8</span></div></div>
       </div>
-      <div class="ctrl" style="margin-top:10px"><label>Output Paper</label>
-        <select id="nu-size">
-          <option value="595,842">A4 Portrait</option><option value="842,595">A4 Landscape</option>
-          <option value="842,1190">A3 Portrait</option><option value="612,792">US Letter</option>
-        </select>
-      </div>
+      <div class="ctrl" style="margin-top:10px"><label>Output Paper</label><select id="nu-size"><option value="595,842">A4 Portrait</option><option value="842,595">A4 Landscape</option><option value="842,1190">A3 Portrait</option><option value="612,792">US Letter</option></select></div>
       <div class="info" id="nu-info">Grid: 2×2 = <b>4 source pages per sheet</b></div>
     </div>
-    <div class="slabel">03 — Execute</div>
+    <div class="slabel">03 -- Execute</div>
     <div class="card">
       <button class="run" id="nu-run" disabled>⊞ Build N-up</button>
       <div class="proc-area" id="nu-proc"><div class="ptrack"><div class="pfill" id="nu-pf"></div></div><div class="log" id="nu-log"></div></div>
+      <div class="prv-area" id="nu-prv-area"><div class="slabel" style="margin-top:10px">Preview output page</div><div class="prv-row"><input type="number" id="nu-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('nu')">👁 Preview</button></div><div id="nu-prv-wrap" style="display:none"><canvas id="nu-prv-cv" class="prv-canvas"></canvas></div></div>
     </div>
-    <div class="slabel" id="nu-dlab" style="display:none">04 — Output</div>
+    <div class="slabel" id="nu-dlab" style="display:none">04 -- Output</div>
     <div class="card" id="nu-dsect" style="display:none"><div class="dl-list" id="nu-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: REARRANGE ══════════ -->
+<!-- TOOL: REARRANGE -->
 <div id="tool-rearrange" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⇅ Rearrange Pages</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('ra-d')">ℹ How to Use ▾</button>
-      <div id="ra-d" class="desc-body">Click a row to select it (highlighted gold), then use the action buttons. <b>Clone</b> duplicates a page. <b>Reset</b> restores the original order. The original file is never modified.</div>
-    </div>
-    <div class="slabel">01 — Source</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('ra-d')">ℹ How to Use ▾</button><div id="ra-d" class="desc-body">Click a row to select it (highlighted gold), then use the action buttons. <b>Clone</b> duplicates a page so it appears multiple times. <b>Reset</b> restores the original order. The original file is never modified.</div></div>
+    <div class="slabel">01 -- Source</div>
     <div class="card">
       <div class="sess-tray" id="ra-sess"><b>Session:</b><div class="sess-file-list" id="ra-slist"></div></div>
       <div class="dz" id="ra-dz"><input type="file" id="ra-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
-      <div class="pill" id="ra-pill"><span>✅</span><div><div class="pill-name" id="ra-pname">—</div><div class="pill-meta" id="ra-pmeta">—</div></div></div>
+      <div class="pill" id="ra-pill"><span>✅</span><div><div class="pill-name" id="ra-pname">--</div><div class="pill-meta" id="ra-pmeta">--</div></div></div>
+      <div class="file-meta" id="ra-meta"></div>
     </div>
-    <div class="slabel">02 — Page Sequence</div>
+    <div class="slabel">02 -- Page Sequence</div>
     <div class="card">
-      <div class="btn-row">
-        <button class="btn-sm" onclick="raShift(-1)">↑ Up</button><button class="btn-sm" onclick="raShift(1)">↓ Down</button>
-        <button class="btn-sm" onclick="raDup()">Clone</button><button class="btn-sm danger" onclick="raDel()">✕ Delete</button>
-        <button class="btn-sm" onclick="raReset()">↺ Reset</button>
-      </div>
+      <div class="btn-row"><button class="btn-sm" onclick="raShift(-1)">↑ Up</button><button class="btn-sm" onclick="raShift(1)">↓ Down</button><button class="btn-sm" onclick="raDup()">Clone</button><button class="btn-sm danger" onclick="raDel()">✕ Delete</button><button class="btn-sm" onclick="raReset()">↺ Reset</button></div>
       <div class="fl-box" id="ra-list"><div style="padding:10px;color:var(--muted);font-size:.75rem">Load a document to see pages here.</div></div>
       <div style="font-size:.7rem;color:var(--muted);margin-top:4px;font-family:var(--mono)" id="ra-count"></div>
     </div>
-    <div class="slabel">03 — Execute</div>
+    <div class="slabel">03 -- Execute</div>
     <div class="card">
       <button class="run" id="ra-run" disabled>⇅ Build Reordered PDF</button>
       <div class="proc-area" id="ra-proc"><div class="ptrack"><div class="pfill" id="ra-pf"></div></div><div class="log" id="ra-log"></div></div>
+      <div class="prv-area" id="ra-prv-area"><div class="slabel" style="margin-top:10px">Preview output page</div><div class="prv-row"><input type="number" id="ra-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('ra')">👁 Preview</button></div><div id="ra-prv-wrap" style="display:none"><canvas id="ra-prv-cv" class="prv-canvas"></canvas></div></div>
     </div>
-    <div class="slabel" id="ra-dlab" style="display:none">04 — Output</div>
+    <div class="slabel" id="ra-dlab" style="display:none">04 -- Output</div>
     <div class="card" id="ra-dsect" style="display:none"><div class="dl-list" id="ra-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: PDF→IMAGE ══════════ -->
+<!-- TOOL: PDF→IMAGE -->
 <div id="tool-toimage" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">◫ PDF → Image</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('ti-d')">ℹ DPI &amp; Format Guide ▾</button>
-      <div id="ti-d" class="desc-body"><b>DPI:</b> 72–96 = screen only · 150 = presentations · 200–300 = print quality.<br><b>PNG</b> = lossless, larger, ideal for text. <b>JPEG</b> = lossy, smaller, better for photos.<br><b>Note:</b> Requires pdf.js — loads from CDN unless ./js/pdf.min.js is present.</div>
-    </div>
-    <div class="slabel">01 — Source</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('ti-d')">ℹ DPI &amp; Format Guide ▾</button><div id="ti-d" class="desc-body"><b>DPI (Dots Per Inch) controls sharpness:</b><ul><li>72–96 DPI -- screen/web only, small file</li><li>150 DPI -- presentation quality</li><li>200–300 DPI -- suitable for print</li></ul><b>PNG</b> = lossless, larger, ideal for text-heavy pages. <b>JPEG</b> = lossy, smaller, better for photo-heavy pages.<br><br><b>Note:</b> This tool requires pdf.js which loads from CDN on first use (or from ./js/pdf.min.js if you have it locally).</div></div>
+    <div class="slabel">01 -- Source</div>
     <div class="card">
       <div class="sess-tray" id="ti-sess"><b>Session:</b><div class="sess-file-list" id="ti-slist"></div></div>
       <div class="dz" id="ti-dz"><input type="file" id="ti-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
-      <div class="pill" id="ti-pill"><span>✅</span><div><div class="pill-name" id="ti-pname">—</div><div class="pill-meta" id="ti-pmeta">—</div></div></div>
+      <div class="pill" id="ti-pill"><span>✅</span><div><div class="pill-name" id="ti-pname">--</div><div class="pill-meta" id="ti-pmeta">--</div></div></div>
+      <div class="file-meta" id="ti-meta"></div>
     </div>
-    <div class="slabel">02 — Settings</div>
+    <div class="slabel">02 -- Settings</div>
     <div class="card">
-      <div class="ctrl" style="margin-bottom:10px"><label>DPI</label>
-        <div class="radio-row"><label><input type="radio" name="ti-dpi" value="72"/> 72</label><label><input type="radio" name="ti-dpi" value="96"/> 96</label><label><input type="radio" name="ti-dpi" value="150" checked/> 150</label><label><input type="radio" name="ti-dpi" value="200"/> 200</label><label><input type="radio" name="ti-dpi" value="300"/> 300</label></div>
-      </div>
-      <div class="ctrl" style="margin-bottom:10px"><label>Format</label>
-        <div class="radio-row"><label><input type="radio" name="ti-fmt" value="png" checked/> PNG</label><label><input type="radio" name="ti-fmt" value="jpeg"/> JPEG</label></div>
-      </div>
+      <div class="ctrl" style="margin-bottom:10px"><label>DPI</label><div class="radio-row"><label><input type="radio" name="ti-dpi" value="72"/> 72</label><label><input type="radio" name="ti-dpi" value="96"/> 96</label><label><input type="radio" name="ti-dpi" value="150" checked/> 150</label><label><input type="radio" name="ti-dpi" value="200"/> 200</label><label><input type="radio" name="ti-dpi" value="300"/> 300</label></div></div>
+      <div class="ctrl" style="margin-bottom:10px"><label>Format</label><div class="radio-row"><label><input type="radio" name="ti-fmt" value="png" checked/> PNG (lossless)</label><label><input type="radio" name="ti-fmt" value="jpeg"/> JPEG (smaller)</label></div></div>
       <div class="ctrl"><label>Pages (blank = all, or e.g. 1-3, 5)</label><input type="text" id="ti-pages" placeholder="All pages"/></div>
     </div>
-    <div class="slabel">03 — Execute</div>
-    <div class="card">
-      <button class="run" id="ti-run" disabled>◫ Render Images</button>
-      <div class="proc-area" id="ti-proc"><div class="ptrack"><div class="pfill" id="ti-pf"></div></div><div class="log" id="ti-log"></div></div>
-    </div>
-    <div class="slabel" id="ti-dlab" style="display:none">04 — Images</div>
+    <div class="slabel">03 -- Execute</div>
+    <div class="card"><button class="run" id="ti-run" disabled>◫ Render Images</button><div class="proc-area" id="ti-proc"><div class="ptrack"><div class="pfill" id="ti-pf"></div></div><div class="log" id="ti-log"></div></div></div>
+    <div class="slabel" id="ti-dlab" style="display:none">04 -- Images</div>
     <div class="card" id="ti-dsect" style="display:none"><div class="dl-list" id="ti-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: ADD WATERMARK ══════════ -->
+<!-- TOOL: ADD WATERMARK -->
 <div id="tool-wmadd" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⬡ Add Watermark</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('wa-d')">ℹ Parameters ▾</button>
-      <div id="wa-d" class="desc-body"><b>Opacity:</b> 100% = fully visible. 15–30% = classic transparent stamp.<br><b>Rotation:</b> −45° gives the diagonal watermark look. 0° = horizontal.<br><b>Colour:</b> Enter any hex code e.g. <code>#FF0000</code> for red.</div>
-    </div>
-    <div class="slabel">01 — Source</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('wa-d')">ℹ Parameters &amp; Watermark Types ▾</button><div id="wa-d" class="desc-body">
+      <b>Opacity:</b> 100% = fully visible. 15–30% = typical transparent stamp that doesn't obscure the content behind it.<br><br>
+      <b>Rotation:</b> −45° gives the classic diagonal watermark look across the page. 0° = horizontal.<br><br>
+      <b>Position -- Diagonal Centre:</b> The watermark text is trig-corrected so its visual midpoint lands exactly at the centre of the page regardless of rotation angle.<br><br>
+      <b>Image Watermark:</b> Upload a PNG (with transparent background works best) or JPEG logo. Use the Scale slider to control its size on the page. The image is placed at the same position as the text watermark.
+    </div></div>
+    <div class="slabel">01 -- Source</div>
     <div class="card">
       <div class="sess-tray" id="wa-sess"><b>Session:</b><div class="sess-file-list" id="wa-slist"></div></div>
       <div class="dz" id="wa-dz"><input type="file" id="wa-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
-      <div class="pill" id="wa-pill"><span>✅</span><div><div class="pill-name" id="wa-pname">—</div><div class="pill-meta" id="wa-pmeta">—</div></div></div>
+      <div class="pill" id="wa-pill"><span>✅</span><div><div class="pill-name" id="wa-pname">--</div><div class="pill-meta" id="wa-pmeta">--</div></div></div>
+      <div class="file-meta" id="wa-meta"></div>
     </div>
-    <div class="slabel">02 — Stamp Settings</div>
+    <div class="slabel">02 -- Watermark Type</div>
     <div class="card">
-      <div class="ctrl" style="margin-bottom:10px"><label>Watermark Text</label><input type="text" id="wa-text" value="CONFIDENTIAL"/></div>
-      <div class="cgrid">
-        <div class="ctrl"><label>Font Size (pt)</label><div class="rrow"><input type="range" id="wa-fs" min="12" max="120" value="52"/><span class="rv" id="wa-fsV">52</span></div></div>
-        <div class="ctrl"><label>Opacity (%)</label><div class="rrow"><input type="range" id="wa-op" min="5" max="100" value="25"/><span class="rv" id="wa-opV">25%</span></div></div>
-        <div class="ctrl"><label>Rotation (°)</label><div class="rrow"><input type="range" id="wa-rot" min="-180" max="180" value="-45"/><span class="rv" id="wa-rotV">-45°</span></div></div>
-        <div class="ctrl"><label>Colour (hex)</label><input type="text" id="wa-col" value="#4F8EF7"/></div>
+      <div class="tab-bar"><button class="tab-btn active" onclick="waTab(0,this)">📝 Text</button><button class="tab-btn" onclick="waTab(1,this)">🖼 Image</button></div>
+      <div id="wa-tab-text">
+        <div class="ctrl" style="margin-bottom:10px"><label>Watermark Text</label><input type="text" id="wa-text" value="CONFIDENTIAL"/></div>
+        <div class="cgrid">
+          <div class="ctrl"><label>Font Size (pt)</label><div class="rrow"><input type="range" id="wa-fs" min="12" max="120" value="52"/><span class="rv" id="wa-fsV">52 pt</span></div></div>
+          <div class="ctrl"><label>Colour (hex)</label><input type="text" id="wa-col" value="#4F8EF7" placeholder="#RRGGBB"/></div>
+          <div class="ctrl"><label>Rotation (°)</label><div class="rrow"><input type="range" id="wa-rot" min="-180" max="180" value="-45"/><span class="rv" id="wa-rotV">-45°</span></div></div>
+          <div class="ctrl"><label>Opacity (%)</label><div class="rrow"><input type="range" id="wa-op" min="5" max="100" value="25"/><span class="rv" id="wa-opV">25%</span></div></div>
+        </div>
       </div>
-      <div class="ctrl" style="margin-top:10px"><label>Position</label>
-        <select id="wa-pos">
-          <option value="diag">Centre — Diagonal</option><option value="center">Centre — Horizontal</option>
-          <option value="tl">Top-left</option><option value="tr">Top-right</option>
-          <option value="bl">Bottom-left</option><option value="br">Bottom-right</option>
-        </select>
+      <div id="wa-tab-img" style="display:none">
+        <div class="dz" id="wa-img-dz" style="margin-bottom:8px"><input type="file" id="wa-img-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt"><b>Click or drop a PNG/JPEG image</b> -- PNG with transparency works best</div></div>
+        <div class="pill" id="wa-img-pill"><span>✅</span><div><div class="pill-name">--</div><div class="pill-meta">--</div></div></div>
+        <div class="ctrl" style="margin-top:10px"><label>Scale (% of page width)</label><div class="rrow"><input type="range" id="wa-img-scale" min="5" max="90" value="30"/><span class="rv" id="wa-img-scaleV">30%</span></div></div>
+        <div class="ctrl" style="margin-top:8px"><label>Opacity (%)</label><div class="rrow"><input type="range" id="wa-op2" min="5" max="100" value="30"/><span class="rv" id="wa-op2V">30%</span></div></div>
       </div>
+      <div class="ctrl" style="margin-top:12px"><label>Position</label><select id="wa-pos"><option value="diag">Centre -- Diagonal</option><option value="center">Centre -- Horizontal</option><option value="tl">Top-left</option><option value="tr">Top-right</option><option value="bl">Bottom-left</option><option value="br">Bottom-right</option></select></div>
     </div>
-    <div class="slabel">03 — Execute</div>
+    <div class="slabel">03 -- Execute</div>
     <div class="card">
       <button class="run" id="wa-run" disabled>⬡ Apply Watermark</button>
       <div class="proc-area" id="wa-proc"><div class="ptrack"><div class="pfill" id="wa-pf"></div></div><div class="log" id="wa-log"></div></div>
+      <div class="prv-area" id="wa-prv-area"><div class="slabel" style="margin-top:10px">Preview output page</div><div class="prv-row"><input type="number" id="wa-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('wa')">👁 Preview</button></div><div id="wa-prv-wrap" style="display:none"><canvas id="wa-prv-cv" class="prv-canvas"></canvas></div></div>
     </div>
-    <div class="slabel" id="wa-dlab" style="display:none">04 — Output</div>
+    <div class="slabel" id="wa-dlab" style="display:none">04 -- Output</div>
     <div class="card" id="wa-dsect" style="display:none"><div class="dl-list" id="wa-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: REMOVE WATERMARK ══════════ -->
+<!-- TOOL: REMOVE WATERMARK -->
 <div id="tool-wmremove" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">◌ Remove Watermark</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('wr-d')">ℹ Detection Methods &amp; Honest Limits ▾</button>
-      <div id="wr-d" class="desc-body">
-        <b>Where watermarks live in a PDF:</b><br>
-        <ul><li><b>Annotation layer</b> — Separate overlay, added by tools like Acrobat stamps. Fully removable.</li><li><b>XObject overlays</b> — Embedded graphic templates. Detectable and strippable.</li><li><b>Content stream</b> — Drawn directly into the page during original creation. Cannot be removed without re-rasterizing the entire page (needs Ghostscript/server-side tool).</li></ul>
-        <b>Strategy 1:</b> Strips the <code>Annots</code> array — handles most stamp/sticker watermarks.<br>
-        <b>Strategy 2:</b> Searches content stream text for your keyword and blanks the region. Works on simple text watermarks.<br><br>
-        <b>Always Scan first</b> — the result recommends which strategy applies.
-      </div>
-    </div>
-    <div class="slabel">01 — Source</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('wr-d')">ℹ 4 Strategies Explained ▾</button><div id="wr-d" class="desc-body">
+      <b>Where watermarks live in a PDF -- and which strategy removes each:</b><br><br>
+      <b>Strategy 1 -- Strip Annotations:</b> Removes the Annots array from each page. Handles watermarks added as stamps by Acrobat, foxit, or similar tools. Very effective, non-destructive.<br><br>
+      <b>Strategy 2 -- Text Redaction:</b> Searches each page for your keyword text and covers it with a white rectangle. Requires pdf.js for accurate text positioning. Falls back to a centre-stripe cover if pdf.js is unavailable.<br><br>
+      <b>Strategy 3 -- Image Overdraw:</b> Covers large background images (above a pixel threshold) with a white rectangle. Targets watermarks that are full-page JPEG/PNG backgrounds. Does not delete the image data, just hides it.<br><br>
+      <b>Strategy 4 -- Vector Neutralize:</b> Decompresses PDF content streams using pako (loaded from CDN), finds grey color operators (fill/stroke commands like <code>0.85 0.85 0.85 rg</code>) and replaces them with white. Targets watermarks drawn as grey vector shapes. Ported from the Python notebook's <i>obliterate_remaining_watermark()</i> function.<br><br>
+      <b>Honest limit:</b> Watermarks baked directly into the original page creation cannot be removed without re-rasterizing the page (needs Ghostscript/server). Always run the Scan first.
+    </div></div>
+    <div class="slabel">01 -- Source</div>
     <div class="card">
       <div class="sess-tray" id="wr-sess"><b>Session:</b><div class="sess-file-list" id="wr-slist"></div></div>
       <div class="dz" id="wr-dz"><input type="file" id="wr-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
-      <div class="pill" id="wr-pill"><span>✅</span><div><div class="pill-name" id="wr-pname">—</div><div class="pill-meta" id="wr-pmeta">—</div></div></div>
+      <div class="pill" id="wr-pill"><span>✅</span><div><div class="pill-name" id="wr-pname">--</div><div class="pill-meta" id="wr-pmeta">--</div></div></div>
+      <div class="file-meta" id="wr-meta"></div>
     </div>
-    <div class="slabel">02 — Detect &amp; Strategy</div>
+    <div class="slabel">02 -- Detect &amp; Select Strategies</div>
     <div class="card">
       <div class="btn-row"><button class="btn-sm primary" onclick="wrScan()">🔍 Scan Document First</button></div>
       <div class="log" id="wr-scanlog" style="margin-top:8px;display:none"></div>
       <div style="margin-top:12px">
-        <div class="cb-row"><input type="checkbox" id="wr-ann" checked/><label><b>Strategy 1:</b> Strip annotation layer</label></div>
-        <div class="cb-row" style="margin-top:5px"><input type="checkbox" id="wr-txt"/><label><b>Strategy 2:</b> Blank region containing keyword:</label></div>
-        <input type="text" id="wr-txtval" placeholder="e.g. DRAFT" style="margin-top:5px"/>
-        <div class="info" style="margin-top:8px">Scan first — the result will tell you which strategy fits your file.</div>
+        <div class="cb-row"><input type="checkbox" id="wr-s1" checked/><label><b>Strategy 1:</b> Strip annotation layer (stamps, stickers, Acrobat overlays)</label></div>
+        <div class="cb-row" style="margin-top:5px"><input type="checkbox" id="wr-s2"/><label><b>Strategy 2:</b> Redact text by keyword:</label><input type="text" id="wr-txtval" placeholder="e.g. DRAFT" style="flex:1;margin-left:8px"/></div>
+        <div class="cb-row" style="margin-top:5px">
+          <input type="checkbox" id="wr-s3"/>
+          <label><b>Strategy 3:</b> Overdraw large background images larger than </label>
+          <input type="number" id="wr-s3thresh" value="400" min="50" max="2000" style="width:65px;margin-left:6px"/>
+          <span style="font-size:.72rem;color:var(--muted);margin-left:4px">px</span>
+        </div>
+        <div class="cb-row" style="margin-top:5px"><input type="checkbox" id="wr-s4"/><label><b>Strategy 4:</b> Neutralize grey vector shapes in content streams (uses pako.js from CDN)</label></div>
+        <div class="info" style="margin-top:8px">Run the Scan first. The result recommends which strategies apply to your file. Enable only the strategies needed to minimise collateral changes.</div>
       </div>
     </div>
-    <div class="slabel">03 — Execute</div>
+    <div class="slabel">03 -- Execute</div>
     <div class="card">
       <button class="run" id="wr-run" disabled>◌ Clean Document</button>
       <div class="proc-area" id="wr-proc"><div class="ptrack"><div class="pfill" id="wr-pf"></div></div><div class="log" id="wr-log"></div></div>
-      <div id="wr-prv-area" style="display:none;margin-top:10px">
-        <div class="slabel" style="margin-top:10px">Preview a page after cleaning</div>
-        <div style="display:flex;gap:7px;align-items:center;margin-bottom:7px">
-          <input type="number" id="wr-prv-pg" min="1" value="1" style="width:65px"/>
-          <button class="btn-sm primary" onclick="wrPreviewPage()">👁 Preview</button>
-        </div>
-        <div id="wr-prv-wrap" style="display:none" class="img-wrap"><canvas id="wr-prv-cv" class="img-canvas"></canvas></div>
-      </div>
+      <div class="prv-area" id="wr-prv-area"><div class="slabel" style="margin-top:10px">Preview cleaned page</div><div class="prv-row"><input type="number" id="wr-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('wr')">👁 Preview</button></div><div id="wr-prv-wrap" style="display:none"><canvas id="wr-prv-cv" class="prv-canvas"></canvas></div></div>
     </div>
-    <div class="slabel" id="wr-dlab" style="display:none">04 — Output</div>
+    <div class="slabel" id="wr-dlab" style="display:none">04 -- Output</div>
     <div class="card" id="wr-dsect" style="display:none"><div class="dl-list" id="wr-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: UNLOCK ══════════ -->
+<!-- TOOL: UNLOCK -->
 <div id="tool-unlock" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">🔓 Unlock PDF</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('un-d')">ℹ What Unlock Does ▾</button>
-      <div id="un-d" class="desc-body"><b>Strips RC4/AES encryption</b> from a password-protected PDF. You must supply the correct password — no brute-force.<br><br><b>Aadhaar PDFs</b> are usually locked with your date of birth in DDMMYYYY format. Bank statements often use account number or DOB.<br><br>Owner-password-only files (restrict printing but not opening) are handled automatically — leave the password blank.</div>
-    </div>
-    <div class="slabel">01 — Locked Document</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('un-d')">ℹ What Unlock Does ▾</button><div id="un-d" class="desc-body"><b>Strips RC4/AES encryption</b> from a password-protected PDF. You must supply the correct password -- this tool does not crack or guess passwords.<br><br><b>Common passwords in India:</b><ul><li>Aadhaar PDF → your date of birth in DDMMYYYY format (e.g. 15081998)</li><li>Bank statements → your account number or date of birth</li><li>ITR/TDS → PAN number in uppercase</li></ul>Owner-password-only files (restrict printing but not opening) are handled automatically -- leave the password blank.</div></div>
+    <div class="slabel">01 -- Locked Document</div>
     <div class="card">
       <div class="dz" id="un-dz"><input type="file" id="un-fi" accept=".pdf"/><div class="dz-icon">🔒</div><div class="dz-txt"><b>Click or drop a locked PDF</b></div></div>
-      <div class="pill" id="un-pill"><span>✅</span><div><div class="pill-name" id="un-pname">—</div><div class="pill-meta" id="un-pmeta">—</div></div></div>
+      <div class="pill" id="un-pill"><span>✅</span><div><div class="pill-name" id="un-pname">--</div><div class="pill-meta" id="un-pmeta">--</div></div></div>
+      <div class="file-meta" id="un-meta"></div>
     </div>
-    <div class="slabel">02 — Password &amp; Execute</div>
+    <div class="slabel">02 -- Password &amp; Execute</div>
     <div class="card">
-      <div class="ctrl" style="margin-bottom:10px"><label>Password (Aadhaar: try DDMMYYYY)</label><input type="password" id="un-pwd" placeholder="Enter password"/></div>
+      <div class="ctrl" style="margin-bottom:10px"><label>Password (Aadhaar: try DDMMYYYY, e.g. 15081998)</label><input type="password" id="un-pwd" placeholder="Enter password"/></div>
       <button class="run" id="un-run" disabled>🔓 Decrypt &amp; Remove Password</button>
       <div class="proc-area" id="un-proc"><div class="log" id="un-log"></div></div>
+      <div class="prv-area" id="un-prv-area"><div class="slabel" style="margin-top:10px">Preview unlocked page</div><div class="prv-row"><input type="number" id="un-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('un')">👁 Preview</button></div><div id="un-prv-wrap" style="display:none"><canvas id="un-prv-cv" class="prv-canvas"></canvas></div></div>
     </div>
-    <div class="slabel" id="un-dlab" style="display:none">03 — Output</div>
+    <div class="slabel" id="un-dlab" style="display:none">03 -- Output</div>
     <div class="card" id="un-dsect" style="display:none"><div class="dl-list" id="un-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: VERIFIED STAMP ══════════ -->
+<!-- TOOL: VERIFIED STAMP -->
 <div id="tool-verified" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">✅ Verified Stamp</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('vf-d')">ℹ What This Stamp Does ▾</button>
-      <div id="vf-d" class="desc-body"><b>Adds a visual rubber-stamp graphic</b> to your PDF — a bordered rectangle with a ✓ checkmark, the selected text, and an optional date. Common use: self-attesting Aadhaar cards, mark sheets, or government documents before submission.<br><br><b>This is a visual mark only</b> — not a cryptographic digital signature. For legal DSC/eSign, use Aadhaar eSign or a licensed DSC tool.</div>
-    </div>
-    <div class="slabel">01 — Source</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('vf-d')">ℹ What This Stamp Does ▾</button><div id="vf-d" class="desc-body"><b>Adds a visual rubber-stamp graphic</b> -- a double-bordered rectangle containing a ✓ checkmark, the selected text, and optionally the current date. Commonly used for self-attesting Aadhaar cards, mark sheets, or government documents before submission.<br><br><b>This is a visual mark only</b> -- not a cryptographic digital signature. For legally valid digital signatures, use Aadhaar eSign or a licensed Digital Signature Certificate (DSC) tool.</div></div>
+    <div class="slabel">01 -- Source</div>
     <div class="card">
       <div class="sess-tray" id="vf-sess"><b>Session:</b><div class="sess-file-list" id="vf-slist"></div></div>
       <div class="dz" id="vf-dz"><input type="file" id="vf-fi" accept=".pdf"/><div class="dz-icon">📄</div><div class="dz-txt"><b>Click or drop a PDF</b></div></div>
-      <div class="pill" id="vf-pill"><span>✅</span><div><div class="pill-name" id="vf-pname">—</div><div class="pill-meta" id="vf-pmeta">—</div></div></div>
+      <div class="pill" id="vf-pill"><span>✅</span><div><div class="pill-name" id="vf-pname">--</div><div class="pill-meta" id="vf-pmeta">--</div></div></div>
+      <div class="file-meta" id="vf-meta"></div>
     </div>
-    <div class="slabel">02 — Stamp Options</div>
+    <div class="slabel">02 -- Stamp Options</div>
     <div class="card">
       <div class="cgrid">
-        <div class="ctrl"><label>Stamp Text</label>
-          <select id="vf-txt"><option>VERIFIED</option><option>SELF ATTESTED</option><option>TRUE COPY</option><option>CERTIFIED COPY</option></select>
-        </div>
-        <div class="ctrl"><label>Colour</label>
-          <select id="vf-col"><option value="green">Green</option><option value="blue">Blue</option><option value="red">Red</option></select>
-        </div>
-        <div class="ctrl"><label>Position</label>
-          <select id="vf-pos"><option value="br">Bottom-right</option><option value="bl">Bottom-left</option><option value="tr">Top-right</option><option value="tl">Top-left</option></select>
-        </div>
-        <div class="ctrl"><label>Apply to pages (e.g. 1, or "all")</label><input type="text" id="vf-pages" value="all"/></div>
+        <div class="ctrl"><label>Stamp Text</label><select id="vf-txt"><option>VERIFIED</option><option>SELF ATTESTED</option><option>TRUE COPY</option><option>CERTIFIED COPY</option></select></div>
+        <div class="ctrl"><label>Colour</label><select id="vf-col"><option value="green">Green</option><option value="blue">Blue</option><option value="red">Red</option></select></div>
+        <div class="ctrl"><label>Position</label><select id="vf-pos"><option value="br">Bottom-right</option><option value="bl">Bottom-left</option><option value="tr">Top-right</option><option value="tl">Top-left</option></select></div>
+        <div class="ctrl"><label>Apply to pages ("all" or e.g. 1)</label><input type="text" id="vf-pages" value="all"/></div>
       </div>
-      <div class="tog-row">
-        <div class="tog-txt">Include today's date<small>Printed below stamp text</small></div>
-        <label class="tog"><input type="checkbox" id="vf-date"/><span class="knob"></span></label>
-      </div>
+      <div class="tog-row"><div class="tog-txt">Include today's date<small>Printed below stamp text</small></div><label class="tog"><input type="checkbox" id="vf-date"/><span class="knob"></span></label></div>
     </div>
-    <div class="slabel">03 — Execute</div>
+    <div class="slabel">03 -- Execute</div>
     <div class="card">
       <button class="run" id="vf-run" disabled>✅ Apply Stamp</button>
       <div class="proc-area" id="vf-proc"><div class="ptrack"><div class="pfill" id="vf-pf"></div></div><div class="log" id="vf-log"></div></div>
+      <div class="prv-area" id="vf-prv-area"><div class="slabel" style="margin-top:10px">Preview stamped page</div><div class="prv-row"><input type="number" id="vf-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('vf')">👁 Preview</button></div><div id="vf-prv-wrap" style="display:none"><canvas id="vf-prv-cv" class="prv-canvas"></canvas></div></div>
     </div>
-    <div class="slabel" id="vf-dlab" style="display:none">04 — Output</div>
+    <div class="slabel" id="vf-dlab" style="display:none">04 -- Output</div>
     <div class="card" id="vf-dsect" style="display:none"><div class="dl-list" id="vf-dlist"></div></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: IMAGE COMPRESS ══════════ -->
+<!-- TOOL: IMAGE COMPRESS -->
 <div id="tool-imgcompress" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">🗜 Image Compressor</span><div class="nav-right"><a href="https://squoosh.app" target="_blank" class="btn-sm green">🌐 Squoosh</a></div></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('ic-d')">ℹ Compression Guide ▾</button>
-      <div id="ic-d" class="desc-body"><b>Quality %:</b> Controls data discarded during JPEG/WebP encoding. 100% = no compression. 60–80% = sweet spot (visually near-identical, ~50–70% smaller).<br><b>PNG:</b> Quality % has no effect — PNG is lossless. Reduce dimensions for PNG size reduction.<br><b>WebP:</b> Better quality-to-size ratio than JPEG. Widely browser-supported.<br><b>Squoosh</b> (link in nav bar) = Google's tool with more codecs (AVIF, oxipng, etc.).</div>
-    </div>
-    <div class="slabel">01 — Source Image</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('ic-d')">ℹ Compression Guide ▾</button><div id="ic-d" class="desc-body"><b>Quality %:</b> Controls how much image data is discarded during JPEG/WebP encoding. 100% = no compression. 60–80% is the typical sweet spot -- visually near-identical but 50–70% smaller.<br><b>PNG:</b> Lossless -- quality % has no effect. Reduce dimensions for PNG size reduction.<br><b>WebP:</b> Google's modern format. Better quality-to-size ratio than JPEG. Widely supported in browsers.<br><b>Squoosh</b> (link in nav bar) = Google's tool with additional codecs like AVIF and oxipng.</div></div>
+    <div class="slabel">01 -- Source Image</div>
     <div class="card">
-      <div class="dz" id="ic-dz"><input type="file" id="ic-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt"><b>Click or drop an image</b> — JPEG, PNG, WebP, GIF</div></div>
-      <div class="pill" id="ic-pill"><span>✅</span><div><div class="pill-name" id="ic-pname">—</div><div class="pill-meta" id="ic-pmeta">—</div></div></div>
+      <div class="dz" id="ic-dz"><input type="file" id="ic-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt"><b>Click or drop an image</b> -- JPEG, PNG, WebP, GIF</div></div>
+      <div class="pill" id="ic-pill"><span>✅</span><div><div class="pill-name" id="ic-pname">--</div><div class="pill-meta" id="ic-pmeta">--</div></div></div>
+      <div class="file-meta" id="ic-meta"></div>
     </div>
-    <div class="slabel">02 — Settings</div>
+    <div class="slabel">02 -- Settings</div>
     <div class="card">
       <div class="cgrid">
-        <div class="ctrl"><label>Output Format</label>
-          <select id="ic-fmt" onchange="icUpdate()"><option value="image/jpeg">JPEG — photos</option><option value="image/png">PNG — lossless</option><option value="image/webp">WebP — modern</option></select>
-        </div>
-        <div class="ctrl"><label>Quality: <span id="ic-qV" style="color:var(--gold);font-family:var(--mono)">80%</span></label>
-          <div class="rrow"><input type="range" id="ic-q" min="1" max="100" value="80" oninput="this.nextElementSibling.style.display='none';icUpdate()"/></div>
-        </div>
+        <div class="ctrl"><label>Output Format</label><select id="ic-fmt" onchange="icUpdate()"><option value="image/jpeg">JPEG -- best for photos</option><option value="image/png">PNG -- lossless</option><option value="image/webp">WebP -- modern, compact</option></select></div>
+        <div class="ctrl"><label>Quality: <span id="ic-qV" style="color:var(--gold);font-family:var(--mono)">80%</span></label><div class="rrow"><input type="range" id="ic-q" min="1" max="100" value="80"/></div></div>
       </div>
     </div>
-    <div class="slabel">03 — Before / After</div>
+    <div class="slabel">03 -- Before / After Preview</div>
     <div class="card">
       <div class="cmp-grid">
-        <div><div class="cmp-lbl">Original</div><div class="img-wrap"><canvas id="ic-orig" class="img-canvas"></canvas></div><div class="cmp-sz" id="ic-orig-sz">—</div></div>
-        <div><div class="cmp-lbl">Compressed</div><div class="img-wrap"><canvas id="ic-out" class="img-canvas"></canvas></div><div class="cmp-sz" id="ic-out-sz">—</div></div>
+        <div><div class="cmp-lbl">Original</div><div class="img-wrap"><canvas id="ic-orig" class="img-canvas"></canvas></div><div class="cmp-sz" id="ic-orig-sz">--</div></div>
+        <div><div class="cmp-lbl">Compressed</div><div class="img-wrap"><canvas id="ic-out" class="img-canvas"></canvas></div><div class="cmp-sz" id="ic-out-sz">--</div></div>
       </div>
     </div>
-    <div class="slabel">04 — Download</div>
+    <div class="slabel">04 -- Download</div>
     <div class="card"><button class="run" id="ic-run" disabled>⬇ Download Compressed</button></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: IMAGE RESIZE ══════════ -->
+<!-- TOOL: IMAGE RESIZE -->
 <div id="tool-imgresize" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">📐 Image Resize</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('ir-d')">ℹ Dimensions, DPI &amp; File Size ▾</button>
-      <div id="ir-d" class="desc-body">
-        <b>Pixels vs Physical Size:</b> Physical size only has meaning with DPI. Formula: <code>pixels = size × DPI</code>. E.g. 3.5 cm at 200 DPI = <code>3.5 ÷ 2.54 × 200 ≈ 276 px</code>.<br><br>
-        <b>Common exam/govt requirements:</b><br>
-        <ul><li>Photograph: 3.5 × 4.5 cm, 200 DPI, max 50 KB, JPEG</li><li>Signature: 3.5 × 1.5 cm, 200 DPI, max 20 KB, JPEG</li></ul>
-        <b>Target KB:</b> The tool iteratively adjusts JPEG quality via binary search until output is within ~5% of your target.<br>
-        <b>Keep Aspect Ratio:</b> Changing one dimension auto-scales the other.
-      </div>
-    </div>
-    <div class="slabel">01 — Source Image</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('ir-d')">ℹ Dimensions, DPI &amp; File Size ▾</button><div id="ir-d" class="desc-body">
+      <b>Pixels vs Physical Size:</b> Physical size only has meaning when combined with DPI. Formula: <code>pixels = size × DPI</code>. Example: 3.5 cm at 200 DPI = 3.5 ÷ 2.54 × 200 ≈ 276 px.<br><br>
+      <b>Common exam/govt requirements:</b><ul><li>Photograph: 3.5 × 4.5 cm, 200 DPI, max 50 KB, JPEG</li><li>Signature: 3.5 × 1.5 cm, 200 DPI, max 20 KB, JPEG</li></ul>
+      <b>Target KB:</b> The tool uses binary search on JPEG quality to achieve your target file size within ±5%.<br>
+      <b>Keep Aspect Ratio:</b> Changing one dimension auto-scales the other proportionally.
+    </div></div>
+    <div class="slabel">01 -- Source Image</div>
     <div class="card">
       <div class="dz" id="ir-dz"><input type="file" id="ir-fi" accept="image/*"/><div class="dz-icon">🖼</div><div class="dz-txt"><b>Click or drop an image</b></div></div>
-      <div class="pill" id="ir-pill"><span>✅</span><div><div class="pill-name" id="ir-pname">—</div><div class="pill-meta" id="ir-pmeta">—</div></div></div>
+      <div class="pill" id="ir-pill"><span>✅</span><div><div class="pill-name" id="ir-pname">--</div><div class="pill-meta" id="ir-pmeta">--</div></div></div>
+      <div class="file-meta" id="ir-meta"></div>
     </div>
-    <div class="slabel">02 — Target Dimensions</div>
+    <div class="slabel">02 -- Target Dimensions</div>
     <div class="card">
       <div class="cgrid">
         <div class="ctrl"><label>Width</label><input type="number" id="ir-w" placeholder="e.g. 200" min="1" oninput="irAspect('w')"/></div>
         <div class="ctrl"><label>Height</label><input type="number" id="ir-h" placeholder="e.g. 200" min="1" oninput="irAspect('h')"/></div>
-        <div class="ctrl"><label>Unit</label>
-          <select id="ir-unit" onchange="irCalcInfo()"><option value="px">px — pixels</option><option value="cm">cm</option><option value="in">inch</option></select>
-        </div>
-        <div class="ctrl"><label>DPI</label>
-          <select id="ir-dpi" onchange="irCalcInfo()">
-            <option value="72">72</option><option value="96">96</option><option value="100">100</option>
-            <option value="150">150</option><option value="200" selected>200</option>
-            <option value="300">300</option><option value="400">400</option>
-            <option value="600">600</option><option value="1200">1200</option>
-          </select>
-        </div>
+        <div class="ctrl"><label>Unit</label><select id="ir-unit" onchange="irCalcInfo()"><option value="px">px -- pixels</option><option value="cm">cm</option><option value="in">inch</option></select></div>
+        <div class="ctrl"><label>DPI</label><select id="ir-dpi" onchange="irCalcInfo()"><option value="72">72</option><option value="96">96</option><option value="100">100</option><option value="150">150</option><option value="200" selected>200</option><option value="300">300</option><option value="400">400</option><option value="600">600</option><option value="1200">1200</option></select></div>
         <div class="ctrl"><label>Max KB (0 = no limit)</label><input type="number" id="ir-maxkb" value="0" min="0"/></div>
-        <div class="ctrl"><label>Format</label>
-          <select id="ir-fmt"><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select>
-        </div>
+        <div class="ctrl"><label>Format</label><select id="ir-fmt"><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div>
         <div class="ctrl" style="grid-column:1/-1"><label>Filename (no extension)</label><input type="text" id="ir-name" placeholder="resized_photo"/></div>
       </div>
-      <div class="tog-row">
-        <div class="tog-txt">Keep Aspect Ratio<small>Adjusting one dimension auto-scales the other</small></div>
-        <label class="tog"><input type="checkbox" id="ir-asp" checked/><span class="knob"></span></label>
-      </div>
+      <div class="tog-row"><div class="tog-txt">Keep Aspect Ratio<small>Adjusting one dimension auto-scales the other</small></div><label class="tog"><input type="checkbox" id="ir-asp" checked/><span class="knob"></span></label></div>
       <div class="info" id="ir-info">Enter dimensions above to see pixel calculation.</div>
     </div>
-    <div class="slabel">03 — Resize &amp; Download</div>
+    <div class="slabel">03 -- Resize &amp; Download</div>
     <div class="card">
       <button class="run" id="ir-run" disabled>📐 Resize &amp; Download</button>
       <div class="proc-area" id="ir-proc"><div class="log" id="ir-log"></div></div>
@@ -845,19 +672,18 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
   </div>
 </div>
 
-<!-- ══════════ TOOL: PASSPORT PHOTO ══════════ -->
+<!-- TOOL: PASSPORT PHOTO -->
 <div id="tool-passport" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">🪪 Passport Photo Maker</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('pp-d')">ℹ Photo Size Requirements ▾</button>
-      <div id="pp-d" class="desc-body"><b>Common Indian photo sizes:</b><ul><li><b>Indian Passport:</b> 51×51 mm, white/light-blue background</li><li><b>Aadhaar/PAN:</b> 35×45 mm, white background</li><li><b>UPSC/SSC:</b> 3.5×4.5 cm at 200 DPI (≈276×354 px)</li><li><b>US Visa:</b> 51×51 mm at 300 DPI (≈600×600 px)</li></ul><b>Crop tips:</b> Use the crop sliders to frame your face. Adjustments help if background is slightly grey.</div>
-    </div>
-    <div class="slabel">01 — Portrait</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('pp-d')">ℹ Photo Size Requirements ▾</button><div id="pp-d" class="desc-body"><b>Common Indian document photo sizes:</b><ul><li><b>Indian Passport:</b> 51×51 mm, white or light-blue background</li><li><b>Aadhaar/PAN:</b> 35×45 mm, white background</li><li><b>UPSC/SSC:</b> 3.5×4.5 cm at 200 DPI (≈276×354 px)</li><li><b>US Visa:</b> 51×51 mm at 300 DPI (600×600 px)</li></ul><b>Crop tips:</b> Use the crop sliders to frame your face. Brightness helps if the background appears grey instead of white.</div></div>
+    <div class="slabel">01 -- Portrait</div>
     <div class="card">
-      <div class="dz" id="pp-dz"><input type="file" id="pp-fi" accept="image/*"/><div class="dz-icon">🪪</div><div class="dz-txt"><b>Click or drop a portrait photo</b> — use white/light background</div></div>
-      <div class="pill" id="pp-pill"><span>✅</span><div><div class="pill-name" id="pp-pname">—</div><div class="pill-meta" id="pp-pmeta">—</div></div></div>
+      <div class="dz" id="pp-dz"><input type="file" id="pp-fi" accept="image/*"/><div class="dz-icon">🪪</div><div class="dz-txt"><b>Click or drop a portrait photo</b> -- use white/light background</div></div>
+      <div class="pill" id="pp-pill"><span>✅</span><div><div class="pill-name" id="pp-pname">--</div><div class="pill-meta" id="pp-pmeta">--</div></div></div>
+      <div class="file-meta" id="pp-meta"></div>
     </div>
-    <div class="slabel">02 — Crop &amp; Rotate</div>
+    <div class="slabel">02 -- Crop &amp; Rotate</div>
     <div class="card">
       <div class="cgrid">
         <div class="ctrl"><label>Crop Left %</label><div class="rrow"><input type="range" id="pp-cl" min="0" max="49" value="0" oninput="ppPreview()"/><span class="rv" id="pp-clV">0%</span></div></div>
@@ -867,23 +693,15 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
         <div class="ctrl" style="grid-column:1/-1"><label>Rotate °</label><div class="rrow"><input type="range" id="pp-rot" min="-45" max="45" value="0" oninput="ppPreview()"/><span class="rv" id="pp-rotV">0°</span></div></div>
       </div>
     </div>
-    <div class="slabel">03 — Adjustments</div>
+    <div class="slabel">03 -- Adjustments</div>
     <div class="card">
       <div class="ctrl" style="margin-bottom:9px"><label>Brightness</label><div class="rrow"><input type="range" id="pp-br" min="-100" max="100" value="0" oninput="ppPreview()"/><span class="rv" id="pp-brV">0</span></div></div>
       <div class="ctrl" style="margin-bottom:9px"><label>Contrast</label><div class="rrow"><input type="range" id="pp-con" min="-100" max="100" value="0" oninput="ppPreview()"/><span class="rv" id="pp-conV">0</span></div></div>
       <div class="ctrl"><label>Saturation</label><div class="rrow"><input type="range" id="pp-sat" min="-100" max="100" value="0" oninput="ppPreview()"/><span class="rv" id="pp-satV">0</span></div></div>
     </div>
-    <div class="slabel">04 — Output Size</div>
+    <div class="slabel">04 -- Output Size</div>
     <div class="card">
-      <div class="ctrl" style="margin-bottom:10px"><label>Preset</label>
-        <select id="pp-preset" onchange="ppPreset()">
-          <option value="">Custom</option>
-          <option value="51,51,200">Indian Passport — 51×51mm @200DPI</option>
-          <option value="35,45,200">Aadhaar/PAN — 35×45mm @200DPI</option>
-          <option value="35,45,300">UPSC/SSC — 35×45mm @300DPI</option>
-          <option value="51,51,300">US Visa — 51×51mm @300DPI</option>
-        </select>
-      </div>
+      <div class="ctrl" style="margin-bottom:10px"><label>Preset</label><select id="pp-preset" onchange="ppPreset()"><option value="">Custom</option><option value="51,51,200">Indian Passport -- 51×51mm @200DPI</option><option value="35,45,200">Aadhaar/PAN -- 35×45mm @200DPI</option><option value="35,45,300">UPSC/SSC -- 35×45mm @300DPI</option><option value="51,51,300">US Visa -- 51×51mm @300DPI</option></select></div>
       <div class="cgrid">
         <div class="ctrl"><label>Width (mm)</label><input type="number" id="pp-wmm" value="51" min="1" oninput="ppInfo()"/></div>
         <div class="ctrl"><label>Height (mm)</label><input type="number" id="pp-hmm" value="51" min="1" oninput="ppInfo()"/></div>
@@ -893,7 +711,7 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
       </div>
       <div class="info" id="pp-info">Select a preset or enter dimensions.</div>
     </div>
-    <div class="slabel">05 — Preview &amp; Download</div>
+    <div class="slabel">05 -- Preview &amp; Download</div>
     <div class="card">
       <button class="run" id="pp-run" disabled>🪪 Generate &amp; Download</button>
       <div id="pp-prv-wrap" style="display:none;margin-top:9px;max-width:200px" class="img-wrap"><canvas id="pp-cv" class="img-canvas"></canvas></div>
@@ -901,66 +719,74 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
   </div>
 </div>
 
-<!-- ══════════ TOOL: SIGNATURE CLEANER ══════════ -->
+<!-- TOOL: SIGNATURE CLEANER -->
 <div id="tool-signature" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">✒ Signature Cleaner</span></div>
   <div class="page">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('sg-d')">ℹ How Background Removal Works ▾</button>
-      <div id="sg-d" class="desc-body"><b>Threshold (0–254):</b> Every pixel's luminance (brightness) is measured. Pixels brighter than the threshold become transparent. Set to ~200–230 for dark ink on white paper. If signature looks too thin, reduce threshold. If white patches remain, increase it.<br><br><b>Output:</b> A PNG with a transparent background (shown as checkerboard pattern in preview). Can be placed over any background colour in Word, PowerPoint, or PDF tools.</div>
-    </div>
-    <div class="slabel">01 — Upload Signature</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('sg-d')">ℹ How Background Removal Works ▾</button><div id="sg-d" class="desc-body"><b>Threshold (50–254):</b> Each pixel's luminance (brightness) is measured. Pixels brighter than the threshold become fully transparent. For dark ink on white paper, set to 200–230.<ul><li>If the signature looks too thin → reduce the threshold</li><li>If white patches remain → increase the threshold</li></ul><b>Output:</b> A PNG with a transparent background (shown as a checkerboard in the preview). Place this PNG over any background colour in Word, PowerPoint, or PDF tools.</div></div>
+    <div class="slabel">01 -- Upload Signature</div>
     <div class="card">
-      <div class="dz" id="sg-dz"><input type="file" id="sg-fi" accept="image/*"/><div class="dz-icon">✒</div><div class="dz-txt"><b>Click or drop a scanned signature</b> — dark ink on white/light paper works best</div></div>
-      <div class="pill" id="sg-pill"><span>✅</span><div><div class="pill-name" id="sg-pname">—</div><div class="pill-meta" id="sg-pmeta">—</div></div></div>
+      <div class="dz" id="sg-dz"><input type="file" id="sg-fi" accept="image/*"/><div class="dz-icon">✒</div><div class="dz-txt"><b>Click or drop a scanned signature</b> -- dark ink on white/light paper works best</div></div>
+      <div class="pill" id="sg-pill"><span>✅</span><div><div class="pill-name" id="sg-pname">--</div><div class="pill-meta" id="sg-pmeta">--</div></div></div>
+      <div class="file-meta" id="sg-meta"></div>
     </div>
-    <div class="slabel">02 — Adjustments</div>
+    <div class="slabel">02 -- Adjustments</div>
     <div class="card">
-      <div class="ctrl" style="margin-bottom:9px"><label>Background Threshold — pixels above this become transparent</label><div class="rrow"><input type="range" id="sg-th" min="50" max="254" value="210" oninput="sgProcess()"/><span class="rv" id="sg-thV">210</span></div></div>
+      <div class="ctrl" style="margin-bottom:9px"><label>Background Threshold -- pixels brighter than this become transparent</label><div class="rrow"><input type="range" id="sg-th" min="50" max="254" value="210" oninput="sgProcess()"/><span class="rv" id="sg-thV">210</span></div></div>
       <div class="ctrl" style="margin-bottom:9px"><label>Brightness</label><div class="rrow"><input type="range" id="sg-br" min="-100" max="100" value="0" oninput="sgProcess()"/><span class="rv" id="sg-brV">0</span></div></div>
       <div class="ctrl"><label>Contrast</label><div class="rrow"><input type="range" id="sg-con" min="-100" max="100" value="0" oninput="sgProcess()"/><span class="rv" id="sg-conV">0</span></div></div>
     </div>
-    <div class="slabel">03 — Preview</div>
+    <div class="slabel">03 -- Preview</div>
     <div class="card">
       <div class="cmp-grid">
         <div><div class="cmp-lbl">Original</div><div class="img-wrap"><canvas id="sg-orig" class="img-canvas"></canvas></div></div>
         <div><div class="cmp-lbl">Cleaned (transparent)</div><div class="img-wrap checker-bg"><canvas id="sg-out" class="img-canvas"></canvas></div></div>
       </div>
     </div>
-    <div class="slabel">04 — Download</div>
+    <div class="slabel">04 -- Download</div>
     <div class="card"><button class="run" id="sg-run" disabled>⬇ Download Transparent PNG</button></div>
   </div>
 </div>
 
-<!-- ══════════ TOOL: CALCULATOR ══════════ -->
+<!-- TOOL: EXIF / METADATA CLEANER (NEW) -->
+<div id="tool-exif" class="tool-panel">
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">🧹 EXIF / Metadata Cleaner</span></div>
+  <div class="page">
+    <div class="card"><button class="desc-toggle" onclick="tDesc('exif-d')">ℹ What Metadata Is Stripped ▾</button><div id="exif-d" class="desc-body">
+      <b>Images (JPEG, PNG, WebP):</b> The canvas redraw method is the most thorough browser-available technique. It removes:<ul><li>EXIF -- camera model, lens, exposure, ISO, flash</li><li>GPS -- latitude, longitude, altitude, timestamp</li><li>Thumbnail -- the embedded preview image in EXIF</li><li>XMP -- Adobe metadata block</li><li>ICC colour profile reference (replaced with browser default)</li></ul><b>PDF:</b> Clears all standard document information fields: Title, Author, Subject, Keywords, Creator, Producer, Creation Date, Modification Date. Also removes the XMP metadata stream if one is present.<br><br><b>Note:</b> The canvas redraw changes the colour profile to sRGB. For professional print work, this may affect colour accuracy. For everyday use (web, forms, WhatsApp) it makes no visible difference.
+    </div></div>
+    <div class="slabel">01 -- Upload File</div>
+    <div class="card">
+      <div class="dz" id="exif-dz"><input type="file" id="exif-fi" accept="image/*,.pdf"/><div class="dz-icon">🧹</div><div class="dz-txt"><b>Click or drop an image or PDF</b> -- JPEG, PNG, WebP, GIF, PDF</div></div>
+      <div class="pill" id="exif-pill"><span>✅</span><div><div class="pill-name" id="exif-pname">--</div><div class="pill-meta" id="exif-pmeta">--</div></div></div>
+      <div class="file-meta" id="exif-meta"></div>
+      <div id="exif-type-lbl" style="font-size:.75rem;color:var(--muted);margin-top:7px;font-family:var(--mono)"></div>
+    </div>
+    <div class="slabel">02 -- Output Format (images only)</div>
+    <div class="card">
+      <div class="ctrl"><label>Output image format (PDFs always output as PDF)</label><select id="exif-img-fmt"><option value="image/jpeg">JPEG</option><option value="image/png">PNG (lossless)</option><option value="image/webp">WebP</option></select></div>
+    </div>
+    <div class="slabel">03 -- Execute</div>
+    <div class="card">
+      <button class="run" id="exif-run" disabled>🧹 Strip All Metadata</button>
+      <div class="proc-area" id="exif-proc"><div class="log" id="exif-log"></div></div>
+      <div class="prv-area" id="exif-prv-area"><div class="slabel" style="margin-top:10px">Preview PDF output page</div><div class="prv-row"><input type="number" id="exif-prv-pg" min="1" value="1" style="width:65px"/><button class="btn-sm primary" onclick="previewOutputPage('exif')">👁 Preview</button></div><div id="exif-prv-wrap" style="display:none"><canvas id="exif-prv-cv" class="prv-canvas"></canvas></div></div>
+    </div>
+    <div class="slabel" id="exif-dlab" style="display:none">04 -- Download</div>
+    <div class="card" id="exif-dsect" style="display:none"><div class="dl-list" id="exif-dlist"></div></div>
+  </div>
+</div>
+
+<!-- TOOL: CALCULATOR -->
 <div id="tool-calc" class="tool-panel">
   <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">∑ Scientific &amp; Graphing Calc</span><div class="nav-right"><button class="btn-sm primary" onclick="calcFullscreen()">⛶</button></div></div>
   <div class="page" id="calc-wrap">
-    <div class="card"><button class="desc-toggle" onclick="tDesc('cc-d')">ℹ Syntax Guide ▾</button>
-      <div id="cc-d" class="desc-body">
-        <b>Variable:</b> Use <code>x</code> in graph mode.<br>
-        <b>Functions:</b> <code>sin(x)</code> <code>cos(x)</code> <code>tan(x)</code> <code>log(x)</code> <code>log10(x)</code> <code>sqrt(x)</code> <code>abs(x)</code><br>
-        <b>Constants:</b> <code>pi</code> <code>e</code> <code>tau</code><br>
-        <b>Powers:</b> <code>x^2</code> or <code>x**2</code><br>
-        <b>Important:</b> Write <code>2*x</code> not <code>2x</code>. Graph mode: stack up to 5 functions.
-      </div>
-    </div>
-    <div class="tab-bar">
-      <button class="tab-btn active" onclick="calcTab(0,this)">Graph Plotter</button>
-      <button class="tab-btn" onclick="calcTab(1,this)">Console</button>
-      <button class="tab-btn" onclick="calcTab(2,this)">History</button>
-    </div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('cc-d')">ℹ Syntax Guide ▾</button><div id="cc-d" class="desc-body"><b>Variable:</b> Use <code>x</code> in graph mode.<br><b>Functions:</b> <code>sin(x)</code> <code>cos(x)</code> <code>tan(x)</code> <code>log(x)</code> <code>log10(x)</code> <code>sqrt(x)</code> <code>abs(x)</code> <code>factorial(n)</code><br><b>Constants:</b> <code>pi</code> <code>e</code> <code>tau</code><br><b>Powers:</b> <code>x^2</code> or <code>x**2</code><br><b>Important:</b> Write <code>2*x</code> not <code>2x</code>. Implicit multiplication is not supported.</div></div>
+    <div class="tab-bar"><button class="tab-btn active" onclick="calcTab(0,this)">Graph Plotter</button><button class="tab-btn" onclick="calcTab(1,this)">Console</button><button class="tab-btn" onclick="calcTab(2,this)">History</button></div>
     <div class="tab-pane active" id="cc-t0" style="padding-top:10px">
       <div id="g-inputs"></div>
-      <div class="btn-row" style="margin-bottom:10px">
-        <button class="btn-sm primary" onclick="gAddFn()">+ Function</button>
-        <button class="btn-sm" onclick="gPlot()">▶ Plot</button>
-      </div>
-      <div class="g-row">
-        <span style="font-size:.7rem;color:var(--muted)">x from</span>
-        <input class="g-inp g-mini" id="g-xmin" value="-10"/>
-        <span style="font-size:.7rem;color:var(--muted)">to</span>
-        <input class="g-inp g-mini" id="g-xmax" value="10"/>
-      </div>
+      <div class="btn-row" style="margin-bottom:10px"><button class="btn-sm primary" onclick="gAddFn()">+ Function</button><button class="btn-sm" onclick="gPlot()">▶ Plot</button></div>
+      <div class="g-row"><span style="font-size:.7rem;color:var(--muted)">x from</span><input class="g-inp g-mini" id="g-xmin" value="-10"/><span style="font-size:.7rem;color:var(--muted)">to</span><input class="g-inp g-mini" id="g-xmax" value="10"/></div>
       <canvas id="graphCanvas"></canvas>
       <div style="font-size:.68rem;color:var(--muted);margin-top:6px;font-family:var(--mono)" id="g-status">Awaiting plot.</div>
     </div>
@@ -975,197 +801,83 @@ input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
   </div>
 </div>
 
-
-
-
-<!-- ═══════════════════════════════════════════════════════════
-  PASTE THIS BLOCK into index.html
-  Location: just before the GoatCounter <script> tags at the bottom
-  (i.e. just before the line: <script> (function(){ var t=setInterval...)
-═══════════════════════════════════════════════════════════ -->
-
-<!-- STEP 1: Add this card to the tools-grid div in index.html
-     Find the calc tool-card and paste this AFTER it: -->
-<!--
-<div class="tool-card" data-cat="maths" onclick="openTool('matrix')">
-  <div class="tc-icon">⊞</div>
-  <div class="tc-body">
-    <div class="tc-name">Matrix Calculator</div>
-    <div class="tc-desc">Add, multiply, invert, find determinant, RREF, eigenvalues and more — up to 6×6.</div>
-  </div>
-</div>
--->
-
-<!-- STEP 2: Paste the tool panel below into index.html just before GoatCounter scripts -->
-
+<!-- TOOL: MATRIX CALCULATOR -->
 <div id="tool-matrix" class="tool-panel">
-  <div class="nav-bar">
-    <button class="nav-back" onclick="goBack()">← Back</button>
-    <span class="nav-title">⊞ Matrix Calculator</span>
-    <div class="nav-right">
-      <a href="https://matrixcalc.org" target="_blank" class="btn-sm green">🌐 matrixcalc.org</a>
-    </div>
-  </div>
+  <div class="nav-bar"><button class="nav-back" onclick="goBack()">← Back</button><span class="nav-title">⊟ Matrix Calculator</span><div class="nav-right"><a href="https://matrixcalc.org" target="_blank" class="btn-sm green">🌐 matrixcalc.org</a></div></div>
   <div class="page">
-
-    <!-- Description -->
-    <div class="card">
-      <button class="desc-toggle" onclick="tDesc('mx-d')">ℹ Terms, Operations &amp; Demos ▾</button>
-      <div id="mx-d" class="desc-body">
-        <b>Matrix:</b> A rectangular grid of numbers with rows (horizontal) and columns (vertical). Written as m×n where m = rows, n = columns.<br><br>
-        <b>Square matrix:</b> Same number of rows and columns (2×2, 3×3, etc.). Determinant and inverse only exist for square matrices.<br><br>
-        <b>Determinant (det A):</b> A single number that summarises a square matrix. If det = 0, the matrix has no inverse (called "singular").<br><br>
-        <b>Inverse (A⁻¹):</b> A matrix such that A × A⁻¹ = Identity matrix. Only exists when det ≠ 0.<br><br>
-        <b>Transpose (Aᵀ):</b> Flip rows and columns. Row 1 becomes Column 1.<br><br>
-        <b>Rank:</b> The number of linearly independent rows (or columns). Tells you how much "real information" is in the matrix.<br><br>
-        <b>RREF (Reduced Row Echelon Form):</b> A standardised form reached by row operations. Used to solve systems of linear equations.<br><br>
-        <b>Eigenvalues:</b> Special numbers λ where A×v = λ×v for some non-zero vector v. Supported for 2×2 matrices.<br><br>
-        <b>Operations needing two matrices (A and B):</b> Add, Subtract, Multiply. For A+B and A−B, both matrices must have the same dimensions. For A×B, columns of A must equal rows of B.<br><br>
-        
-        <div style="height:1px;background:var(--border);margin:10px 0"></div>
-        
-        <b>Demo 1: Matrix Multiplication</b><br>
-        1. Set Matrix A to 2×2 and Matrix B to 2×2.<br>
-        2. In A, enter <code>1, 2</code> (top) and <code>3, 4</code> (bottom).<br>
-        3. In B, enter <code>2, 0</code> (top) and <code>1, 2</code> (bottom).<br>
-        4. Click <b>A × B — Multiplication</b> to compute the resultant matrix.<br><br>
-        
-        <b>Demo 2: Solving Simultaneous Equations (2x + y = 8; x − y = 1)</b><br>
-        1. Set Matrix A to 2 rows × 3 columns.<br>
-        2. Enter coefficients: Top row <code>2, 1, 8</code>. Bottom row <code>1, -1, 1</code>.<br>
-        3. Click <b>RREF(A) — Row Reduction</b>.<br>
-        4. The output isolates the variables: row 1 shows <code>1, 0, 3</code> (x=3) and row 2 shows <code>0, 1, 2</code> (y=2). Expand the working steps to examine the algorithmic breakdown.
-      </div>
-    </div>
-
-    <!-- Matrix size controls -->
-    <div class="slabel">01 — Matrix Dimensions</div>
+    <div class="card"><button class="desc-toggle" onclick="tDesc('mx-d')">ℹ Terms, Operations &amp; Demos ▾</button><div id="mx-d" class="desc-body">
+      <b>Matrix:</b> A rectangular grid of numbers. Written as m×n (m rows, n columns).<br>
+      <b>Square matrix:</b> Same rows and columns (2×2, 3×3). Required for det, inverse, trace, eigenvalues, LU.<br>
+      <b>Determinant (det A):</b> A single number summarising a square matrix. If det=0, the matrix is "singular" -- no inverse exists.<br>
+      <b>Inverse (A⁻¹):</b> A×A⁻¹ = Identity. Only exists when det≠0.<br>
+      <b>RREF:</b> Reduced Row Echelon Form. Used to solve systems of equations. Each row's leading entry is 1, and all other entries in that column are 0.<br>
+      <b>Eigenvalues (2×2 only):</b> Values λ where A×v = λ×v. Found by solving the characteristic equation λ² − tr(A)λ + det(A) = 0.<br><br>
+      <b>Demo -- Solve 2x + y = 8 and x − y = 1:</b><br>
+      Set Matrix A to 2 rows × 3 columns. Enter top row: <code>2, 1, 8</code>. Bottom row: <code>1, -1, 1</code>. Click <b>RREF(A)</b>. The result gives x=3 (row 1: 1, 0, 3) and y=2 (row 2: 0, 1, 2).
+    </div></div>
+    <div class="slabel">01 -- Matrix Dimensions</div>
     <div class="card">
       <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end">
-        <div class="ctrl" style="flex:1;min-width:130px">
-          <label>Matrix A — rows × cols</label>
-          <div style="display:flex;gap:6px;align-items:center">
-            <select id="mx-ar" onchange="mxBuildGrid()" style="flex:1">
-              <option>1</option><option>2</option><option selected>3</option>
-              <option>4</option><option>5</option><option>6</option>
-            </select>
-            <span style="color:var(--muted);font-size:.9rem">×</span>
-            <select id="mx-ac" onchange="mxBuildGrid()" style="flex:1">
-              <option>1</option><option>2</option><option selected>3</option>
-              <option>4</option><option>5</option><option>6</option>
-            </select>
-          </div>
-        </div>
-        <div class="ctrl" style="flex:1;min-width:130px" id="mx-b-size-ctrl">
-          <label>Matrix B — rows × cols</label>
-          <div style="display:flex;gap:6px;align-items:center">
-            <select id="mx-br" onchange="mxBuildGrid()" style="flex:1">
-              <option>1</option><option>2</option><option selected>3</option>
-              <option>4</option><option>5</option><option>6</option>
-            </select>
-            <span style="color:var(--muted);font-size:.9rem">×</span>
-            <select id="mx-bc" onchange="mxBuildGrid()" style="flex:1">
-              <option>1</option><option>2</option><option selected>3</option>
-              <option>4</option><option>5</option><option>6</option>
-            </select>
-          </div>
-        </div>
-        <div class="ctrl" style="flex:1;min-width:120px" id="mx-scalar-ctrl" style="display:none">
-          <label>Scalar value (k)</label>
-          <input type="number" id="mx-scalar" value="2" step="any"/>
-        </div>
+        <div class="ctrl" style="flex:1;min-width:130px"><label>Matrix A -- rows × cols</label><div style="display:flex;gap:6px;align-items:center"><select id="mx-ar" onchange="mxBuildGrid()" style="flex:1"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select><span style="color:var(--muted);font-size:.9rem">×</span><select id="mx-ac" onchange="mxBuildGrid()" style="flex:1"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></div></div>
+        <div class="ctrl" style="flex:1;min-width:130px"><label>Matrix B -- rows × cols</label><div style="display:flex;gap:6px;align-items:center"><select id="mx-br" onchange="mxBuildGrid()" style="flex:1"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select><span style="color:var(--muted);font-size:.9rem">×</span><select id="mx-bc" onchange="mxBuildGrid()" style="flex:1"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></div></div>
+        <div class="ctrl" style="flex:1;min-width:100px"><label>Scalar k</label><input type="number" id="mx-scalar" value="2" step="any"/></div>
       </div>
-      <div class="btn-row" style="margin-top:12px">
-        <button class="btn-sm primary" onclick="mxFillIdentity('A')">Identity A</button>
-        <button class="btn-sm primary" onclick="mxFillIdentity('B')">Identity B</button>
-        <button class="btn-sm" onclick="mxFillRandom('A')">Random A</button>
-        <button class="btn-sm" onclick="mxFillRandom('B')">Random B</button>
-        <button class="btn-sm danger" onclick="mxClear('A')">Clear A</button>
-        <button class="btn-sm danger" onclick="mxClear('B')">Clear B</button>
-      </div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn-sm primary" onclick="mxFillIdentity('A')">Identity A</button><button class="btn-sm primary" onclick="mxFillIdentity('B')">Identity B</button><button class="btn-sm" onclick="mxFillRandom('A')">Random A</button><button class="btn-sm" onclick="mxFillRandom('B')">Random B</button><button class="btn-sm danger" onclick="mxClear('A')">Clear A</button><button class="btn-sm danger" onclick="mxClear('B')">Clear B</button></div>
     </div>
-
-    <!-- Matrix input grids -->
-    <div class="slabel">02 — Enter Values</div>
+    <div class="slabel">02 -- Enter Values</div>
     <div class="card">
       <div style="display:flex;gap:18px;flex-wrap:wrap">
-        <div style="flex:1;min-width:160px">
-          <div style="font-size:.75rem;color:var(--gold);font-family:var(--mono);margin-bottom:7px;font-weight:600">Matrix A</div>
-          <div id="mx-grid-a"></div>
-        </div>
-        <div style="flex:1;min-width:160px" id="mx-b-grid-wrap">
-          <div style="font-size:.75rem;color:var(--gold);font-family:var(--mono);margin-bottom:7px;font-weight:600">Matrix B</div>
-          <div id="mx-grid-b"></div>
-        </div>
+        <div style="flex:1;min-width:140px"><div style="font-size:.75rem;color:var(--gold);font-family:var(--mono);margin-bottom:7px;font-weight:600">Matrix A</div><div id="mx-grid-a"></div></div>
+        <div style="flex:1;min-width:140px"><div style="font-size:.75rem;color:var(--gold);font-family:var(--mono);margin-bottom:7px;font-weight:600">Matrix B</div><div id="mx-grid-b"></div></div>
       </div>
     </div>
-
-    <!-- Operation selector -->
-    <div class="slabel">03 — Choose Operation</div>
+    <div class="slabel">03 -- Operation</div>
     <div class="card">
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:6px" id="mx-ops">
-
-        <div style="font-size:.7rem;color:var(--muted);grid-column:1/-1;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-top:2px">Single Matrix (A only)</div>
-
-        <button class="btn-sm primary" onclick="mxRun('det')">det(A) — Determinant</button>
-        <button class="btn-sm primary" onclick="mxRun('inv')">A⁻¹ — Inverse</button>
-        <button class="btn-sm primary" onclick="mxRun('trans')">Aᵀ — Transpose</button>
-        <button class="btn-sm primary" onclick="mxRun('trace')">tr(A) — Trace</button>
-        <button class="btn-sm primary" onclick="mxRun('rank')">rank(A) — Rank</button>
-        <button class="btn-sm primary" onclick="mxRun('rref')">RREF(A) — Row Reduction</button>
-        <button class="btn-sm primary" onclick="mxRun('scalar')">k×A — Scalar Multiply</button>
-        <button class="btn-sm primary" onclick="mxRun('power')">Aⁿ — Matrix Power</button>
-        <button class="btn-sm primary" onclick="mxRun('eigen')">λ — Eigenvalues (2×2)</button>
-        <button class="btn-sm primary" onclick="mxRun('lu')">LU — Decomposition</button>
-
-        <div style="font-size:.7rem;color:var(--muted);grid-column:1/-1;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-top:8px">Two Matrices (A and B)</div>
-
-        <button class="btn-sm" onclick="mxRun('add')">A + B — Addition</button>
-        <button class="btn-sm" onclick="mxRun('sub')">A − B — Subtraction</button>
-        <button class="btn-sm" onclick="mxRun('mul')">A × B — Multiplication</button>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:5px">
+        <div style="font-size:.68rem;color:var(--muted);grid-column:1/-1;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-top:2px">Single Matrix (A only)</div>
+        <button class="btn-sm primary" onclick="mxRun('det')">det(A) -- Determinant</button>
+        <button class="btn-sm primary" onclick="mxRun('inv')">A⁻¹ -- Inverse</button>
+        <button class="btn-sm primary" onclick="mxRun('trans')">Aᵀ -- Transpose</button>
+        <button class="btn-sm primary" onclick="mxRun('trace')">tr(A) -- Trace</button>
+        <button class="btn-sm primary" onclick="mxRun('rank')">rank(A) -- Rank</button>
+        <button class="btn-sm primary" onclick="mxRun('rref')">RREF(A) -- Row Reduction</button>
+        <button class="btn-sm primary" onclick="mxRun('scalar')">k×A -- Scalar Multiply</button>
+        <button class="btn-sm primary" onclick="mxRun('power')">Aⁿ -- Matrix Power</button>
+        <button class="btn-sm primary" onclick="mxRun('eigen')">λ -- Eigenvalues (2×2)</button>
+        <button class="btn-sm primary" onclick="mxRun('lu')">LU Decomposition</button>
+        <div style="font-size:.68rem;color:var(--muted);grid-column:1/-1;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-top:7px">Two Matrices (A and B)</div>
+        <button class="btn-sm" onclick="mxRun('add')">A + B</button>
+        <button class="btn-sm" onclick="mxRun('sub')">A − B</button>
+        <button class="btn-sm" onclick="mxRun('mul')">A × B</button>
         <button class="btn-sm" onclick="mxRun('atb')">Aᵀ × B</button>
         <button class="btn-sm" onclick="mxRun('abt')">A × Bᵀ</button>
       </div>
-
-      <!-- Power input (shown only for power op) -->
-      <div id="mx-power-ctrl" style="display:none;margin-top:10px">
-        <div class="ctrl"><label>Exponent n (integer ≥ 0)</label><input type="number" id="mx-power-n" value="2" min="0" max="20" step="1"/></div>
-      </div>
+      <div id="mx-power-ctrl" style="display:none;margin-top:10px"><div class="ctrl"><label>Exponent n (integer 0–20)</label><input type="number" id="mx-power-n" value="2" min="0" max="20" step="1"/></div></div>
     </div>
-
-    <!-- Result -->
-    <div class="slabel">04 — Result</div>
+    <div class="slabel">04 -- Result</div>
     <div class="card">
-      <div id="mx-result-area">
-        <div style="color:var(--muted);font-size:.8rem">Choose an operation above to see the result here.</div>
-      </div>
-      <div id="mx-steps-area" style="display:none;margin-top:12px">
-        <button class="desc-toggle" onclick="mxToggleSteps()">📋 Show / Hide Working Steps ▾</button>
-        <div id="mx-steps-body" class="desc-body" style="font-family:var(--mono);font-size:.72rem;white-space:pre-wrap;line-height:1.9"></div>
-      </div>
+      <div id="mx-result-area"><div style="color:var(--muted);font-size:.8rem">Choose an operation above.</div></div>
+      <div id="mx-steps-area" style="display:none;margin-top:10px"><button class="desc-toggle" onclick="mxToggleSteps()">📋 Show/Hide Working Steps ▾</button><div id="mx-steps-body" class="desc-body" style="font-family:var(--mono);font-size:.72rem;white-space:pre-wrap;line-height:1.9"></div></div>
     </div>
-
   </div>
 </div>
 
-
-
-
-<!-- GoatCounter — enable "Allow visitor counts on website" in your GoatCounter Settings -->
+<!-- GoatCounter -->
 <script>
-(function(){
-  var t=setInterval(function(){
-    if(window.goatcounter&&window.goatcounter.visit_count){
-      clearInterval(t);
-      window.goatcounter.visit_count({
-        append:'#gc-counter',path:'TOTAL',no_branding:false,
-        style:'div{font-family:var(--mono);font-size:.7rem;color:var(--dim);display:inline-block;border-color:var(--border2)}'
-      });
-    }
-  },300);
-})();
+(function(){var t=setInterval(function(){if(window.goatcounter&&window.goatcounter.visit_count){clearInterval(t);window.goatcounter.visit_count({append:'#gc-counter',path:'TOTAL',no_branding:false,style:'div{font-family:var(--mono);font-size:.7rem;color:var(--dim);display:inline-block;border-color:var(--border2)}'});}},300);})();
 </script>
 <script data-goatcounter="https://suvadip.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<!-- image watermark scale display fix -->
+<script>
+window.addEventListener('DOMContentLoaded',function(){
+  var scl=document.getElementById('wa-img-scale');
+  var op2=document.getElementById('wa-op2');
+  if(scl)scl.addEventListener('input',function(){var el=document.getElementById('wa-img-scaleV');if(el)el.textContent=this.value+'%';});
+  if(op2)op2.addEventListener('input',function(){var el=document.getElementById('wa-op2V');if(el)el.textContent=this.value+'%';
+    // mirror to wa-op for waRun to read
+    var op=document.getElementById('wa-op');if(op)op.value=this.value;});
+});
+</script>
 <script src="./app.js"></script>
 </body>
 </html>
