@@ -1,0 +1,3153 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>প্রশ্নপত্র Maker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%234f46e5'/><text x='5' y='24' font-size='22'>প</text></svg>"/>
+<link rel="stylesheet" href="libs/katex.min.css"/>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   COMPLETE CSS
+   প্রশ্নপত্র Maker by Shibanjan Bera
+═══════════════════════════════════════════════════════════ */
+
+/* ── LOCAL FONTS ── */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('fonts/PlusJakartaSans-Variable.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Tiro Bangla';
+  src: url('fonts/TiroBangla-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Tiro Bangla';
+  src: url('fonts/TiroBangla-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DM Serif Text';
+  src: url('fonts/DMSerifText-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overscroll-behavior-y: none; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── THEMING (Dark by default) ── */
+:root {
+  --bg:       #080d1a; 
+  --bg1:      #0d1427; 
+  --bg2:      #111b34; 
+  --bg3:      #172040; 
+  --bg4:      #1c274d;
+  --border:   #1a2a48; 
+  --border2:  #203358; 
+  --border3:  #2a4070;
+  --accent:   #5b50f0; 
+  --accent2:  #7065f3; 
+  --accent3:  #9d95f7;
+  --gold:     #f59e0b; 
+  --gold2:    #fbbf24;
+  --green:    #10b981; 
+  --green2:   #34d399;
+  --red:      #ef4444; 
+  --red2:     #f87171;
+  --t1:       #eef2fb; 
+  --t2:       #8fa3c8; 
+  --t3:       #4a5d80; 
+  --t4:       #2a3a58;
+  --shadow:   0 4px 24px rgba(0,0,0,.55); 
+  --shadow2:  0 2px 8px rgba(0,0,0,.4); 
+  --shadow3:  0 1px 3px rgba(0,0,0,.3);
+  --r:        9px; 
+  --r2:       6px; 
+  --r3:       4px;
+  
+  --font-ui:  'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  --font-bn:  'Tiro Bangla', 'Kalpurush', serif;
+  --font-tt:  'DM Serif Text', Georgia, serif;
+
+  /* Paper specific vars manipulated by JS */
+  --p-margin: 1.0cm; 
+  --p-fsize:  11pt; 
+  --p-lh:     1.45; 
+  --pv-bg:    #0c1124;
+}
+
+[data-theme="light"] {
+  --bg:       #f0f4fc; 
+  --bg1:      #ffffff; 
+  --bg2:      #f4f7fd; 
+  --bg3:      #e8eef8; 
+  --bg4:      #dce4f4;
+  --border:   #dbe4f2; 
+  --border2:  #c8d5ec; 
+  --border3:  #a8bce0;
+  --accent:   #4f46e5; 
+  --accent2:  #4338ca; 
+  --accent3:  #3730a3;
+  --t1:       #0f172a; 
+  --t2:       #334155; 
+  --t3:       #64748b; 
+  --t4:       #94a3b8;
+  --shadow:   0 4px 24px rgba(0,0,0,.09); 
+  --shadow2:  0 2px 8px rgba(0,0,0,.06); 
+  --shadow3:  0 1px 3px rgba(0,0,0,.05);
+  --pv-bg:    #dce4f4;
+}
+
+/* ── LAYOUT ── */
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--t1);
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: background .25s, color .25s;
+  overscroll-behavior-y: none;
+}
+
+body.glow-mode .qitem textarea,
+body.glow-mode .qitem input[type="text"] {
+  box-shadow: 0 0 12px rgba(91,80,240,0.4);
+  border-color: var(--accent) !important;
+}
+
+#topbar {
+  height: 50px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 10px;
+  flex-shrink: 0;
+  z-index: 200;
+  transition: background .25s, border-color .25s;
+}
+
+.logo { display: flex; align-items: center; gap: 9px; flex-shrink: 0; text-decoration: none; user-select: none; }
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--accent3));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0; cursor: pointer;
+}
+.logo-icon .logo-fallback { font-size: 17px; font-family: var(--font-bn); color: #fff; font-weight: 700; line-height: 1; }
+.logo-text { font-size: 14px; font-weight: 700; letter-spacing: -.025em; color: var(--t1); cursor: default; }
+.logo-text em { color: var(--accent3); font-style: normal; }
+
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+#topbar-stats {
+  font-size: 11.5px;
+  color: var(--t2);
+  font-weight: 600;
+  padding-right: 8px;
+  border-right: 1px solid var(--border);
+}
+
+#fit-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  display: flex; align-items: center; gap: 4px;
+  transition: .2s;
+  white-space: nowrap;
+}
+#fit-badge.ok { background: rgba(16,185,129,.12); color: var(--green2); border: 1px solid rgba(16,185,129,.25); }
+#fit-badge.warn { background: rgba(245,158,11,.12); color: var(--gold2); border: 1px solid rgba(245,158,11,.25); }
+#fit-badge.over { background: rgba(239,68,68,.12); color: var(--red2); border: 1px solid rgba(239,68,68,.25); }
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r3);
+  color: var(--t3);
+  cursor: pointer;
+  padding: 6px;
+  display: flex; align-items: center; justify-content: center;
+  transition: .15s;
+  outline: none;
+  flex-shrink: 0;
+}
+.icon-btn:hover { background: var(--bg3); color: var(--t1); border-color: var(--border2); }
+.icon-btn:active { transform: scale(.92); }
+
+#main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+
+#sidebar {
+  width: 400px;
+  min-width: 280px;
+  max-width: 60vw;
+  background: var(--bg1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  transition: background .25s, border-color .25s;
+}
+
+/* ── IMPORT DRAWER & MENU ── */
+#import-strip {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 12px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#import-strip .spacer { flex: 1; }
+
+.dropdown { position: relative; display: inline-block; }
+.dropdown-content { 
+  display: none; position: absolute; top: 100%; left: 0; margin-top: 4px;
+  background-color: var(--bg1); min-width: 170px; box-shadow: var(--shadow); 
+  z-index: 1000; border: 1px solid var(--border); border-radius: var(--r2); padding: 5px 0; 
+}
+.dropdown-content a { color: var(--t1); padding: 8px 14px; text-decoration: none; display: block; font-size: 11.5px; font-weight: 500; transition: .15s; }
+.dropdown-content a:hover { background-color: var(--bg3); color: var(--accent3); }
+.dropdown.open .dropdown-content { display: block; }
+
+#import-drawer {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+#import-drawer.open { max-height: 360px; }
+
+.import-drawer-inner { padding: 12px; }
+
+.import-tabs {
+  display: flex; gap: 0; margin-bottom: 10px;
+  background: var(--bg3); border-radius: var(--r3);
+  overflow: hidden; border: 1px solid var(--border);
+}
+.import-tab {
+  flex: 1; padding: 6px 10px; font-size: 11px; font-weight: 600;
+  color: var(--t3); cursor: pointer; text-align: center;
+  transition: .15s; user-select: none;
+}
+.import-tab.on { background: var(--accent); color: #fff; }
+.import-tab:not(.on):hover { background: var(--bg4); color: var(--t1); }
+
+.import-paste-panel, .import-upload-panel { display: none; }
+.import-paste-panel.active, .import-upload-panel.active { display: flex; flex-direction: column; gap: 8px; }
+
+.qpf-ta {
+  font-family: 'Courier New', monospace; font-size: 11px;
+  color: var(--green2); background: rgba(16,185,129,.04);
+  border: 1px solid var(--border2); border-radius: var(--r3);
+  padding: 8px 10px; line-height: 1.6; min-height: 90px;
+  resize: vertical; width: 100%; outline: none; transition: border-color .15s;
+}
+.qpf-ta::placeholder { color: var(--t4); }
+.qpf-ta:focus { border-color: var(--green); }
+
+.drop-zone {
+  border: 2px dashed var(--border2); border-radius: var(--r2);
+  padding: 24px 12px; text-align: center; cursor: pointer;
+  transition: .2s; display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent2); background: rgba(91,80,240,.06); }
+.drop-zone-icon { font-size: 28px; }
+.drop-zone p { font-size: 12px; color: var(--t2); line-height: 1.5; }
+.drop-zone span { font-size: 10px; color: var(--t3); }
+
+/* ── SIDEBAR MAIN ── */
+#sidebar-scroll {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 10px 12px; 
+  display: flex; flex-direction: column; gap: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+#export-bar {
+  background: var(--bg2);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; gap: 8px; border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: background .25s, border-color .25s;
+}
+
+/* ── RESIZE HANDLE ── */
+#resize-handle {
+  width: 5px; background: var(--border);
+  cursor: col-resize; flex-shrink: 0; position: relative;
+  transition: background .15s; z-index: 10;
+}
+#resize-handle::after {
+  content: ''; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 3px; height: 32px; border-radius: 2px;
+  background: var(--border3); transition: background .15s;
+}
+#resize-handle:hover, #resize-handle.dragging { background: var(--accent); }
+#resize-handle:hover::after, #resize-handle.dragging::after { background: var(--accent3); }
+
+/* ── PREVIEW PANEL ── */
+#right-col { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+#preview {
+  flex: 1; display: flex; flex-direction: column;
+  background: var(--pv-bg); overflow: hidden; min-height: 0; transition: background .25s;
+}
+#preview-bar {
+  height: 40px; background: var(--bg1); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 12px; gap: 10px; flex-shrink: 0;
+  transition: background .25s, border-color .25s;
+}
+#preview-vp {
+  flex: 1; overflow: auto; display: flex; flex-direction: column;
+  align-items: center; padding: 20px; gap: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+.pp-wrap { transform-origin: top center; transition: transform .2s ease; }
+.pp { background: #fff; box-shadow: 0 6px 40px rgba(0,0,0,.55); border-radius: 2px; position: relative; }
+[data-theme="light"] .pp { box-shadow: 0 6px 40px rgba(0,0,0,.15); }
+
+.empty-ph { text-align: center; padding: 60px 20px; color: var(--t3); font-size: 12.5px; line-height: 1.8; }
+.empty-ph .ei { font-size: 38px; margin-bottom: 10px; }
+
+/* ── SETTINGS PANEL (Bottom Right) ── */
+#settings-panel {
+  background: var(--bg1); border-top: 1px solid var(--border);
+  flex-shrink: 0; overflow: hidden; transition: background .25s, border-color .25s;
+}
+#settings-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 14px; cursor: pointer; user-select: none;
+  border-bottom: 1px solid transparent; transition: .15s;
+}
+#settings-panel-header:hover { background: var(--bg2); }
+#settings-panel-header.open { border-bottom-color: var(--border); }
+#settings-panel-title { font-size: 11px; font-weight: 600; color: var(--t2); letter-spacing: .03em; display: flex; align-items: center; gap: 7px; }
+#settings-panel-body { padding: 12px 14px 14px; display: none; }
+#settings-panel-body.open { display: block; }
+
+.settings-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+  gap: 12px 25px; 
+}
+.sg2 { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.sg2-label { display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--t3); }
+
+/* Custom Sliders */
+.slider-wrap { display: flex; align-items: center; gap: 5px; }
+.slider-btn {
+  width: 22px; height: 22px; border-radius: var(--r3);
+  background: var(--bg3); border: 1px solid var(--border2); color: var(--t2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 400; line-height: 1; transition: .15s; flex-shrink: 0;
+  user-select: none; outline: none;
+}
+.slider-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.slider-btn:active { transform: scale(0.9); }
+
+.slider-wrap input[type=range] {
+  flex: 1; max-width: 130px; -webkit-appearance: none; appearance: none;
+  height: 3px; background: var(--border2); border-radius: 2px; outline: none; cursor: pointer;
+}
+.slider-wrap input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%;
+  background: var(--accent2); cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.18); transition: box-shadow .15s;
+}
+.slider-wrap input[type=range]:focus::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(99,102,241,.28); }
+.slider-val { font-size: 10px; font-weight: 700; color: var(--accent3); text-align: right; white-space: nowrap; text-transform: none; letter-spacing: normal; }
+
+/* Dividers style pills */
+.dpick { display: flex; gap: 4px; flex-wrap: wrap; }
+.dopt {
+  padding: 4px 8px; border-radius: var(--r3); border: 1px solid var(--border2);
+  background: var(--bg3); color: var(--t2); font-size: 11.5px; cursor: pointer;
+  transition: .15s; letter-spacing: .04em;
+}
+.dopt.on { border-color: var(--accent2); background: rgba(91,80,240,.15); color: var(--accent3); }
+.dopt:not(.on):hover { background: var(--bg4); color: var(--t1); }
+
+.wm-select-wrap { display: flex; gap: 6px; align-items: center; }
+.wm-select-wrap select { flex: 1; }
+
+/* Autofit Button (Relocated to Preview Bar) */
+#autofit-btn {
+  display: flex; align-items: center; justify-content: center;
+  gap: 5px; padding: 4px 8px; border-radius: var(--r2);
+  background: transparent; border: 1px solid transparent;
+  color: var(--t2); cursor: pointer; transition: .2s; outline: none;
+}
+#autofit-btn:hover { background: var(--bg3); color: var(--t1); border-color: var(--border2); }
+#autofit-btn.active {
+  background: rgba(16,185,129,.12);
+  border-color: rgba(16,185,129,.3); color: var(--green2);
+}
+
+/* ── UI COMPONENTS ── */
+.pill-group {
+  display: flex; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: var(--r3); overflow: hidden;
+}
+.pill {
+  padding: 4px 10px; font-size: 11px; font-weight: 500;
+  color: var(--t3); cursor: pointer; transition: .15s;
+  user-select: none; white-space: nowrap;
+}
+.pill.on { background: var(--accent); color: #fff; font-weight: 600; }
+.pill:not(.on):hover { color: var(--t1); background: var(--bg4); }
+
+#s-plang .pill { padding: 5px 11px; font-size: 11px; }
+
+.card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+  overflow: hidden; transition: border-color .15s, background .25s;
+}
+.card.link-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.card:focus-within { border-color: var(--border3); }
+.card-hdr {
+  display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+  cursor: pointer; user-select: none; border-bottom: 1px solid transparent; transition: .15s;
+}
+.card-hdr:hover { background: var(--bg3); }
+.card-hdr.open { border-bottom-color: var(--border); }
+.chevron { width: 14px; height: 14px; color: var(--t3); transition: transform .2s; flex-shrink: 0; }
+.card-hdr.open .chevron { transform: rotate(90deg); }
+.card-ttl { font-size: 12px; font-weight: 600; color: var(--t2); flex: 1; letter-spacing: .015em; }
+
+.card-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.card-body.hide { display: none; }
+
+/* Section Colors */
+.sc-card[data-si="0"] { border-left: 3px solid #6366f1; }
+.sc-card[data-si="1"] { border-left: 3px solid #10b981; }
+.sc-card[data-si="2"] { border-left: 3px solid #f59e0b; }
+.sc-card[data-si="3"] { border-left: 3px solid #ec4899; }
+.sc-card[data-si="4"] { border-left: 3px solid #06b6d4; }
+.sc-card[data-si="5"] { border-left: 3px solid #8b5cf6; }
+.sc-card[data-si="6"] { border-left: 3px solid #14b8a6; }
+.sc-card[data-si="7"] { border-left: 3px solid #f97316; }
+
+.flabel { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--t3); display: block; margin-bottom: 4px; }
+input[type="text"], input[type="number"], textarea, select {
+  width: 100%; background: var(--bg); border: 1px solid var(--border2);
+  border-radius: var(--r2); color: var(--t1); font-family: var(--font-ui); font-size: 12.5px;
+  padding: 6px 9px; outline: none; transition: border-color .15s, box-shadow .15s, background .25s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.12);
+}
+input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
+  border-color: var(--accent2); box-shadow: inset 0 1px 3px rgba(0,0,0,.12), 0 0 0 2.5px rgba(91,80,240,.18);
+}
+textarea { resize: vertical; min-height: 50px; line-height: 1.55; font-family: var(--font-bn); font-size: 13px; }
+.bn-field { font-family: var(--font-bn) !important; font-size: 13px !important; }
+
+select {
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px;
+}
+
+.frow { display: grid; gap: 8px; }
+.c2 { grid-template-columns: 1fr 1fr; }
+.c3 { grid-template-columns: 1fr 1fr 1fr; }
+.fgrp { display: flex; flex-direction: column; gap: 4px; }
+
+#f-tt { font-size: 13.5px !important; font-weight: 500; border-color: var(--border3); padding: 8px 11px; }
+#f-tt:focus { border-color: var(--accent); }
+#subj-warn { color: var(--gold); font-size: 9px; margin-left: 4px; display: none; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 7px 13px; border-radius: var(--r2); border: 1px solid transparent;
+  font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+  cursor: pointer; outline: none; transition: .15s; white-space: nowrap; user-select: none;
+  text-decoration: none;
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary { background: var(--accent); color: #fff; font-weight: 600; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-ghost { background: transparent; color: var(--t2); border-color: var(--border2); }
+.btn-ghost:hover { background: var(--bg3); color: var(--t1); }
+.btn-accent { background: transparent; color: var(--accent3); border-color: var(--border2); }
+.btn-accent:hover { background: rgba(91,80,240,.1); border-color: var(--accent2); }
+.btn-danger { background: transparent; color: var(--red); border-color: transparent; padding: 5px 7px; }
+.btn-danger:hover { background: rgba(239,68,68,.1); border-color: var(--red); }
+.btn-success { background: rgba(16,185,129,.1); color: var(--green2); border-color: rgba(16,185,129,.3); }
+.btn-success:hover { background: rgba(16,185,129,.18); border-color: var(--green); }
+.btn-sm { padding: 4px 8px; font-size: 11px; }
+.btn-xs { padding: 3px 7px; font-size: 10px; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: rgba(91,80,240,.1); border: 1px solid rgba(99,102,241,.25);
+  border-radius: 20px; padding: 2px 7px; font-size: 10px;
+  font-weight: 600; color: var(--accent3); font-family: var(--font-bn); white-space: nowrap;
+}
+
+/* ── QUESTION ITEM ── */
+.qitem {
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--r2);
+  padding: 10px; display: flex; flex-direction: column; gap: 7px;
+  transition: border-color .15s, background .25s, opacity .2s, box-shadow .2s; position: relative;
+}
+.qitem:hover { border-color: var(--border3); }
+.qitem-hdr { display: flex; align-items: center; gap: 6px; }
+.qnum {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: var(--t3); font-family: var(--font-bn); flex-shrink: 0;
+}
+.q-type-badge { font-size: 9.5px; font-weight: 600; color: var(--t3); letter-spacing: .04em; text-transform: uppercase; }
+
+.q-img-row { display: grid; grid-template-columns: 1fr 78px; gap: 8px; align-items: start; }
+.opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 3px; }
+.opt-row { display: flex; align-items: center; gap: 5px; }
+.opt-ltr { font-size: 11px; font-weight: 700; color: var(--t3); font-family: var(--font-bn); min-width: 16px; flex-shrink: 0; }
+
+.img-slot {
+  width: 78px; min-height: 58px; border: 1.5px dashed var(--border2); border-radius: var(--r2);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  font-size: 9px; color: var(--t3); text-align: center; overflow: hidden;
+  transition: .15s; flex-shrink: 0; position: relative;
+}
+.img-slot:hover { border-color: var(--accent2); background: rgba(91,80,240,.06); }
+.img-slot img { width: 100%; height: 100%; object-fit: contain; position: absolute; inset: 0; }
+
+.q-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 2px; align-items: center;}
+.q-actions-extra { display: none; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+.q-actions-extra.show { display: flex; }
+
+/* EXTRA BLOCKS */
+.extra-block { border: 1px solid var(--border2); border-radius: var(--r2); padding: 7px; margin-top: 4px; position: relative; }
+.extra-del { position: absolute; top: 4px; right: 5px; background: none; border: none; color: var(--red); cursor: pointer; font-size: 13px; line-height: 1; padding: 0; z-index:20; }
+
+.inline-tbl-wrap { overflow-x: auto; border-radius: var(--r3); }
+.inline-tbl { border-collapse: collapse; min-width: 100%; }
+.inline-tbl td { border: 1px solid var(--border2); padding: 0; }
+.inline-tbl td input {
+  border: none; background: transparent; box-shadow: none; min-width: 58px;
+  padding: 4px 6px; font-size: 11.5px; color: var(--t1); font-family: var(--font-bn);
+}
+.inline-tbl td input:focus { outline: none; background: rgba(91,80,240,.06); }
+
+/* ── MODALS & PANELS ── */
+#dia-modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,.78); z-index: 3000;
+  display: none; align-items: center; justify-content: center;
+}
+#dia-modal.show { display: flex; }
+#dia-panel {
+  background: var(--bg1); border: 1px solid var(--border2); border-radius: 12px;
+  padding: 14px; display: flex; flex-direction: column; gap: 9px;
+  max-width: 95vw; max-height: 90vh; box-shadow: var(--shadow);
+}
+#dia-canvas { background: #fff; border-radius: var(--r3); cursor: crosshair; display: block; touch-action: none; max-width: 100%; }
+.dia-toolbar { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.dia-t.on { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
+
+#ov { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 900; opacity: 0; pointer-events: none; transition: .3s; }
+#ov.show { opacity: 1; pointer-events: auto; }
+
+#info, #guide {
+  position: fixed; top: 0; right: 0; width: min(470px, 95vw); height: 100dvh;
+  background: var(--bg1); border-left: 1px solid var(--border); z-index: 901;
+  transform: translateX(100%); transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1), background .25s, border-color .25s;
+  display: flex; flex-direction: column; box-shadow: var(--shadow);
+}
+
+#info.show, #guide.show { transform: none; }
+.info-hdr { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.info-body { 
+  flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; 
+  overscroll-behavior: contain; 
+  -webkit-overflow-scrolling: touch;
+}
+
+.info-sec-ttl { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent3); padding-bottom: 5px; border-bottom: 1px solid var(--border); margin-bottom: 5px; }
+.info-item { display: flex; gap: 9px; align-items: flex-start; margin-bottom: 7px; }
+.iico { width: 27px; height: 27px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.iico.b { background: rgba(99,102,241,.18); }
+.iico.g { background: rgba(16,185,129,.18); }
+.iico.a { background: rgba(245,158,11,.18); }
+.iico.p { background: rgba(168,85,247,.18); }
+.info-p { font-size: 12px; line-height: 1.65; color: var(--t2); }
+.info-p strong { color: var(--t1); font-weight: 600; }
+
+.step { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 7px; }
+.sn { width: 19px; height: 19px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+.prompt-tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--r3); overflow: hidden; margin-bottom: 8px; }
+.prompt-tab { flex: 1; padding: 6px 10px; font-size: 11px; font-weight: 600; color: var(--t3); cursor: pointer; text-align: center; transition: .15s; user-select: none; }
+.prompt-tab.on { background: var(--accent); color: #fff; }
+.prompt-tab:not(.on):hover { background: var(--bg3); color: var(--t1); }
+.prompt-content { display: none; flex-direction: column; gap: 7px; }
+.prompt-content.active { display: flex; }
+.prompt-preview { font-family: 'Courier New', monospace; font-size: 10px; color: var(--green2); background: rgba(16,185,129,.04); border: 1px solid var(--border2); border-radius: var(--r3); padding: 7px 9px; line-height: 1.55; max-height: 80px; overflow: hidden; position: relative; }
+.prompt-preview::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 30px; background: linear-gradient(transparent, var(--bg2)); }
+
+/* ── TOASTS ── */
+#toasts { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; max-width: 90vw; }
+.toast {
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r);
+  padding: 9px 14px; font-size: 12px; color: var(--t1); box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 8px;
+  animation: tIn .25s ease, tOut .3s 2.7s ease forwards; pointer-events: auto; white-space: nowrap;
+}
+.toast.ok { border-color: var(--green); }
+.toast.warn { border-color: var(--gold); }
+.toast.err { border-color: var(--red); }
+@keyframes tIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes tOut { to { opacity: 0; transform: translateY(-8px); } }
+
+/* ── ONE SET PREVIEW STYLE ── */
+.qp-page.preview-one {
+  width: calc(297mm / 2) !important;
+  margin: 0 auto;
+  border-right: 1px dashed var(--border3);
+}
+
+/* ── RESPONSIVE COMPACT ── */
+@media (max-width: 820px) {
+  html, body { 
+    height: 100dvh !important; 
+    min-height: 100dvh !important; 
+    overflow: hidden !important; 
+    display: flex !important; 
+    flex-direction: column !important; 
+    overscroll-behavior-y: none !important; 
+  }
+  
+  #topbar { height: 48px !important; padding: 0 10px !important; flex-shrink: 0 !important; }
+  
+  #main { 
+    display: flex !important; 
+    flex-direction: column !important; 
+    overflow-y: auto !important; 
+    overflow-x: hidden !important; 
+    flex: 1 !important; 
+    padding-bottom: 50px !important; 
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  #sidebar { width: 100% !important; max-width: none !important; height: auto !important; flex: none !important; overflow: visible !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+  #sidebar-scroll { overflow: visible !important; height: auto !important; padding-bottom: 20px !important; }
+  #export-bar { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 500 !important; background: var(--bg1) !important; box-shadow: var(--shadow) !important; border-top: 1px solid var(--border) !important; }
+  #resize-handle { display: none !important; }
+  
+  #right-col { display: flex !important; flex-direction: column !important; height: auto !important; overflow: visible !important; flex: none !important; }
+  #settings-panel { border-top: none !important; border-bottom: 1px solid var(--border) !important; order: 1; }
+  
+  #settings-panel-body { padding: 8px 10px 10px !important; }
+  .settings-grid { grid-template-columns: 1fr 1fr !important; gap: 10px 12px !important; }
+  .sg2 { gap: 3px !important; }
+  .sg2-label { font-size: 9px !important; margin-bottom: 0 !important; }
+  .slider-btn { width: 18px !important; height: 18px !important; font-size: 13px !important; }
+  .slider-val { font-size: 10px !important; }
+  .settings-full { grid-column: 1 / -1 !important; }
+  .wm-select-wrap select { max-width: none !important; flex: 1 !important; font-size: 11.5px !important; padding: 4px 6px !important; }
+  .dpick { gap: 3px !important; }
+  .dopt { padding: 3px 6px !important; font-size: 10.5px !important; }
+  
+  #preview { display: flex !important; height: auto !important; min-height: 50vh !important; overflow: visible !important; order: 2; }
+  #preview-bar { position: sticky !important; top: 0 !important; z-index: 100 !important; }
+  #preview-vp { display: flex !important; flex-direction: column !important; align-items: center !important; overflow: visible !important; height: auto !important; padding: 14px !important; }
+  
+  #dia-panel { width: 95vw !important; max-height: 88vh !important; overflow-y: auto !important; }
+  #dia-canvas { width: 100% !important; height: auto !important; aspect-ratio: 520 / 320 !important; }
+}
+
+/* ── NARROW SCREEN LOGO TEXT ── */
+@media (max-width: 500px) {
+    .logo-text { display: none !important; }
+}
+
+/* ── PREVIEW PAPER CSS ── */
+.qp-page {
+  width: 297mm; min-height: 210mm; display: flex;
+  font-family: var(--font-bn); font-size: var(--p-fsize); line-height: var(--p-lh);
+  color: #111; position: relative; overflow: hidden; background: #fff; box-sizing: border-box;
+}
+.qp-set { flex: 1; overflow: hidden; min-width: 0; position: relative; }
+.qp-div {
+  flex-shrink: 0; width: 1.2cm; display: flex; flex-direction: column;
+  align-items: center; justify-content: space-around;
+  font-size: 7pt; color: #ccc; padding: 2mm 0; position: relative;
+}
+.qp-wm { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 5; }
+.qp-wm img { object-fit: contain; }
+
+.qp-title { text-align: center; font-family: var(--font-tt); font-size: 14pt; font-weight: bold; padding-bottom: 2pt; line-height: 1.2; }
+.qp-info { display: flex; justify-content: space-between; font-family: var(--font-tt); font-size: calc(var(--p-fsize) - 0.5pt); padding-bottom: 3pt; line-height: 1.3; }
+.qp-sec-hdr { text-align: center; font-weight: bold; padding: 3pt 0 1pt; line-height: 1.2; break-after: avoid; page-break-after: avoid; }
+.qp-sec-row { display: flex; justify-content: space-between; font-weight: bold; padding-bottom: 1pt; line-height: 1.2; break-after: avoid; page-break-after: avoid; }
+.qp-q { margin-bottom: 2.5pt; text-align: justify; line-height: var(--p-lh); white-space: pre-wrap; break-inside: avoid; page-break-inside: avoid; }
+.qp-q-mcq-opts {
+  display: flex; justify-content: space-evenly;
+  text-align: center; margin-top: 1pt; gap: 4pt;
+  flex-wrap: nowrap; line-height: var(--p-lh); white-space: normal;
+}
+.qp-q-mcq-opts.g2 { display: grid; grid-template-columns: 1fr 1fr; text-align: center; }
+.qp-q-mcq-opts.g1 { display: flex; flex-direction: column; align-items: flex-start; padding-left: 8pt; }
+.qp-itable { border-collapse: collapse; margin: 2pt auto; font-size: calc(var(--p-fsize) - 1pt); }
+.qp-itable td { border: .5pt solid #555; padding: 1.5pt 4pt; text-align: center; }
+
+/* ══════════════════════════════════════════
+   @MEDIA PRINT
+══════════════════════════════════════════ */
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  html, body {
+    background: #fff !important;
+    overflow: visible !important;
+    display: block !important;
+    height: auto !important;
+  }
+  #topbar, #sidebar, #resize-handle,
+  #preview-bar, #settings-panel,
+  #info, #guide, #ov, #toasts, #dia-modal,
+  .no-print { display: none !important; }
+  
+  #main, #right-col, #preview {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    background: #fff !important;
+  }
+  #preview-vp {
+    display: block !important;
+    overflow: visible !important;
+    background: #fff !important;
+    padding: 0 !important;
+  }
+  .pp-wrap { transform: none !important; margin-bottom: 0 !important; }
+  .pp { box-shadow: none !important; page-break-after: always; }
+  .pp:last-child { page-break-after: auto; }
+  
+  .qp-page { width: 297mm !important; min-height: 210mm !important; height: auto !important; border: none !important; }
+  .qp-set { height: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <a class="logo" href="#" onclick="return false" title="Double click icon for glow mode">
+    <div class="logo-icon">
+      <img src="logo.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <span class="logo-fallback" style="display:none">প</span>
+    </div>
+    <div class="logo-text">প্রশ্নপত্র <em>Maker</em></div>
+  </a>
+
+  <div class="topbar-right">
+    <div id="topbar-stats"></div>
+    <span id="fit-badge" class="ok">✓ Ready</span>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme" aria-label="Toggle dark/light mode">
+      <svg id="theme-icon-dark" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <svg id="theme-icon-light" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <button class="icon-btn" id="info-btn" title="AI OCR & Formatting Tools" aria-label="Open info panel">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </button>
+    <button class="icon-btn" id="guide-btn" title="Beginner's Guide" aria-label="Open guide panel">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- MAIN WORKSPACE -->
+<div id="main">
+  <!-- SIDEBAR (Left) -->
+  <aside id="sidebar">
+    <!-- IMPORT STRIP & MENU -->
+    <div id="import-strip">
+      <div class="dropdown" id="menu-dropdown">
+        <button class="btn btn-ghost btn-sm" onclick="this.parentElement.classList.toggle('open')">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg> Menu
+        </button>
+        <div class="dropdown-content">
+          <a href="pdf-merge.html">PDF Merge</a>
+          <a href="pdf-colour-invert.html">PDF Colour Invert</a>
+          <a href="pdf-watermark-detect.html">PDF Watermark Detect</a>
+          <a href="add-watermark.html">Add Watermark</a>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-paste-tab" onclick="openImportDrawer('paste')">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Paste QPF
+      </button>
+      <label class="btn btn-ghost btn-sm" style="cursor:pointer" title="Upload .qpf file">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload .qpf
+        <input type="file" id="qpf-file" accept=".qpf,.txt" hidden/>
+      </label>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm no-print" id="ocr-prompt-quick" title="Copy AI prompt">🤖 OCR Prompt</button>
+    </div>
+
+    <!-- IMPORT DRAWER PANEL -->
+    <div id="import-drawer">
+      <div class="import-drawer-inner">
+        <div class="import-tabs">
+          <div class="import-tab on" data-tab="paste" onclick="switchImportTab('paste')">📋 Paste Text</div>
+          <div class="import-tab" data-tab="upload" onclick="switchImportTab('upload')">📂 Upload File</div>
+        </div>
+        
+        <div class="import-paste-panel active" id="import-paste-panel">
+          <textarea id="qpf-ta" class="qpf-ta" rows="5" placeholder="Paste QPF text here..."></textarea>
+          <div style="display:flex; gap:7px">
+            <button class="btn btn-primary btn-sm" id="qpf-apply" style="flex:1"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Apply &amp; Fill Form</button>
+            <button class="btn btn-ghost btn-sm" id="qpf-clear">Clear</button>
+            <button class="btn btn-ghost btn-sm" id="close-drawer">✕</button>
+          </div>
+        </div>
+
+        <div class="import-upload-panel" id="import-upload-panel">
+          <div class="drop-zone" id="drop-zone">
+            <div class="drop-zone-icon">📄</div>
+            <p>Drag &amp; drop your <strong>.qpf</strong> file here</p>
+            <span>or click to browse</span>
+            <input type="file" id="qpf-file2" accept=".qpf,.txt" hidden/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCROLLABLE EDITOR AREA -->
+    <div id="sidebar-scroll">
+      <!-- Exam Info Card -->
+      <div class="card">
+        <div class="card-hdr open" data-tgt="ei-body">
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          <span class="card-ttl">📄 Exam Information</span>
+        </div>
+        <div class="card-body" id="ei-body">
+          <div class="fgrp">
+            <label class="flabel">Paper Title</label>
+            <input type="text" id="f-tt" class="bn-field" placeholder="Test no. 1 by Shibanjan Bera" value="Test no. 1 by Shibanjan Bera"/>
+          </div>
+          <div class="frow c3">
+            <div class="fgrp">
+              <label class="flabel">Class</label>
+              <input type="text" id="f-cls" class="bn-field" placeholder="VII"/>
+            </div>
+            <div class="fgrp">
+              <label class="flabel">Full Marks</label>
+              <input type="number" id="f-fm" value="0" readonly style="opacity:.55; cursor:not-allowed"/>
+            </div>
+            <div class="fgrp">
+              <label class="flabel">Time (min)</label>
+              <input type="number" id="f-time" value="30" min="5" max="300"/>
+            </div>
+          </div>
+          <div class="fgrp">
+            <label class="flabel">Subject <span id="subj-warn">⚠ long</span></label>
+            <input type="text" id="f-subj" class="bn-field" placeholder="বিজ্ঞান / Science"/>
+          </div>
+          <div class="fgrp">
+            <label class="flabel">Instructions (optional)</label>
+            <textarea id="f-inst" class="bn-field" rows="2" placeholder="নির্দেশ: সমস্ত প্রশ্নের উত্তর দাও।"></textarea>
+          </div>
+          <div class="fgrp">
+            <label class="flabel">Paper Language Mode</label>
+            <div class="pill-group" id="s-plang" style="width:100%">
+              <div class="pill on" data-v="full-bn" style="flex:1; text-align:center">পূর্ণ বাংলা</div>
+              <div class="pill" data-v="mixed" style="flex:1; text-align:center">Mixed</div>
+              <div class="pill" data-v="full-en" style="flex:1; text-align:center">Full English</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sections Container -->
+      <div id="secs"></div>
+
+      <!-- Add Section Button -->
+      <div style="display:flex; justify-content:center;">
+        <button class="btn btn-accent" id="add-sec" style="padding: 10px 30px;">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Section (বিভাগ)
+        </button>
+      </div>
+    </div>
+
+    <!-- EXPORT BAR -->
+    <div id="export-bar">
+      <div style="display:flex; gap:6px">
+        <a class="btn btn-ghost btn-sm" id="ex-qpf" title="Save .qpf backup">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> .qpf
+        </a>
+        <a class="btn btn-ghost btn-sm" id="ex-odt" title="Export editable ODT">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> ODT
+        </a>
+      </div>
+      <button class="btn btn-primary" id="ex-pdf">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print / PDF
+      </button>
+    </div>
+  </aside>
+
+  <div id="resize-handle" title="Drag to resize"></div>
+
+  <!-- RIGHT COLUMN (Settings + Preview) -->
+  <div id="right-col">
+    <!-- TOP SETTINGS PANEL -->
+    <div id="settings-panel">
+      <div id="settings-panel-header" class="open" onclick="toggleSettingsPanel()">
+        <div id="settings-panel-title">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg> Paper Settings
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <svg id="settings-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition:transform .2s; color:var(--t3)"><polyline points="18 15 12 9 6 15"/></svg>
+        </div>
+      </div>
+      <div id="settings-panel-body" class="open">
+        <div class="settings-grid">
+          <div class="sg2">
+            <div class="sg2-label"><span>Font Size</span> <span class="slider-val" id="s-fs-v">11 pt</span></div>
+            <div class="slider-wrap">
+              <button class="slider-btn" data-slider="s-fs" data-dir="-1">−</button>
+              <input type="range" id="s-fs" min="9" max="13" value="11" step="0.5"/>
+              <button class="slider-btn" data-slider="s-fs" data-dir="1">+</button>
+            </div>
+          </div>
+          <div class="sg2">
+            <div class="sg2-label"><span>Line Spacing</span> <span class="slider-val" id="s-lh-v">1.45</span></div>
+            <div class="slider-wrap">
+              <button class="slider-btn" data-slider="s-lh" data-dir="-1">−</button>
+              <input type="range" id="s-lh" min="0.8" max="1.75" value="1.45" step="0.05"/>
+              <button class="slider-btn" data-slider="s-lh" data-dir="1">+</button>
+            </div>
+          </div>
+          <div class="sg2">
+            <div class="sg2-label"><span>Page Margin</span> <span class="slider-val" id="s-mg-v">1.0 cm</span></div>
+            <div class="slider-wrap">
+              <button class="slider-btn" data-slider="s-mg" data-dir="-1">−</button>
+              <input type="range" id="s-mg" min="3" max="20" value="10" step="1"/>
+              <button class="slider-btn" data-slider="s-mg" data-dir="1">+</button>
+            </div>
+          </div>
+          <div class="sg2">
+            <div class="sg2-label"><span>Cut Line Style</span></div>
+            <div class="dpick">
+              <div class="dopt on" data-d="dotted">·&#x2027;·</div>
+              <div class="dopt" data-d="dashed">- - -</div>
+              <div class="dopt" data-d="solid">———</div>
+              <div class="dopt" data-d="text">✂ cut</div>
+            </div>
+          </div>
+          <div class="sg2">
+            <div class="sg2-label"><span>Watermark Opacity</span> <span class="slider-val" id="s-wmo-v">7%</span></div>
+            <div class="slider-wrap">
+              <button class="slider-btn" data-slider="s-wmo" data-dir="-1">−</button>
+              <input type="range" id="s-wmo" min="0" max="30" value="7" step="1"/>
+              <button class="slider-btn" data-slider="s-wmo" data-dir="1">+</button>
+            </div>
+          </div>
+          <div class="sg2">
+            <div class="sg2-label"><span>Watermark Size</span> <span class="slider-val" id="s-wms-v">65%</span></div>
+            <div class="slider-wrap">
+              <button class="slider-btn" data-slider="s-wms" data-dir="-1">−</button>
+              <input type="range" id="s-wms" min="20" max="100" value="65" step="5"/>
+              <button class="slider-btn" data-slider="s-wms" data-dir="1">+</button>
+            </div>
+          </div>
+          <div class="sg2 settings-full">
+            <div class="sg2-label"><span>Watermark Source</span></div>
+            <div class="wm-select-wrap">
+              <select id="s-wmsrc">
+                <option value="none" selected>None</option>
+                <option value="default">Default</option>
+                <option value="custom">Custom upload…</option>
+              </select>
+              <input type="file" id="wm-file" accept="image/*" hidden/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREVIEW AREA -->
+    <div id="preview">
+      <div id="preview-bar">
+        <div style="display:flex; align-items:center; gap:9px">
+          <div class="pill-group" id="pv-mode">
+            <div class="pill on" data-m="one">One Set</div>
+            <div class="pill" data-m="both">Print View</div>
+          </div>
+          <button id="autofit-btn" onclick="runAutoFit()" title="Auto-fit content to page" style="display:none;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21H3M3 3v18"/><path d="M7 17l5-8 3 5 2-3 3 4"/></svg> 
+          </button>
+        </div>
+        <div style="display:flex; align-items:center; gap:5px">
+          <button class="icon-btn" id="z-out" title="Zoom out"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
+          <span style="font-size:11px; color:var(--t2); min-width:30px; text-align:center" id="z-lbl">55%</span>
+          <button class="icon-btn" id="z-in" title="Zoom in"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
+          <button class="icon-btn" id="z-fit" title="Fit to window"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+        </div>
+      </div>
+      <div id="preview-vp">
+        <!-- Dynamic content injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DIAGRAM MODAL -->
+<div id="dia-modal">
+  <div id="dia-panel">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap">
+      <span style="font-size:13px; font-weight:700; color:var(--t1)">✏ Draw Diagram</span>
+      <div class="dia-toolbar">
+        <button class="btn btn-ghost btn-sm dia-t on" data-t="free">✏ Free</button>
+        <button class="btn btn-ghost btn-sm dia-t" data-t="line">— Line</button>
+        <button class="btn btn-ghost btn-sm dia-t" data-t="rect">□ Rect</button>
+        <button class="btn btn-ghost btn-sm dia-t" data-t="circle">○ Circle</button>
+        <button class="btn btn-ghost btn-sm dia-t" data-t="arrow">→ Arrow</button>
+        <button class="btn btn-danger btn-sm" id="dia-clr">🗑 Clear</button>
+        <input type="color" id="dia-col" value="#111111" style="width:26px;height:26px;border:1px solid var(--border2);border-radius:4px;background:none;cursor:pointer;padding:1px"/>
+        <select id="dia-w" style="font-size:11px; padding:3px 6px; width:58px">
+          <option value="1">1px</option>
+          <option value="2" selected>2px</option>
+          <option value="3">3px</option>
+          <option value="5">5px</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:6px">
+        <button class="btn btn-primary btn-sm" id="dia-save">Save</button>
+        <button class="btn btn-ghost btn-sm" id="dia-cancel">Cancel</button>
+      </div>
+    </div>
+    <canvas id="dia-canvas" width="520" height="320"></canvas>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div id="ov"></div>
+
+<!-- INFO PANEL (Original OCR Tools) -->
+<div id="info" role="dialog" aria-modal="true" aria-label="AI and Formatting Tools">
+  <div class="info-hdr">
+    <span style="font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; color:var(--t1)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> AI OCR &amp; Formatting Tools
+    </span>
+    <button class="icon-btn" id="info-close" aria-label="Close">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="info-body">
+    <div>
+      <div class="info-sec-ttl">What is this / এটি কী?</div>
+      <div class="info-item">
+        <div class="iico b">📝</div>
+        <p class="info-p"><strong>প্রশ্নপত্র Maker</strong> creates exam papers with a two-set A4 landscape print layout. Everything runs locally.<br><span style="color:var(--t2); font-size:11px;">এটি একটি দুই-সেট A4 ল্যান্ডস্কেপ প্রশ্নপত্র তৈরি করার টুল। সবকিছু লোকালি কাজ করে।</span></p>
+      </div>
+    </div>
+
+    <div>
+      <div class="info-sec-ttl">✍️ Formatting Rules / ফরম্যাটিং নিয়ম (Manual Typing)</div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><code>[EQ:\frac{1}{2}]</code> : Math equations<br><span style="color:var(--t2); font-size:11px;">গণিতের সমীকরণ রেন্ডার করে।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><code>[CHEM:H2O]</code> : Chemistry formulas<br><span style="color:var(--t2); font-size:11px;">রাসায়নিক সংকেত (অটো সাবস্ক্রিপ্ট)।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><code>x[SUP:2]</code> : Superscript (x²)<br><span style="color:var(--t2); font-size:11px;">সুপারস্ক্রিপ্ট লেখার জন্য।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><code>C[SUB:3]</code> : Subscript (C₃)<br><span style="color:var(--t2); font-size:11px;">সাবস্ক্রিপ্ট লেখার জন্য।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><code>[SYM:alpha]</code> : Greek symbols<br><span style="color:var(--t2); font-size:11px;">গ্রিক অক্ষর (যেমন: আলফা, বিটা)।</span></p></div>
+    </div>
+
+    <div>
+      <div class="info-sec-ttl">🤖 AI OCR (Gemini / ChatGPT)</div>
+      <div class="prompt-tabs">
+        <div class="prompt-tab on" data-ptab="img" onclick="switchPromptTab('img')">📷 From Photo / ছবি থেকে</div>
+        <div class="prompt-tab" data-ptab="txt" onclick="switchPromptTab('txt')">📝 From Notes / নোট থেকে</div>
+      </div>
+      
+      <div class="prompt-content active" id="ptab-img">
+        <div style="display:flex; gap:6px">
+          <button class="btn btn-success btn-sm" style="flex:1" onclick="copyPrompt('img')">📋 Copy Image Prompt / প্রম্পট কপি করুন</button>
+        </div>
+      </div>
+      
+      <div class="prompt-content" id="ptab-txt">
+        <div style="display:flex; gap:6px">
+          <button class="btn btn-success btn-sm" style="flex:1" onclick="copyPrompt('txt')">📋 Copy Draft Prompt / প্রম্পট কপি করুন</button>
+        </div>
+      </div>
+      
+      <div class="step"><div class="sn">1</div><p class="info-p">Copy the prompt above.<br><span style="color:var(--t2); font-size:11px;">উপরের প্রম্পটটি কপি করুন।</span></p></div>
+      <div class="step"><div class="sn">2</div><p class="info-p">Paste it into an AI (ChatGPT/Gemini) along with your photo or draft text.<br><span style="color:var(--t2); font-size:11px;">ছবি বা নোট সহ এআই-তে পেস্ট করুন।</span></p></div>
+      <div class="step"><div class="sn">3</div><p class="info-p">Copy AI output, paste in <strong>📥 Import</strong> drawer, and click <strong>Apply & Fill Form</strong>.<br><span style="color:var(--t2); font-size:11px;">এআই এর আউটপুট কপি করে ইম্পোর্ট ড্রয়ারে পেস্ট করে Apply এ ক্লিক করুন।</span></p></div>
+    </div>
+
+    <div>
+      <div class="info-sec-ttl">🖨 Print Tips / প্রিন্ট টিপস</div>
+      <div class="info-item"><div class="iico a">💡</div>
+        <p class="info-p">Use <strong>Chrome or Edge</strong> for best PDF output. Set paper to <strong>A4 · Landscape · Margins: None · Background graphics: ✓</strong>. Cut along the dotted centre line after printing.<br><span style="color:var(--t2); font-size:11px;">Chrome বা Edge ব্যবহার করুন। A4, Landscape, Margins: None, Background graphics: ON সেট করুন।</span></p>
+      </div>
+    </div>
+    
+    <div style="text-align:center; margin-top:20px; font-size:12px; color:var(--t3); font-weight:600; display:flex; flex-direction:column; gap:4px;">
+      <span>This website is made by Claude for Shibu ❤️</span>
+      <a href="https://github.com/suvadippatra" target="_blank" style="color:var(--t4); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--accent3)'" onmouseout="this.style.color='var(--t4)'">Developed by Suvadip Patra</a>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDE PANEL (Beginner's Guide) -->
+<div id="guide" role="dialog" aria-modal="true" aria-label="Beginner's Guide">
+  <div class="info-hdr">
+    <span style="font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; color:var(--t1)">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Beginner's Guide / নতুনদের গাইড
+    </span>
+    <button class="icon-btn" id="guide-close" aria-label="Close">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="info-body">
+    
+    <div>
+      <div class="info-sec-ttl">1. 📝 Setup Details / বিস্তারিত সেটআপ</div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Paper Title / পেপারের নাম:</strong> The main heading.<br><span style="color:var(--t2); font-size:11px;">প্রধান শিরোনাম (যেমন: Weekly Test 1)।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Class, Time, & Subject:</strong> Full Marks automatically calculates.<br><span style="color:var(--t2); font-size:11px;">এগুলো পূরণ করুন। Full Marks স্বয়ংক্রিয়ভাবে হিসাব হবে।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Language Mode / পেপার ভাষা:</strong> Automatically changes numbering style (১, ২, ৩ vs 1, 2, 3).<br><span style="color:var(--t2); font-size:11px;">ভাষা নির্বাচন করলে নম্বরের স্টাইল নিজে থেকেই বদলে যাবে।</span></p></div>
+    </div>
+
+    <div>
+      <div class="info-sec-ttl">2. 📚 Adding Sections & Questions / বিভাগ ও প্রশ্ন যোগ</div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Add Section:</strong> Exam papers are divided into sections.<br><span style="color:var(--t2); font-size:11px;">Add Section-এ ক্লিক করে নতুন বিভাগ তৈরি করুন।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Marks / Q:</strong> Set marks per question.<br><span style="color:var(--t2); font-size:11px;">প্রতিটি প্রশ্নের নম্বর নির্ধারণ করুন।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Answer Any / যে কোনো N টি:</strong> E.g., type "3" to answer 3 out of 5.<br><span style="color:var(--t2); font-size:11px;">৫টির মধ্যে ৩টি উত্তর দিতে হলে "3" লিখুন।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>🔗 Link OR (অথবা):</strong> Select two questions to join them with an OR.<br><span style="color:var(--t2); font-size:11px;">দুটি প্রশ্নকে 'অথবা' দিয়ে জুড়তে ব্যবহৃত হয়।</span></p></div>
+    </div>
+
+    <div>
+      <div class="info-sec-ttl">3. ⊞ Advanced Tools / উন্নত প্রশ্ন টুলস</div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>⊞ Table / টেবিল:</strong> Insert typing tables.<br><span style="color:var(--t2); font-size:11px;">টেবিল তৈরি করতে ক্লিক করুন।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>✏ Diagram / চিত্র:</strong> Draw directly on the paper!<br><span style="color:var(--t2); font-size:11px;">সরাসরি ডায়াগ্রাম বা ছবি আঁকুন।</span></p></div>
+    </div>
+
+    <div>
+      <div class="info-sec-ttl">4. 🤖 The AI Magic Trick / এআই ম্যাজিক (OCR)</div>
+      <div class="step"><div class="sn">→</div><p class="info-p">Use <strong>🤖 OCR Prompt</strong> to turn photos into ready papers via AI!<br><span style="color:var(--t2); font-size:11px;">প্রম্পট কপি করে ChatGPT/Gemini তে ছবি দিন, আউটপুট ইম্পোর্ট করুন।</span></p></div>
+    </div>
+
+    <div>
+      <div class="info-sec-ttl">5. 🎨 Paper Settings / পেপার সেটিংস</div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Auto-fit:</strong> Magically shrinks/expands to fit 1 page!<br><span style="color:var(--t2); font-size:11px;">পেজ ফিট করতে সাইজ ও মার্জিন অটো ঠিক করে।</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Watermark / জলছাপ:</strong> Add your school logo to the background.<br><span style="color:var(--t2); font-size:11px;">স্কুলের লোগো আপলোড করুন।</span></p></div>
+    </div>
+
+    <div>
+      <div class="info-sec-ttl">6. 🖨️ Exporting & Printing / এক্সপোর্ট ও প্রিন্ট</div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>.qpf:</strong> Saves a backup file! Always do this.<br><span style="color:var(--t2); font-size:11px;">ব্যাকআপ ফাইল। কাজ শেষে অবশ্যই সেভ করবেন!</span></p></div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Print / PDF:</strong> Set to A4, Landscape, Margins: None.<br><span style="color:var(--t2); font-size:11px;">প্রিন্ট করার জন্য A4 ও Landscape নির্বাচন করুন।</span></p></div>
+    </div>
+
+    <div>
+      <div class="info-sec-ttl">7. 🤫 Hidden Secret / গোপন সিক্রেট</div>
+      <div class="step"><div class="sn">→</div><p class="info-p"><strong>Glow Mode:</strong> Double-click the "প" logo in the top left corner.<br><span style="color:var(--t2); font-size:11px;">লোগোটিতে ডাবল ক্লিক করলে গ্লো মোড অন হবে!</span></p></div>
+    </div>
+    
+    <div style="text-align:center; margin-top:20px; font-size:12px; color:var(--t3); font-weight:600; display:flex; flex-direction:column; gap:4px;">
+      <span>This website is made by Claude for Shibu ❤️</span>
+      <a href="https://github.com/suvadippatra" target="_blank" style="color:var(--t4); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--accent3)'" onmouseout="this.style.color='var(--t4)'">Developed by Suvadip Patra</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div id="toasts"></div>
+
+<!-- EXTERNAL LIBRARIES -->
+<script src="libs/jszip.min.js"></script>
+<script src="libs/katex.min.js"></script>
+
+<script>
+/* === MAIN APPLICATION LOGIC === */
+
+// SHA-256 Hash of "BERA26"
+const DEFAULT_WM_HASH = "d89c34cb1d5083183db108522761b3bec45ac9cb159da982121ee4b4e934297c";
+
+// Password Hashing Function
+async function hashPassword(str) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const BN_L = ['ক','খ','গ','ঘ','ঙ','চ','ছ','জ','ঝ','ঞ'];
+const EN_L = ['A','B','C','D','E','F','G','H','I','J'];
+const BN_O = ['ক','খ','গ','ঘ'];
+const EN_O = ['a','b','c','d'];
+const BN_D = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+
+const SYM = {
+  alpha:'α', beta:'β', gamma:'γ', delta:'δ', epsilon:'ε', theta:'θ', lambda:'λ',
+  mu:'μ', pi:'π', sigma:'σ', omega:'Ω', ohm:'Ω', degree:'°', infinity:'∞',
+  arrow:'→', darrow:'⇌', times:'×', div:'÷', approx:'≈', pm:'±',
+  neq:'≠', leq:'≤', geq:'≥', sqrt:'√', micro:'μ', phi:'φ', psi:'ψ',
+  xi:'ξ', tau:'τ', rho:'ρ', eta:'η', kappa:'κ', nu:'ν', zeta:'ζ'
+};
+
+const HDGS_BN = ['সঠিক উত্তরটি নির্বাচন করো:', 'সংক্ষিপ্ত উত্তর দাও:', 'নীচের প্রশ্নগুলির উত্তর দাও:', 'দীর্ঘ উত্তরধর্মী প্রশ্ন:'];
+const HDGS_EN = ['Choose the correct answer:', 'Give short answers:', 'Answer the following questions:', 'Long answer questions:'];
+
+const TYPES = [
+  {v:'mcq', l:'MCQ'},
+  {v:'short', l:'Short Answer'},
+  {v:'descriptive', l:'Descriptive'},
+  {v:'long', l:'Long Answer'}
+];
+
+const SEC_QPF = ['KA','KHA','GA','GHA','UMA','CHA','CHHA','JA','JHA','NYA'];
+
+const PROMPT_IMG = `You are a highly advanced data-extraction algorithm processing an exam paper. Use your most advanced reasoning and transcription capabilities. Extract and format STRICTLY according to the schema below.
+
+CRITICAL RULES:
+1. Output raw plain text ONLY. Do NOT use markdown code blocks, backticks, or any fences.
+2. Do NOT add explanations, preambles, or filler text.
+3. Preserve all Bengali and English characters exactly as printed.
+4. Do NOT extract or calculate full marks — omit FULL_MARKS.
+5. Do NOT include question numbering (1., 2., etc.) in Q: values.
+6. Replace any standalone double comma (") acting as a ditto mark with the exact word(s) from the line immediately above.
+7. Transcribe fill-in-the-blank lines (long dashes, underscores) as "________।" (Bengali) or "________." (English).
+8. For True/False questions: write the full sentence, add "।" or ".", then append "(সত্য/মিথ্যা)" for Bengali or "(T/F)" for English. Never both.
+9. ZERO HALLUCINATION: Transcribe exactly what is visible. If any word is illegible, write <§> at that position. Do NOT guess or autocorrect.
+10. For sections with "answer any N" or "যেকোনো N টি" instruction, set ANSWER_ANY: N in that section block.
+11. For questions with sub-parts (a),(b),(c) or (i),(ii),(iii): Do this ONLY if there is written part by part marks in the uploaded sample. Start each sub-part on a NEW LINE by using standard newlines and indenting with spaces. Set MARKS_PER_Q to total. Append breakdown like (1+3+1) at the very end of the Q: text.
+12. Auto-generate HEADING based on TYPE and MARKS_PER_Q:
+    - TYPE mcq, any marks → সঠিক উত্তরটি নির্বাচন করো:
+    - TYPE short, MARKS_PER_Q 1 → সংক্ষিপ্ত উত্তর দাও:
+    - TYPE short, MARKS_PER_Q 2 → নীচের প্রশ্নগুলির উত্তর দাও:
+    - TYPE descriptive or long, MARKS_PER_Q 3+ → দীর্ঘ উত্তরধর্মী প্রশ্ন:
+
+SCHEMA:
+##META
+TOP_TITLE: Test No. [number only] by Shibanjan Sir
+CLASS: [Roman numeral class, no board name]
+SUBJECT: [subject name]
+TIME: [minutes only, number]
+FONT_SIZE: 11
+LINE_HEIGHT: 1.45
+MARGIN: 1.0
+DIVIDER: dotted
+
+##SECTION_KA
+HEADING: [auto-generate per rule 12]
+TYPE: [mcq | short | descriptive | long]
+MARKS_PER_Q: [numeric, total per question including sub-parts]
+OPT_STYLE: [bn | en]
+ANSWER_ANY: [N if "answer any N" instruction exists, else omit this line]
+Q: [full question text, one line, no numbering. Sub-parts included inline. Marks breakdown like (1+3+1) appended if present]
+OR_NEXT: [true if this question has an alternative OR / অথবা question immediately following it, else omit]
+OP_K: [MCQ option 1]
+OP_KH: [MCQ option 2]
+OP_G: [MCQ option 3]
+OP_GH: [MCQ option 4]
+[Repeat Q: block for all questions. Create new ##SECTION_ blocks as needed.]
+##END
+
+TOKENS FOR SPECIAL CONTENT:
+[EQ:\\frac{a}{b}] for LaTeX math
+[CHEM:H2SO4] for chemical formulas
+C[SUB:3] for subscript
+x[SUP:2] for superscript
+[SYM:alpha] for Greek/special symbols
+TABLE_START: 3x2
+col1 | col2 | col3
+...rows...
+TABLE_END`;
+
+const PROMPT_TXT = `You are a QPF formatter. The text below is rough notes or a draft for a question paper. Convert it to QPF format v1.1.
+
+RULES:
+1. Output ONLY raw QPF text. No markdown, no fences, no explanation.
+2. Start directly with: // Question Paper Format v1.1
+3. Detect section types: options present → mcq; 1 mark no options → short; 2 marks → descriptive; 3+ marks → long.
+4. If marks unspecified, default to 1.
+5. Preserve Bengali Unicode exactly. Do not transliterate.
+6. For questions that are alternatives (OR / অথবা), set OR_NEXT: true on the first question.
+7. If "answer any N" or "যেকোনো N টি" appears for a section, add ANSWER_ANY: N to that section.
+8. For sub-parts: use newlines and spaces to indent. Append total marks breakdown like (1+3+1).
+
+[Paste draft notes after this line and send]`;
+
+/* ── STATE ── */
+const S = {
+  topTitle: 'Test no. 1 by Shibanjan Bera',
+  klass: '', subject: '', time: 30, inst: '', fullMarks: 0,
+  paperLang: 'full-bn', fontSize: 11, lineHeight: 1.45, margin: 1.0,
+  divider: 'dotted', wmSrc: 'none', wmData: null, wmOpacity: 7, wmSize: 65,
+  sections: [], zoom: 0.55, pvMode: 'one', autoFit: null, autoFitDirty: false, wmCustomData: null,
+};
+
+let _linkMode = { active: false, secId: null, sel: [] };
+
+/* ── UTILS ── */
+const $ = id => document.getElementById(id);
+const $$ = s => document.querySelectorAll(s);
+const uid = () => Math.random().toString(36).slice(2,9);
+const esc = s => (!s && s !== 0) ? '' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+const bn = n => String(Math.round(Number(n)||0)).split('').map(c => 
+  (S.paperLang === 'full-bn' ? ['০','১','২','৩','৪','৫','৬','৭','৮','৯'][+c] : c) || c
+).join('');
+
+const sl = i => (S.paperLang === 'full-en') ? (EN_L[i] !== undefined ? EN_L[i] : String(i + 1)) : (BN_L[i] !== undefined ? BN_L[i] : String(i + 1));
+const ol = (i, st) => (st === 'en') ? (EN_O[i] !== undefined ? EN_O[i] : '?') : (BN_O[i] !== undefined ? BN_O[i] : '?');
+
+const cv = (n, v) => document.documentElement.style.setProperty(n, v);
+
+function applyVars() {
+  const af = S.autoFit;
+  cv('--p-fsize', (af ? af.fontSize : S.fontSize) + 'pt');
+  cv('--p-lh', af ? af.lineHeight : S.lineHeight);
+  cv('--p-margin', (af ? af.margin : S.margin) + 'cm');
+}
+
+function getHdgs() { return S.paperLang === 'full-en' ? HDGS_EN : HDGS_BN; }
+
+function exFname(ext) {
+  const t = (S.topTitle || 'QuestionPaper').replace(/[/\\?%*:|"<>]/g, '').trim();
+  const now = new Date();
+  const hm = String(now.getHours()).padStart(2, '0') + '-' + String(now.getMinutes()).padStart(2, '0');
+  return `${t} — ${hm}.${ext}`;
+}
+
+function toast(msg, type = 'info', dur = 3200) {
+  const ic = { success: '✓', warn: '⚠', error: '✕', info: 'ℹ' };
+  const cl = { success: 'ok', warn: 'warn', error: 'err' };
+  const w = $('toasts');
+  const t = document.createElement('div');
+  t.className = `toast ${cl[type] || ''}`;
+  t.innerHTML = `<span>${ic[type] || 'ℹ'}</span><span>${esc(msg)}</span>`;
+  w.appendChild(t);
+  setTimeout(() => t.remove(), dur + 300);
+}
+
+/* ── RECALC ── */
+function recalc() {
+  let statsStr = '';
+  let totalQ = 0;
+  
+  S.fullMarks = S.sections.reduce((t, s, idx) => {
+    let actualCount = 0;
+    for(let i=0; i<s.questions.length; i++) {
+        actualCount++;
+        if(s.questions[i].isOrNext) i++;
+    }
+    
+    if (s.answerAny && s.answerAny >= actualCount) {
+        s.answerAny = null;
+    }
+    
+    if(actualCount > 0) {
+        statsStr += `[${sl(idx)}: ${bn(actualCount)}] `;
+        totalQ += actualCount;
+    }
+    
+    const countedQ = (s.answerAny && s.answerAny < actualCount) ? s.answerAny : actualCount;
+    return t + (s.mpq || 0) * countedQ;
+  }, 0);
+  
+  const el = $('f-fm'); 
+  if (el) el.value = S.fullMarks;
+  
+  const statEl = $('topbar-stats');
+  if(statEl) {
+      const fmLabel = S.paperLang === 'full-en' ? 'Marks' : 'নম্বর';
+      const qLabel = S.paperLang === 'full-en' ? 'Total Q' : 'মোট প্রশ্ন';
+      statEl.innerHTML = `<span>${statsStr} | ${qLabel}: ${bn(totalQ)} | ${fmLabel}: ${bn(S.fullMarks)}</span>`;
+  }
+  
+  S.autoFitDirty = true;
+  showAutoFitBtn();
+}
+
+/* ── THEME ── */
+function initTheme() {
+  const saved = localStorage.getItem('qpm-theme') || 'dark';
+  setTheme(saved);
+  $('theme-btn').onclick = () => {
+    const cur = document.documentElement.dataset.theme;
+    setTheme(cur === 'dark' ? 'light' : 'dark');
+  };
+}
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem('qpm-theme', t);
+  $('theme-icon-dark').style.display = t === 'dark' ? '' : 'none';
+  $('theme-icon-light').style.display = t === 'light' ? '' : 'none';
+}
+
+/* ── UI PANELS ── */
+function toggleSettingsPanel() {
+  const body = $('settings-panel-body');
+  const hdr = $('settings-panel-header');
+  const ch = $('settings-chevron');
+  const open = body.classList.toggle('open');
+  hdr.classList.toggle('open', open);
+  ch.style.transform = open ? '' : 'rotate(180deg)';
+}
+
+function initSliderButtons() {
+  $$('.slider-btn').forEach(btn => {
+    let hold = null;
+    const fire = () => {
+      const slId = btn.dataset.slider; 
+      if (!slId) return;
+      const sl = $(slId);
+      if (!sl) return;
+      const dir = +btn.dataset.dir;
+      const step = parseFloat(sl.step) || 1;
+      const min = parseFloat(sl.min);
+      const max = parseFloat(sl.max);
+      const cur = parseFloat(sl.value);
+      sl.value = Math.min(max, Math.max(min, +(cur + dir * step).toFixed(4)));
+      sl.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    btn.addEventListener('click', fire);
+    btn.addEventListener('mousedown', () => { hold = setInterval(fire, 120); });
+    btn.addEventListener('mouseup', () => clearInterval(hold));
+    btn.addEventListener('mouseleave', () => clearInterval(hold));
+    btn.addEventListener('touchstart', e => { e.preventDefault(); fire(); hold = setInterval(fire, 120); }, { passive: false });
+    btn.addEventListener('touchend', () => clearInterval(hold));
+  });
+}
+
+function initSettings() {
+  $('s-fs').addEventListener('input', e => { S.fontSize = parseFloat(e.target.value); $('s-fs-v').textContent = S.fontSize + ' pt'; clearAutoFit(); applyVars(); sched(); });
+  $('s-lh').addEventListener('input', e => { S.lineHeight = parseFloat(e.target.value); $('s-lh-v').textContent = S.lineHeight.toFixed(2); clearAutoFit(); applyVars(); sched(); });
+  $('s-mg').addEventListener('input', e => { S.margin = parseFloat((e.target.value / 10).toFixed(1)); $('s-mg-v').textContent = S.margin.toFixed(1) + ' cm'; clearAutoFit(); applyVars(); sched(); });
+  
+  $$('.dopt').forEach(o => o.addEventListener('click', () => {
+    $$('.dopt').forEach(x => x.classList.remove('on'));
+    o.classList.add('on');
+    S.divider = o.dataset.d;
+    sched();
+  }));
+
+  $('s-wmo').addEventListener('input', e => { S.wmOpacity = parseInt(e.target.value); $('s-wmo-v').textContent = S.wmOpacity + '%'; sched(); });
+  $('s-wms').addEventListener('input', e => { S.wmSize = parseInt(e.target.value); $('s-wms-v').textContent = S.wmSize + '%'; sched(); });
+  
+  let _lastWmSrc = S.wmSrc;
+  $('s-wmsrc').addEventListener('change', async e => { 
+    if (e.target.value === 'custom') {
+      $('wm-file').click();
+
+    } else if (e.target.value === 'default') {
+      const pwd = prompt('Enter password to access default watermark:');
+      if (pwd) {
+          // .trim() removes accidental spaces at the beginning or end
+          const hash = await hashPassword(pwd.trim());
+          if (hash === DEFAULT_WM_HASH) {
+              S.wmSrc = 'default';
+              _lastWmSrc = 'default';
+              toast('Watermark applied.', 'success');
+              sched();
+          } else {
+              toast('Access Denied: Incorrect Password', 'error');
+              e.target.value = _lastWmSrc;
+              S.wmSrc = _lastWmSrc;
+          }
+      } else {
+          e.target.value = _lastWmSrc;
+      }
+    } else {
+      S.wmSrc = 'none';
+      _lastWmSrc = 'none';
+      sched();
+    }
+  });
+  
+  $('wm-file').addEventListener('change', e => {
+    const f = e.target.files[0]; 
+    if (!f) {
+      $('s-wmsrc').value = _lastWmSrc;
+      return;
+    }
+    const r = new FileReader();
+    r.onload = ev => {
+      S.wmCustomData = ev.target.result;
+      S.wmSrc = 'custom';
+      _lastWmSrc = 'custom';
+      sched();
+      toast('Watermark updated', 'success');
+    };
+    r.readAsDataURL(f);
+  });
+  
+  $$('#s-plang .pill').forEach(p => p.addEventListener('click', () => {
+    const oldLang = S.paperLang;
+    const newLang = p.dataset.v;
+    if(oldLang !== newLang) {
+      $$('#s-plang .pill').forEach(x => x.classList.remove('on'));
+      p.classList.add('on');
+      S.paperLang = newLang;
+      
+      const oldHdgs = oldLang === 'full-en' ? HDGS_EN : HDGS_BN;
+      const newHdgs = newLang === 'full-en' ? HDGS_EN : HDGS_BN;
+      
+      S.sections.forEach(sec => {
+        const idx = oldHdgs.indexOf(sec.heading);
+        if(idx !== -1) {
+          sec.heading = newHdgs[idx];
+        }
+      });
+      rebuildSecs();
+      sched();
+    }
+  }));
+}
+
+function initExamInfo() {
+  $('f-tt').addEventListener('input', e => { S.topTitle = e.target.value; sched(); });
+  $('f-cls').addEventListener('input', e => { S.klass = e.target.value; sched(); });
+  $('f-subj').addEventListener('input', e => { 
+    S.subject = e.target.value; 
+    $('subj-warn').style.display = e.target.value.length > 26 ? 'inline' : 'none';
+    sched(); 
+  });
+  $('f-time').addEventListener('input', e => { S.time = parseInt(e.target.value) || 30; sched(); });
+  $('f-inst').addEventListener('input', e => { S.inst = e.target.value; sched(); });
+}
+
+function openImportDrawer(tab) {
+  const d = $('import-drawer');
+  const isOpen = d.classList.contains('open');
+  if (isOpen && tab === currentImportTab()) {
+    d.classList.remove('open'); 
+    return;
+  }
+  d.classList.add('open');
+  switchImportTab(tab);
+}
+
+function currentImportTab() {
+  const t = document.querySelector('.import-tab.on');
+  return t ? t.dataset.tab : 'paste';
+}
+
+function switchImportTab(tab) {
+  $$('.import-tab').forEach(t => t.classList.toggle('on', t.dataset.tab === tab));
+  $$('.import-paste-panel, .import-upload-panel').forEach(p => p.classList.remove('active'));
+  $('import-' + (tab === 'paste' ? 'paste' : 'upload') + '-panel').classList.add('active');
+}
+
+function initImport() {
+  $('close-drawer').addEventListener('click', () => $('import-drawer').classList.remove('open'));
+  
+  $('qpf-apply').addEventListener('click', () => {
+    const txt = $('qpf-ta').value.trim();
+    if (!txt) { toast('Paste QPF text first.', 'warn'); return; }
+    try {
+      parseQPF(txt);
+      toast('Form filled from QPF!', 'success');
+      $('import-drawer').classList.remove('open');
+    } catch (e) {
+      toast('Parse error: ' + e.message, 'error');
+      console.error('QPF Parsing Error:', e);
+    }
+  });
+
+  $('qpf-clear').addEventListener('click', () => $('qpf-ta').value = '');
+  $('qpf-file').addEventListener('change', e => loadQPFFile(e.target.files[0]));
+  
+  const dz = $('drop-zone');
+  dz.addEventListener('click', () => $('qpf-file2').click());
+  $('qpf-file2').addEventListener('change', e => loadQPFFile(e.target.files[0]));
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0]; 
+    if (f) loadQPFFile(f);
+  });
+
+  $('ocr-prompt-quick').addEventListener('click', () => copyPrompt('img'));
+  
+  // Close menu dropdown if clicked outside
+  document.addEventListener('click', e => {
+    const dropdown = $('menu-dropdown');
+    if (dropdown && dropdown.classList.contains('open') && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+}
+
+function loadQPFFile(f) {
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    $('qpf-ta').value = ev.target.result;
+    openImportDrawer('paste');
+    toast('File loaded — click Apply', 'info');
+  };
+  r.readAsText(f, 'utf-8');
+}
+
+function switchPromptTab(tab) {
+  $$('.prompt-tab').forEach(t => t.classList.toggle('on', t.dataset.ptab === tab));
+  $$('.prompt-content').forEach(p => p.classList.remove('active'));
+  $('ptab-' + tab).classList.add('active');
+}
+
+function copyPrompt(which) {
+  const txt = which === 'img' ? PROMPT_IMG : PROMPT_TXT;
+  navigator.clipboard.writeText(txt).then(() => {
+    toast(which === 'img' ? 'Image prompt copied!' : 'Draft prompt copied!', 'success');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    toast('Prompt copied!', 'success');
+  });
+}
+
+function fitZoom() {
+  const vp = $('preview-vp');
+  const vpW = vp.clientWidth - 40;
+  const pageW = (S.pvMode === 'one') ? (1122 / 2) : 1122;
+  S.zoom = Math.max(0.2, Math.min(1.5, vpW / pageW));
+  $('z-lbl').textContent = Math.round(S.zoom * 100) + '%';
+  sched();
+}
+
+function initZoom() {
+  $('z-in').addEventListener('click', () => { S.zoom = Math.min(1.5, +(S.zoom + 0.05).toFixed(2)); $('z-lbl').textContent = Math.round(S.zoom * 100) + '%'; sched(); });
+  $('z-out').addEventListener('click', () => { S.zoom = Math.max(0.2, +(S.zoom - 0.05).toFixed(2)); $('z-lbl').textContent = Math.round(S.zoom * 100) + '%'; sched(); });
+  $('z-fit').addEventListener('click', fitZoom);
+  
+  $$('#pv-mode .pill').forEach(p => p.addEventListener('click', () => {
+    $$('#pv-mode .pill').forEach(x => x.classList.remove('on'));
+    p.classList.add('on');
+    S.pvMode = p.dataset.m;
+    sched();
+  }));
+}
+
+function initResize() {
+  const handle = $('resize-handle');
+  const sidebar = $('sidebar');
+  let dragging = false, startX = 0, startW = 0;
+  
+  const startDrag = (e) => {
+    dragging = true; 
+    startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    startW = sidebar.offsetWidth;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize'; 
+    document.body.style.userSelect = 'none';
+  };
+
+  const doDrag = (e) => {
+    if (!dragging) return;
+    let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+    const newW = Math.max(280, Math.min(window.innerWidth * 0.6, startW + (clientX - startX)));
+    sidebar.style.width = newW + 'px';
+  };
+
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false; 
+    handle.classList.remove('dragging');
+    document.body.style.cursor = ''; 
+    document.body.style.userSelect = '';
+    setTimeout(fitZoom, 50);
+  };
+
+  handle.addEventListener('mousedown', startDrag);
+  document.addEventListener('mousemove', doDrag);
+  document.addEventListener('mouseup', endDrag);
+
+  handle.addEventListener('touchstart', startDrag, { passive: true });
+  document.addEventListener('touchmove', doDrag, { passive: true });
+  document.addEventListener('touchend', endDrag);
+}
+
+function syncFields() {
+  const set = (id, v) => { const e = $(id); if (e) e.value = (v !== undefined && v !== null) ? v : ''; };
+  
+  set('f-tt', S.topTitle);
+  set('f-cls', S.klass);
+  set('f-subj', S.subject);
+  set('f-time', S.time);
+  set('f-inst', S.inst);
+  
+  if ($('s-fs')) { $('s-fs').value = S.fontSize; $('s-fs-v').textContent = S.fontSize + ' pt'; }
+  if ($('s-lh')) { $('s-lh').value = S.lineHeight; $('s-lh-v').textContent = S.lineHeight.toFixed(2); }
+  if ($('s-mg')) { $('s-mg').value = S.margin * 10; $('s-mg-v').textContent = S.margin.toFixed(1) + ' cm'; }
+  
+  $$('.dopt').forEach(o => o.classList.toggle('on', o.dataset.d === S.divider));
+  $$('#s-plang .pill').forEach(p => p.classList.toggle('on', p.dataset.v === S.paperLang));
+  
+  $('subj-warn').style.display = S.subject.length > 26 ? 'inline' : 'none';
+}
+
+function showAutoFitBtn() {
+  const btn = $('autofit-btn');
+  if (!btn) return;
+  
+  if (S.autoFitDirty && S.sections.length > 0) {
+     btn.style.display = 'flex';
+  }
+  
+  if (S.autoFit) {
+    btn.classList.add('active');
+    btn.title = `Auto-fit Active (${S.autoFit.fontSize}pt · LH${S.autoFit.lineHeight.toFixed(2)} · ${S.autoFit.margin.toFixed(1)}cm)`;
+  } else {
+    btn.classList.remove('active');
+    btn.title = 'Auto-fit content to page';
+  }
+}
+
+function clearAutoFit() {
+  if (S.autoFit) { S.autoFit = null; showAutoFitBtn(); }
+}
+
+/* ── SECTION BUILDER ── */
+function rebuildSecs() {
+  const c = $('secs');
+  c.innerHTML = '';
+  S.sections.forEach((sec, idx) => c.appendChild(mkSecCard(sec, idx)));
+  recalc();
+}
+
+function mkSecCard(sec, idx) {
+  const letter = sl(idx);
+  const hdgs = getHdgs();
+  
+  let actualCount = 0;
+  for(let i=0; i<sec.questions.length; i++) {
+    actualCount++;
+    if(sec.questions[i].isOrNext) i++;
+  }
+  const countedQ = (sec.answerAny && sec.answerAny < actualCount) ? sec.answerAny : actualCount;
+  const total = (sec.mpq || 0) * countedQ;
+  
+  let typeLabel = sec.type;
+  for (let i = 0; i < TYPES.length; i++) {
+    if (TYPES[i].v === sec.type) {
+      typeLabel = TYPES[i].l;
+      break;
+    }
+  }
+  
+  const card = document.createElement('div');
+  card.className = 'card sc-card';
+  card.dataset.si = idx;
+
+  let headingOptions = '';
+  hdgs.forEach(h => {
+    headingOptions += `<option value="${esc(h)}" ${h === sec.heading ? 'selected' : ''}>${h.slice(0, 26)}</option>`;
+  });
+  headingOptions += `<option value="__c" ${!hdgs.includes(sec.heading) && sec.heading ? 'selected' : ''}>Custom…</option>`;
+
+  let typeOptions = '';
+  TYPES.forEach(t => {
+    typeOptions += `<option value="${t.v}" ${t.v === sec.type ? 'selected' : ''}>${t.l}</option>`;
+  });
+
+  const isLinking = _linkMode.active && _linkMode.secId === sec.id;
+
+  let footerHtml = '';
+  let linkModeHTML = '';
+  
+  if (isLinking) {
+    linkModeHTML = `
+      <div style="position:sticky; top:0; z-index:10; display:flex; gap:6px; padding: 6px; background:var(--bg3); border-radius:var(--r2); border: 1px solid var(--accent); margin-bottom:8px;">
+         <span style="font-size:11px; flex:1; color:var(--accent3); display:flex; align-items:center; padding-left:4px;">Select 2 questions to link...</span>
+         <button class="btn btn-primary btn-sm confirm-link" id="confirm-link-${sec.id}">OK</button>
+         <button class="btn btn-ghost btn-sm cancel-link" id="cancel-link-${sec.id}">Cancel</button>
+      </div>`;
+  } else {
+    footerHtml = `
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-ghost btn-sm add-q no-print" style="flex:1;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 
+          Add question
+        </button>
+        <button class="btn btn-accent btn-sm start-link no-print" title="Link two questions with OR">🔗 Link OR</button>
+      </div>`;
+  }
+
+  const chipText = sec.questions.length === 0 ? 'Empty' : `${sec.mpq}×${countedQ}=${total}`;
+
+  card.innerHTML = `
+    <div class="card-hdr open" id="hdr${sec.id}" data-tgt="bd${sec.id}">
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span class="card-ttl">বিভাগ '${letter}' · ${typeLabel}</span>
+      <span class="chip">${chipText}</span>
+      <div style="display:flex; gap:3px" class="no-print">
+        <button class="btn btn-ghost btn-xs move-sec-up" title="Move Up">↑</button>
+        <button class="btn btn-ghost btn-xs move-sec-dn" title="Move Down">↓</button>
+        <button class="btn btn-danger btn-sm del-sec" title="Delete section" style="margin-left:4px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="card-body" id="bd${sec.id}">
+      <div class="sec-params-wrap" style="background:var(--bg3); padding:8px 12px; border-radius:var(--r2); border:1px solid var(--border); display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-bottom:6px;">
+        <div class="fgrp" style="flex:1 1 150px; min-width:140px;">
+          <label class="flabel">Section Heading</label>
+          <select class="sec-hdg">${headingOptions}</select>
+        </div>
+        <div class="fgrp" style="flex:1 1 120px; min-width:110px;">
+          <label class="flabel">Question Type</label>
+          <select class="sec-type">${typeOptions}</select>
+        </div>
+        <div class="fgrp" style="flex:1 1 70px; min-width:60px;">
+          <label class="flabel">Marks / Q</label>
+          <input type="number" class="sec-mpq" value="${sec.mpq}" min="0.5" step="0.5"/>
+        </div>
+        <div class="fgrp" style="flex:1 1 70px; min-width:60px;">
+          <label class="flabel" title="Leave blank = all questions required">Answer Any</label>
+          <input type="number" class="sec-aany" value="${sec.answerAny||''}" min="1" placeholder="all" title="How many questions student must answer (blank = all)"/>
+        </div>
+        <div class="fgrp" style="flex:1 1 100px; min-width:90px; ${sec.type !== 'mcq' ? 'display:none' : ''}" id="os-wrap-${sec.id}">
+          <label class="flabel">Opt Style</label>
+          <div class="pill-group sec-os">
+            <div class="pill ${sec.os==='bn'?'on':''}" data-v="bn" style="flex:1; text-align:center">ক খ</div>
+            <div class="pill ${sec.os==='en'?'on':''}" data-v="en" style="flex:1; text-align:center">a b</div>
+          </div>
+        </div>
+      </div>
+      ${linkModeHTML}
+      <div class="q-list" id="ql${sec.id}"></div>
+      ${footerHtml}
+    </div>
+  `;
+
+  card.querySelector('.card-hdr').addEventListener('click', e => {
+    if (e.target.closest('button')) return; // Ignore if clicked buttons
+    const b = $(h.dataset.tgt);
+    const h = e.currentTarget;
+    if (!b) return;
+    const o = !b.classList.contains('hide');
+    b.classList.toggle('hide', o);
+    h.classList.toggle('open', !o);
+  });
+
+  // Section Ordering
+  card.querySelector('.move-sec-up').addEventListener('click', e => {
+    if (idx > 0) {
+      [S.sections[idx-1], S.sections[idx]] = [S.sections[idx], S.sections[idx-1]];
+      rebuildSecs(); sched();
+    }
+  });
+  card.querySelector('.move-sec-dn').addEventListener('click', e => {
+    if (idx < S.sections.length - 1) {
+      [S.sections[idx+1], S.sections[idx]] = [S.sections[idx], S.sections[idx+1]];
+      rebuildSecs(); sched();
+    }
+  });
+
+  card.querySelector('.del-sec').addEventListener('click', e => {
+    if (S.sections.length <= 1) { toast('Keep at least one section.', 'warn'); return; }
+    S.sections = S.sections.filter(s => s.id !== sec.id);
+    rebuildSecs(); sched();
+  });
+
+  const hs = card.querySelector('.sec-hdg');
+  hs.addEventListener('change', e => {
+    if (e.target.value === '__c') {
+      const c = prompt('Custom heading:', '');
+      if (c) sec.heading = c; else { hs.value = sec.heading; return; }
+    } else {
+      sec.heading = e.target.value;
+    }
+    rebuildSecs(); sched();
+  });
+
+  card.querySelector('.sec-type').addEventListener('change', e => {
+    sec.type = e.target.value;
+    const ow = card.querySelector(`#os-wrap-${sec.id}`);
+    if (ow) ow.style.display = sec.type === 'mcq' ? 'flex' : 'none';
+    rebuildSecs(); sched();
+  });
+
+  card.querySelector('.sec-mpq').addEventListener('input', e => {
+    sec.mpq = parseFloat(e.target.value) || 1;
+    recalc(); sched();
+  });
+
+  card.querySelector('.sec-aany').addEventListener('input', e => {
+    const v = parseInt(e.target.value);
+    sec.answerAny = (v && v > 0 && v < actualCount) ? v : null;
+    recalc(); sched();
+  });
+
+  card.querySelectorAll('.sec-os .pill').forEach(p => p.addEventListener('click', () => {
+    card.querySelectorAll('.sec-os .pill').forEach(x => x.classList.remove('on'));
+    p.classList.add('on');
+    sec.os = p.dataset.v;
+    sched();
+  }));
+
+  if (isLinking) {
+    card.classList.add('link-active');
+    card.querySelector('.confirm-link').addEventListener('click', () => {
+      if(_linkMode.sel.length !== 2) { toast('Select exactly 2 questions.', 'warn'); return; }
+      const q1Idx = sec.questions.findIndex(q => q.id === _linkMode.sel[0]);
+      const q2Idx = sec.questions.findIndex(q => q.id === _linkMode.sel[1]);
+      const first = Math.min(q1Idx, q2Idx);
+      const second = Math.max(q1Idx, q2Idx);
+      
+      const q2 = sec.questions.splice(second, 1)[0];
+      sec.questions.splice(first + 1, 0, q2);
+      sec.questions[first].isOrNext = true;
+      
+      _linkMode = { active: false, secId: null, sel: [] };
+      rebuildSecs(); sched();
+    });
+    card.querySelector('.cancel-link').addEventListener('click', () => {
+      _linkMode = { active: false, secId: null, sel: [] };
+      rebuildSecs();
+    });
+  } else {
+    card.classList.remove('link-active');
+    card.querySelector('.start-link').addEventListener('click', () => {
+      if (sec.questions.length < 2) { toast('Need at least 2 questions to link.', 'warn'); return; }
+      _linkMode = { active: true, secId: sec.id, sel: [] };
+      rebuildSecs();
+    });
+    card.querySelector('.add-q').addEventListener('click', () => {
+      sec.questions.push({ id: uid(), text: '', options: ['','','',''], img: null, extra: [], isOrNext: false });
+      rebuildSecs(); 
+    });
+  }
+
+  renderQList(sec, idx, card.querySelector('.q-list'));
+  return card;
+}
+
+function renderQList(sec, si, cont) {
+  cont.innerHTML = '';
+  if (!sec.questions.length) {
+    cont.innerHTML = '<div style="font-size:11px;color:var(--t3);padding:8px 0 4px;text-align:center">No questions yet — click below to add</div>';
+    return;
+  }
+  
+  let qNum = 1;
+  const isLinking = _linkMode.active && _linkMode.secId === sec.id;
+  
+  sec.questions.forEach((q, qi) => {
+    const isOrChild = qi > 0 && sec.questions[qi-1].isOrNext;
+    cont.appendChild(mkQItem(q, qi, sec, si, cont, qNum, isOrChild, isLinking));
+    
+    if (!isOrChild && !q.isOrNext) { qNum++; }
+    else if (isOrChild && !q.isOrNext) { qNum++; }
+  });
+}
+
+function mkQItem(q, qi, sec, si, cont, qNum, isOrChild, isLinking) {
+  const w = document.createElement('div');
+  w.className = 'qitem';
+  const num = `${bn(si+1)}.${bn(qNum)})`;
+  
+  let typeLabel = sec.type;
+  for (let i = 0; i < TYPES.length; i++) {
+    if (TYPES[i].v === sec.type) {
+      typeLabel = TYPES[i].l;
+      break;
+    }
+  }
+  
+  const hdrHtml = `
+      <div class="qitem-hdr">
+        <div class="qnum" style="${isOrChild ? 'opacity:0.4' : ''}">${num}</div>
+        <span class="q-type-badge">${typeLabel}</span>
+        ${isOrChild ? '<span style="font-size:9px; color:var(--gold); font-weight:bold; margin-left:6px">(OR Variant)</span>' : ''}
+        ${q.isOrNext ? '<span style="font-size:9px; color:var(--accent3); font-weight:bold; margin-left:6px">🔗 LINKED TO NEXT</span>' : ''}
+        <span style="flex:1"></span>
+        <button class="btn btn-ghost btn-xs toggle-ex no-print" title="Toggle Extra Tools" style="transition:transform 0.2s;">^</button>
+        <button class="btn btn-ghost btn-xs move-q-up no-print" title="Move Up">↑</button>
+        <button class="btn btn-ghost btn-xs move-q-dn no-print" title="Move Down">↓</button>
+        <button class="btn btn-danger btn-sm del-q no-print" title="Delete" style="margin-left:4px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`;
+
+  if (sec.type === 'mcq') {
+    const ls = sec.os === 'en' ? EN_O : BN_O;
+    let optsHtml = '';
+    for (let i = 0; i < 4; i++) {
+      optsHtml += `
+        <div class="opt-row">
+          <span class="opt-ltr">${ls[i]}</span>
+          <input type="text" class="opt-f bn-field" data-i="${i}" value="${esc(q.options[i]||'')}" placeholder="Option ${i+1}"/>
+        </div>`;
+    }
+
+    w.innerHTML = `
+      ${hdrHtml}
+      <div class="q-img-row">
+        <div style="flex:1;min-width:0">
+          <textarea class="q-txt bn-field" rows="2" placeholder="Question text (Bengali or English)…">${esc(q.text)}</textarea>
+          <div class="opt-grid">${optsHtml}</div>
+        </div>
+        <div class="img-slot no-print" title="Click to add image (optional)">
+          ${q.img ? `<img src="${q.img}" alt=""/>` : '<span style="line-height:1.4">+<br>Image</span>'}
+          <input type="file" accept="image/*" hidden class="qi-file"/>
+        </div>
+      </div>
+      <div class="q-actions no-print" style="justify-content:flex-end">
+      </div>`;
+  } else {
+    w.innerHTML = `
+      ${hdrHtml}
+      <textarea class="q-txt bn-field" rows="3" placeholder="Type your question here…">${esc(q.text)}</textarea>
+      <div class="q-actions no-print"></div>
+      <div class="q-actions-extra no-print">
+        <button class="btn btn-ghost btn-xs add-img-q">🖼 Image</button>
+        <button class="btn btn-ghost btn-xs add-tbl-q">⊞ Table</button>
+        <button class="btn btn-ghost btn-xs add-dia-q">✏ Diagram</button>
+      </div>
+      <div class="extra-cont"></div>`;
+      
+    renderExtras(q, w.querySelector('.extra-cont'));
+    w.querySelector('.add-img-q').addEventListener('click', () => addExtraImg(q, w.querySelector('.extra-cont')));
+    w.querySelector('.add-tbl-q').addEventListener('click', () => addExtraTbl(q, w.querySelector('.extra-cont')));
+    w.querySelector('.add-dia-q').addEventListener('click', () => openDia(q, w.querySelector('.extra-cont')));
+  }
+  
+  // Toggle Extra Actions functionality
+  const toggleBtn = w.querySelector('.toggle-ex');
+  const extraCont = w.querySelector('.q-actions-extra');
+  if (toggleBtn && extraCont) {
+      toggleBtn.addEventListener('click', () => {
+         const isOpen = extraCont.classList.contains('show');
+         extraCont.classList.toggle('show', !isOpen);
+         toggleBtn.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+      });
+  } else if (toggleBtn) {
+      // If MCQ (no extra actions setup), hide the toggle button to avoid confusion
+      toggleBtn.style.display = 'none';
+  }
+  
+  if (q.isOrNext) {
+      w.querySelector('.q-actions').insertAdjacentHTML('beforeend', `<button class="btn btn-ghost btn-xs unlink-q" title="Remove OR link">Unlink 🔗</button>`);
+      w.querySelector('.unlink-q').addEventListener('click', () => {
+          q.isOrNext = false;
+          rebuildSecs(); 
+      });
+  }
+
+  // Handle Link Selection Mode visual states
+  if (isLinking) {
+    const isSelected = _linkMode.sel.includes(q.id);
+    w.style.cursor = 'pointer';
+    w.style.border = isSelected ? '2px solid var(--accent)' : '1px dashed var(--border2)';
+    if(isSelected) w.style.background = 'rgba(91,80,240,.06)';
+    
+    // Prevent normal interaction and capture clicks
+    w.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; 
+      
+      if(isSelected) {
+          _linkMode.sel = _linkMode.sel.filter(id => id !== q.id);
+      } else if (_linkMode.sel.length < 2) {
+          _linkMode.sel.push(q.id);
+      }
+      rebuildSecs();
+    }, true);
+  }
+
+  w.querySelector('.del-q').addEventListener('click', () => {
+    sec.questions = sec.questions.filter(x => x.id !== q.id);
+    rebuildSecs(); 
+  });
+
+  w.querySelector('.move-q-up').addEventListener('click', () => {
+    if (qi > 0) {
+      [sec.questions[qi-1], sec.questions[qi]] = [sec.questions[qi], sec.questions[qi-1]];
+      rebuildSecs(); 
+    }
+  });
+
+  w.querySelector('.move-q-dn').addEventListener('click', () => {
+    if (qi < sec.questions.length - 1) {
+      [sec.questions[qi+1], sec.questions[qi]] = [sec.questions[qi], sec.questions[qi+1]];
+      rebuildSecs(); 
+    }
+  });
+
+  w.querySelector('.q-txt').addEventListener('input', e => { q.text = e.target.value; sched(); });
+
+  if (sec.type === 'mcq') {
+    w.querySelectorAll('.opt-f').forEach(inp => {
+      inp.addEventListener('input', e => {
+        q.options[+e.target.dataset.i] = e.target.value;
+        sched();
+      });
+    });
+    
+    const slot = w.querySelector('.img-slot');
+    const fi = w.querySelector('.qi-file');
+    slot.addEventListener('click', () => fi.click());
+    fi.addEventListener('change', e => {
+      const f = e.target.files[0]; 
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = ev => {
+        q.img = ev.target.result;
+        slot.innerHTML = `<img src="${ev.target.result}" alt=""/>`;
+        sched();
+      };
+      r.readAsDataURL(f);
+    });
+  }
+  return w;
+}
+
+function renderExtras(q, cont) {
+  cont.innerHTML = '';
+  (q.extra || []).forEach((ex, idx) => {
+    const align = ex.align || 'center';
+    const d = document.createElement('div');
+    d.className = 'extra-block';
+    
+    const alignUI = `
+      <div style="position:absolute; top:4px; right:28px; display:flex; background:var(--bg1); border:1px solid var(--border2); border-radius:var(--r3); overflow:hidden; z-index:10;">
+        <button class="extra-align-btn" data-xi="${idx}" data-val="left" style="background:${align==='left'?'var(--accent)':'transparent'};color:${align==='left'?'#fff':'var(--t2)'};border:none;padding:2px 6px;font-size:9px;cursor:pointer;outline:none;" title="Align Left">L</button>
+        <button class="extra-align-btn" data-xi="${idx}" data-val="center" style="background:${align==='center'?'var(--accent)':'transparent'};color:${align==='center'?'#fff':'var(--t2)'};border:none;border-left:1px solid var(--border2);border-right:1px solid var(--border2);padding:2px 6px;font-size:9px;cursor:pointer;outline:none;" title="Align Center">C</button>
+        <button class="extra-align-btn" data-xi="${idx}" data-val="right" style="background:${align==='right'?'var(--accent)':'transparent'};color:${align==='right'?'#fff':'var(--t2)'};border:none;padding:2px 6px;font-size:9px;cursor:pointer;outline:none;" title="Align Right">R</button>
+      </div>
+    `;
+    const del = `<button class="extra-del" data-xi="${idx}" title="Remove">✕</button>`;
+    
+    if (ex.type === 'image') {
+      d.innerHTML = `${alignUI}${del}<div style="font-size:9px;color:var(--t3);margin-bottom:3px">📎 Image below question</div><img src="${ex.data}" style="max-height:70px;max-width:100%;object-fit:contain;display:block;margin:0 auto;"/>`;
+    } else if (ex.type === 'table') {
+      const rc = ex.rows.length;
+      const cc = ex.rows[0] ? ex.rows[0].length : 0;
+      let rowsHtml = '';
+      ex.rows.forEach((row, ri) => {
+        rowsHtml += '<tr>';
+        row.forEach((c, ci) => {
+          rowsHtml += `<td><input type="text" class="bn-field tbl-cell" value="${esc(c)}" data-r="${ri}" data-c="${ci}" style="width:${Math.floor(100/cc)}%;min-width:50px"/></td>`;
+        });
+        rowsHtml += '</tr>';
+      });
+
+      d.innerHTML = `${alignUI}${del}<div style="font-size:9px;color:var(--t3);margin-bottom:4px">⊞ Table ${rc}×${cc}</div><div class="inline-tbl-wrap"><table class="inline-tbl">${rowsHtml}</table></div>`;
+      
+      d.querySelectorAll('.tbl-cell').forEach(inp => {
+        inp.addEventListener('input', e => {
+          ex.rows[+e.target.dataset.r][+e.target.dataset.c] = e.target.value;
+          sched();
+        });
+      });
+    } else if (ex.type === 'diagram') {
+      d.innerHTML = `${alignUI}${del}<div style="font-size:9px;color:var(--t3);margin-bottom:3px">✏ Diagram</div><img src="${ex.png}" style="max-height:70px;max-width:100%;object-fit:contain;display:block;margin:0 auto;"/>`;
+    }
+
+    d.querySelector('.extra-del').addEventListener('click', e => {
+      q.extra.splice(+e.target.dataset.xi, 1);
+      renderExtras(q, cont);
+      sched();
+    });
+    
+    d.querySelectorAll('.extra-align-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        q.extra[+e.target.dataset.xi].align = e.target.dataset.val;
+        renderExtras(q, cont);
+        sched();
+      });
+    });
+    
+    cont.appendChild(d);
+  });
+}
+
+function addExtraImg(q, cont) {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*'; inp.hidden = true;
+  inp.addEventListener('change', e => {
+    const f = e.target.files[0]; 
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      q.extra.push({ type: 'image', data: ev.target.result });
+      renderExtras(q, cont); sched();
+    };
+    r.readAsDataURL(f);
+  });
+  document.body.appendChild(inp); inp.click(); inp.remove();
+}
+
+function addExtraTbl(q, cont) {
+  const rows = parseInt(prompt('Number of rows?', '3') || '3');
+  const cols = parseInt(prompt('Number of columns?', '3') || '3');
+  if (!rows || !cols || rows < 1 || cols < 1 || rows > 30 || cols > 12) {
+    toast('Invalid table size.', 'warn'); return;
+  }
+  q.extra.push({ type: 'table', rows: Array.from({ length: rows }, () => Array(cols).fill('')) });
+  renderExtras(q, cont); sched();
+}
+
+/* ── DIAGRAM TOOL ── */
+let _dQ = null, _dCont = null, _drawing = false, _snap = null, _sx = 0, _sy = 0, _tool = 'free';
+
+function openDia(q, cont) {
+  _dQ = q; _dCont = cont;
+  const cv = $('dia-canvas');
+  cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+  _snap = null; _tool = 'free';
+  
+  $$('.dia-t').forEach(b => b.classList.remove('on'));
+  if ($$('.dia-t')[0]) $$('.dia-t')[0].classList.add('on');
+  
+  $('dia-modal').classList.add('show');
+
+  const pos = e => {
+    const r = cv.getBoundingClientRect();
+    const ce = e.touches ? e.touches[0] : e;
+    return { 
+      x: (ce.clientX - r.left) * (cv.width / r.width), 
+      y: (ce.clientY - r.top) * (cv.height / r.height) 
+    };
+  };
+
+  const down = e => {
+    _drawing = true;
+    const p = pos(e); _sx = p.x; _sy = p.y;
+    _snap = cv.getContext('2d').getImageData(0,0,cv.width,cv.height);
+    cv.getContext('2d').beginPath();
+    cv.getContext('2d').moveTo(p.x, p.y);
+  };
+
+  const move = e => {
+    if (!_drawing) return;
+    const p = pos(e);
+    const ctx = cv.getContext('2d');
+    const col = $('dia-col').value;
+    const lw = parseInt($('dia-w').value);
+    
+    ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    
+    if (_tool === 'free') {
+      ctx.lineTo(p.x, p.y); ctx.stroke(); return;
+    }
+    
+    ctx.putImageData(_snap, 0, 0);
+    ctx.beginPath();
+    
+    if (_tool === 'line') {
+      ctx.moveTo(_sx, _sy); ctx.lineTo(p.x, p.y); ctx.stroke();
+    } else if (_tool === 'rect') {
+      ctx.strokeRect(_sx, _sy, p.x - _sx, p.y - _sy);
+    } else if (_tool === 'circle') {
+      const rx = Math.abs(p.x - _sx) / 2, ry = Math.abs(p.y - _sy) / 2;
+      const cx = _sx + (p.x - _sx) / 2, cy = _sy + (p.y - _sy) / 2;
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+      ctx.stroke();
+    } else if (_tool === 'arrow') {
+      const dx = p.x - _sx, dy = p.y - _sy;
+      const ang = Math.atan2(dy, dx);
+      ctx.moveTo(_sx, _sy); ctx.lineTo(p.x, p.y); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x - 13 * Math.cos(ang - 0.42), p.y - 13 * Math.sin(ang - 0.42));
+      ctx.lineTo(p.x - 13 * Math.cos(ang + 0.42), p.y - 13 * Math.sin(ang + 0.42));
+      ctx.closePath();
+      ctx.fillStyle = col; ctx.fill();
+    }
+  };
+
+  const up = () => { _drawing = false; };
+
+  cv.onmousedown = down; cv.onmousemove = move; cv.onmouseup = up;
+  cv.ontouchstart = e => { e.preventDefault(); down(e); };
+  cv.ontouchmove = e => { e.preventDefault(); move(e); };
+  cv.ontouchend = up;
+}
+
+$$('.dia-t').forEach(b => {
+  b.addEventListener('click', () => {
+    if (!b.dataset.t) return;
+    $$('.dia-t').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    _tool = b.dataset.t;
+  });
+});
+
+$('dia-clr').addEventListener('click', () => {
+  $('dia-canvas').getContext('2d').clearRect(0,0,520,320);
+});
+
+$('dia-save').addEventListener('click', () => {
+  const png = $('dia-canvas').toDataURL('image/png');
+  if (_dQ) {
+    _dQ.extra.push({ type: 'diagram', png: png });
+    renderExtras(_dQ, _dCont);
+    sched();
+  }
+  $('dia-modal').classList.remove('show');
+});
+
+$('dia-cancel').addEventListener('click', () => $('dia-modal').classList.remove('show'));
+$('dia-modal').addEventListener('click', e => { if (e.target === $('dia-modal')) $('dia-modal').classList.remove('show'); });
+
+
+/* ── AUTOFIT ALGORITHM ── */
+function runAutoFit() {
+  let mDiv = document.getElementById('__meas');
+  if (!mDiv) {
+    mDiv = document.createElement('div');
+    mDiv.id = '__meas';
+    mDiv.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;top:-9999px;left:0;';
+    document.body.appendChild(mDiv);
+  }
+
+  const PAGE_H = 793; 
+  let fs = S.fontSize, lh = S.lineHeight, mg = S.margin;
+  const fsMin = 9, fsMax = 13, lhMin = 0.8, lhMax = 1.75, mgMin = 0.3;
+
+  function measure(f, l, m) {
+    document.documentElement.style.setProperty('--p-fsize', f + 'pt');
+    document.documentElement.style.setProperty('--p-lh', l);
+    document.documentElement.style.setProperty('--p-margin', m + 'cm');
+    mDiv.innerHTML = buildSet();
+    mDiv.style.width = 'calc((297mm - 1.2cm) / 2)';
+    mDiv.style.padding = m + 'cm';
+    mDiv.style.fontFamily = 'var(--font-bn)';
+    mDiv.style.fontSize = f + 'pt';
+    mDiv.style.lineHeight = l;
+    return mDiv.scrollHeight;
+  }
+
+  let h = measure(fs, lh, mg);
+  
+  if (h <= PAGE_H) { applyAutoFit(fs, lh, mg); return; }
+
+  while (lh > lhMin && h > PAGE_H) { lh = +(lh - 0.05).toFixed(3); h = measure(fs, lh, mg); }
+  if (h <= PAGE_H) { applyAutoFit(fs, lh, mg); return; }
+
+  while (fs > fsMin && h > PAGE_H) { fs = +(fs - 0.5).toFixed(1); h = measure(fs, lh, mg); }
+  if (h <= PAGE_H) { applyAutoFit(fs, lh, mg); return; }
+
+  while (mg > mgMin && h > PAGE_H) { mg = +(mg - 0.1).toFixed(2); h = measure(fs, lh, mg); }
+  if (h <= PAGE_H) { applyAutoFit(fs, lh, mg); return; }
+
+  // Adjust warning for infinite pages
+  const FILL_TARGET = PAGE_H * 1.6;
+  while ((fs < fsMax || lh < lhMax) && h < FILL_TARGET) {
+    if (lh < lhMax) lh = +(lh + 0.05).toFixed(3);
+    else if (fs < fsMax) fs = +(fs + 0.5).toFixed(1);
+    h = measure(fs, lh, mg);
+  }
+  
+  const approxPages = Math.ceil(h / PAGE_H);
+  applyAutoFit(fs, lh, mg);
+  toast(`Content needs ${approxPages} pages — filled automatically.`, 'warn');
+}
+
+function applyAutoFit(fs, lh, mg) {
+  S.autoFit = { fontSize: fs, lineHeight: lh, margin: mg };
+  if ($('s-fs')) { $('s-fs').value = fs; $('s-fs-v').textContent = fs + ' pt'; }
+  if ($('s-lh')) { $('s-lh').value = lh; $('s-lh-v').textContent = lh.toFixed(2); }
+  if ($('s-mg')) { $('s-mg').value = mg * 10; $('s-mg-v').textContent = mg.toFixed(1) + ' cm'; }
+  applyVars();
+  showAutoFitBtn();
+  sched();
+  toast(`Auto-fit: ${fs}pt · LH${lh.toFixed(2)} · ${mg.toFixed(1)}cm`, 'success');
+}
+
+
+/* ── PREVIEW RENDERER ── */
+function renderTok(t) {
+  if (!t) return '';
+  t = t.replace(/\[EQ:([^\]]+)\]/g, (_, eq) => {
+    try {
+      if (typeof katex !== 'undefined') return katex.renderToString(eq, { throwOnError: false, displayMode: false });
+    } catch (e) { console.warn("Katex error", e); }
+    return `<i>${esc(eq)}</i>`;
+  });
+  t = t.replace(/\[CHEM:([^\]]+)\]/g, (_, f) => `<i>${f.replace(/(\d+)/g, '<sub>$1</sub>')}</i>`);
+  t = t.replace(/\[SYM:([a-z]+)\]/gi, (_, s) => `<span>${SYM[s.toLowerCase()] || s}</span>`);
+  t = t.replace(/\[SUB:(.+?)\]/g, '<sub>$1</sub>');
+  t = t.replace(/\[SUP:(.+?)\]/g, '<sup>$1</sup>');
+  return t;
+}
+
+let _pvT = null;
+function sched(d = 80) { clearTimeout(_pvT); _pvT = setTimeout(render, d); }
+
+function render() {
+  try {
+    const vp = $('preview-vp');
+    const has = S.sections.length || S.subject || S.klass || S.topTitle;
+    
+    if (!has) { 
+      vp.innerHTML = `
+        <div class="empty-ph" id="ph">
+          <div class="ei">📄</div>
+          Fill in exam info and add sections<br>to see the live preview here.
+        </div>`; 
+      return; 
+    }
+
+    const bothSets = (S.pvMode === 'both');
+
+    let measDiv = document.getElementById('__meas__rv');
+    if (!measDiv) {
+      measDiv = document.createElement('div');
+      measDiv.id = '__meas__rv';
+      measDiv.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;top:-9999px;left:0;overflow:hidden;';
+      document.body.appendChild(measDiv);
+    }
+
+    const curMg = S.autoFit ? S.autoFit.margin : S.margin;
+    const curFs = S.autoFit ? S.autoFit.fontSize : S.fontSize;
+    const curLh = S.autoFit ? S.autoFit.lineHeight : S.lineHeight;
+
+    const usableW = `calc((297mm - 1.2cm) / 2 - ${curMg * 2}cm)`;
+    measDiv.style.width = usableW;
+    measDiv.style.fontFamily = 'var(--font-bn)';
+    measDiv.style.fontSize = curFs + 'pt';
+    measDiv.style.lineHeight = curLh;
+    measDiv.style.padding = '0';
+
+    const PAGE_H_PX = Math.round(210 * 3.7795);
+    const mgPx = curMg * 37.795;
+    const availH_PX = PAGE_H_PX - (mgPx * 2) - 3; // 3px safety margin
+
+    const blocks = buildSet(true); 
+    const pages = [];
+    let currentHTML = '';
+
+    for (let i = 0; i < blocks.length; i++) {
+      let testHTML = currentHTML + blocks[i];
+      measDiv.innerHTML = testHTML;
+
+      if (measDiv.scrollHeight > availH_PX && currentHTML !== '') {
+        pages.push(currentHTML);
+        currentHTML = blocks[i];
+      } else {
+        currentHTML = testHTML;
+      }
+    }
+    if (currentHTML) pages.push(currentHTML);
+
+    vp.innerHTML = '';
+
+    pages.forEach((pageHTML) => {
+      appendPage(vp, buildActualPageHTML(pageHTML, bothSets));
+    });
+
+    setTimeout(() => {
+      checkFit(pages.length);
+    }, 120);
+
+  } catch (error) {
+    console.error("Rendering Error:", error);
+    $('preview-vp').innerHTML = `<div style="color:var(--red); padding: 40px; font-family: monospace;">Render Error: ${error.message}</div>`;
+  }
+}
+
+function appendPage(vp, pageHTML) {
+  const wrap = document.createElement('div');
+  wrap.className = 'pp-wrap';
+  wrap.style.transform = `scale(${S.zoom})`;
+  wrap.style.transformOrigin = 'top center';
+  wrap.style.marginBottom = `-${(210 * (1 - S.zoom) * 3.7795) - 24}px`;
+  
+  const page = document.createElement('div');
+  page.className = 'pp';
+  page.innerHTML = pageHTML;
+  wrap.appendChild(page);
+  vp.appendChild(wrap);
+}
+
+function checkFit(pagesNeeded) {
+  const b = $('fit-badge'); 
+  if (!b) return;
+  
+  if (pagesNeeded === 1) {
+    b.className = 'fit-badge ok'; b.textContent = '✓ Fits';
+  } else if (pagesNeeded === 2) {
+    b.className = 'fit-badge warn'; b.textContent = `⚠ 2-pages`;
+  } else {
+    b.className = 'fit-badge over'; b.textContent = `📄 ${pagesNeeded}-pages`;
+  }
+  
+  if (pagesNeeded > 1) { S.autoFitDirty = true; showAutoFitBtn(); }
+}
+
+function buildActualPageHTML(content, bothSets) {
+  const wmSrc = S.wmSrc === 'none' ? null : (S.wmSrc === 'custom' && S.wmCustomData ? S.wmCustomData : 'watermark/default.png');
+  const wmStyle = `opacity:${S.wmOpacity / 100};pointer-events:none;z-index:5;`;
+  const wmHTML = wmSrc ? `<div class="qp-wm" style="${wmStyle}"><img src="${wmSrc}" style="max-width:${S.wmSize}%;max-height:${S.wmSize}%" onerror="this.style.display='none'"/></div>` : '';
+  const divHTML = buildDivHTML();
+  const mg = (S.autoFit ? S.autoFit.margin : S.margin);
+
+  const setBlock = `
+    <div class="qp-set" style="padding:${mg}cm; color:#111;">
+      ${wmHTML}
+      <div style="position:relative; z-index:10; height:100%;">${content}</div>
+    </div>`;
+
+  if(!bothSets) {
+      return `
+        <div class="qp-page preview-one" style="color:#111!important;display:flex">
+          ${setBlock}
+        </div>`;
+  }
+
+  return `
+    <div class="qp-page" style="color:#111!important;display:flex">
+      ${setBlock}
+      ${divHTML}
+      ${setBlock}
+    </div>`;
+}
+
+function buildDivHTML() {
+  const d = S.divider;
+  if (d === 'solid') return `<div class="qp-div" style="width:.15cm;border-left:.5pt solid #bbb"></div>`;
+  if (d === 'text') return `<div class="qp-div" style="border-left: 1px dashed #999; position: relative; width: .25cm;"><div style="position:absolute; top:10%; left:-6px; font-size:14px; color:#666; transform: rotate(-90deg); display: inline-block;">✂</div><div style="position:absolute; top:50%; left:-6px; font-size:14px; color:#666; transform: rotate(-90deg); display: inline-block;">✂</div><div style="position:absolute; top:90%; left:-6px; font-size:14px; color:#666; transform: rotate(-90deg); display: inline-block;">✂</div></div>`;
+  
+  const ch = d === 'dotted' ? '·' : (d === 'dashed' ? '-' : '✂');
+  const rows = Array.from({length: 38}, () => `<div style="line-height:1">${ch}</div>`).join('');
+  return `<div class="qp-div">${rows}</div>`;
+}
+
+function buildExtH(q) {
+  let floatH = '';
+  let bottomH = '';
+  (q.extra || []).forEach(ex => {
+    const align = ex.align || 'center';
+    let style = '';
+    let isFloat = false;
+
+    if (align === 'right') {
+      style = 'float:right; margin: 2pt 0 4pt 8pt; max-width: 45%;';
+      isFloat = true;
+    } else if (align === 'left') {
+      style = 'float:left; margin: 2pt 8pt 4pt 0; max-width: 45%;';
+      isFloat = true;
+    } else {
+      style = 'text-align:center; margin:4pt 0; clear:both; width:100%; display:block;';
+    }
+
+    let inner = '';
+    if (ex.type === 'image') inner = `<img src="${ex.data}" style="max-width:100%;max-height:36mm;object-fit:contain"/>`;
+    if (ex.type === 'diagram' && ex.png) inner = `<img src="${ex.png}" style="max-width:100%;max-height:36mm;object-fit:contain"/>`;
+    if (ex.type === 'table') {
+      let t = `<table class="qp-itable" style="${isFloat ? 'margin:0' : 'margin:2pt auto'}">`;
+      ex.rows.forEach(row => {
+        t += `<tr>${row.map(c => `<td>${renderTok(esc(c))}</td>`).join('')}</tr>`;
+      });
+      t += `</table>`;
+      inner = t;
+    }
+
+    const wrapper = `<div style="${style}">${inner}</div>`;
+    if (isFloat) floatH += wrapper;
+    else bottomH += wrapper;
+  });
+  return { floats: floatH, bottom: bottomH };
+}
+
+function buildSet(asBlocks = false) {
+  const lang = S.paperLang;
+  const isBn = lang !== 'full-en';
+  const fsPt = (S.autoFit ? S.autoFit.fontSize : S.fontSize) + 'pt';
+  
+  const fmLabel = isBn ? 'পূর্ণমান' : 'Full Marks';
+  const timeLabel = isBn ? 'সময়' : 'Time';
+  const timeUnit = isBn ? 'মিনিট' : 'min';
+  const classLabel = isBn ? 'শ্রেণি' : 'Class';
+  const subjectLabel = isBn ? 'বিষয়' : 'Subject';
+  
+  const klass = esc(S.klass || '—');
+  const subj = esc(S.subject || '—');
+  const fm = S.fullMarks;
+  
+  let blocks = [];
+  
+  let h = `<div class="qp-title" style="font-size:14pt">${esc(S.topTitle || 'Question Paper')}</div>`;
+  
+  if (S.subject.length > 22) {
+    h += `
+      <div class="qp-info" style="font-size:${fsPt}">
+        <span>${fmLabel}: ${isBn ? bn(fm) : fm}</span>
+        <span>${classLabel}: ${klass}</span>
+        <span>${timeLabel}: ${isBn ? bn(S.time) : S.time} ${timeUnit}</span>
+      </div>
+      <div style="text-align:center;font-family:var(--font-tt);font-size:${fsPt};padding-bottom:2pt;">
+        ${subjectLabel}: ${subj}
+      </div>`;
+  } else {
+    h += `
+      <div class="qp-info" style="font-size:${fsPt}">
+        <span>${fmLabel}: ${isBn ? bn(fm) : fm}</span>
+        <span>${classLabel}: ${klass} &nbsp;|&nbsp; ${subjectLabel}: ${subj}</span>
+        <span>${timeLabel}: ${isBn ? bn(S.time) : S.time} ${timeUnit}</span>
+      </div>`;
+  }
+
+  if (S.inst) h += `<div style="font-style:italic;font-size:calc(${fsPt} - 0.5pt);padding-bottom:2pt;line-height:1.3">${esc(S.inst)}</div>`;
+  blocks.push(h);
+
+  S.sections.forEach((sec, idx) => {
+    const L = sl(idx);
+    
+    let actualCount = 0;
+    for(let i=0; i<sec.questions.length; i++) {
+        actualCount++;
+        if(sec.questions[i].isOrNext) i++; 
+    }
+
+    const countedQ = (sec.answerAny && sec.answerAny < actualCount) ? sec.answerAny : actualCount;
+    const tot = (sec.mpq || 0) * countedQ;
+    const mfNum = isBn ? `${bn(sec.mpq)} × ${bn(countedQ)} = ${bn(tot)}` : `${sec.mpq} × ${countedQ} = ${tot}`;
+    
+    const secPrefix = isBn ? `বিভাগ '${L}'` : `Section '${L}'`;
+    const anyNote = sec.answerAny ? (isBn ? ` (যেকোনো ${bn(sec.answerAny)}টি)` : ` (any ${sec.answerAny})`) : '';
+
+    let secHdr = `
+      <div class="qp-sec-hdr" style="font-size:${fsPt}">${secPrefix}</div>
+      <div class="qp-sec-row" style="font-size:${fsPt}">
+        <span>&nbsp;&nbsp;&nbsp;${esc(sec.heading)}${anyNote}</span>
+        <span>${mfNum}</span>
+      </div>`;
+    blocks.push(secHdr);
+
+    if (!sec.questions.length) {
+        blocks.push(`<div style="color:#aaa;font-size:8pt;line-height:var(--p-lh)">(no questions)</div>`);
+        return;
+    }
+
+    let qCounter = 1;
+    sec.questions.forEach((q, qi) => {
+      const numStr = isBn ? `${bn(idx+1)}.${bn(qCounter)})` : `${idx+1}.${qCounter})`;
+      const isOrChild = qi > 0 && sec.questions[qi-1].isOrNext;
+      const numH = isOrChild ? `<span style="opacity:0">${numStr}</span>` : `<b>${numStr}</b>`;
+      
+      let qTextEscaped = esc(q.text);
+      qTextEscaped = qTextEscaped.replace(/\s*[\(\[]([0-9০-৯\+\s]+)[\)\]]\s*$/, '<span style="float:right; font-weight:bold; margin-left:10px;">($1)</span>');
+      const finalRenderedText = renderTok(qTextEscaped);
+      
+      const ext = buildExtH(q);
+
+      let qHTML = '';
+      if (sec.type === 'mcq') {
+        const opts = (q.options || ['','','','']).slice(0, 4);
+        let maxLen = 0;
+        opts.forEach(o => { if (o.length > maxLen) maxLen = o.length; });
+        
+        const ls = sec.os === 'en' ? EN_O : BN_O;
+        let optsHtml = '';
+        opts.forEach((opt, i) => { optsHtml += `<span>(${ls[i]}) ${renderTok(esc(opt))}</span>`; });
+        
+        let oph = '';
+        if (maxLen <= 13) oph = `<div class="qp-q-mcq-opts">${optsHtml}</div>`;
+        else if (maxLen <= 25) oph = `<div class="qp-q-mcq-opts g2">${optsHtml}</div>`;
+        else oph = `<div class="qp-q-mcq-opts g1">${optsHtml}</div>`;
+        
+        const imgH = q.img ? `<img src="${q.img}" style="float:right;max-width:28%;max-height:32mm;object-fit:contain;margin-left:4pt"/>` : '';
+        qHTML = `<div class="qp-q" style="overflow:hidden">${imgH}${ext.floats}<div style="text-align:justify">${numH} ${finalRenderedText}</div>${oph}${ext.bottom}</div>`;
+      } else {
+        qHTML = `<div class="qp-q" style="overflow:hidden">${ext.floats}<div style="text-align:justify">${numH} ${finalRenderedText}</div>${ext.bottom}</div>`;
+      }
+
+      let orH = '';
+      if (q.isOrNext && qi < sec.questions.length - 1) {
+          const orText = isBn ? 'অথবা' : 'OR';
+          orH = `<div style="text-align:center; font-weight:bold; margin: 2pt 0; font-size:calc(var(--p-fsize) - 1pt)">${orText}</div>`;
+      }
+
+      blocks.push(`<div style="font-size:${fsPt};line-height:var(--p-lh)">${qHTML + orH}</div>`);
+
+      if (!isOrChild && !q.isOrNext) {
+          qCounter++;
+      } else if (isOrChild && !q.isOrNext) {
+          qCounter++;
+      }
+    });
+  });
+  
+  return asBlocks ? blocks : blocks.join('');
+}
+
+
+/* ── QPF PARSER (Robust Version) ── */
+function parseQPF(rawText) {
+  try {
+    const lines = rawText.replace(/^\uFEFF/, '').split(/\r?\n/).map(l => l.trim());
+    const stripped = [];
+    let inFence = false;
+    
+    for (const l of lines) {
+      if (/^```/.test(l)) { inFence = !inFence; continue; }
+      if (!inFence) stripped.push(l);
+    }
+
+    const newState = {
+      topTitle: 'Test no. 1 by Shibanjan Bera',
+      klass: '', subject: '', time: 30, inst: '',
+      fontSize: 11, lineHeight: 1.45, margin: 1.0,
+      divider: 'dotted', paperLang: 'full-bn', wmSrc: 'none',
+      sections: []
+    };
+
+    let mode = '', curSec = null, curQ = null, inTable = false;
+
+    const flushQ = () => { if (curQ && curSec) { curSec.questions.push(curQ); curQ = null; } };
+    const flushSec = () => { flushQ(); if (curSec) { newState.sections.push(curSec); curSec = null; } };
+
+    for (const raw of stripped) {
+      const line = raw.replace(/\s+/g, ' ');
+      const cleanLine = line.replace(/\s+\/\/.*$/, ''); 
+
+      if (!line || line.startsWith('//')) continue;
+
+      const secMatch = cleanLine.replace(/\s/g, '').match(/^##SECTION_([A-Z]+)$/i);
+      if (secMatch) {
+        flushSec();
+        curSec = { id: uid(), heading: HDGS_BN[0], type: 'mcq', mpq: 1, os: 'bn', answerAny: null, questions: [] };
+        mode = 'sec';
+        continue;
+      }
+      
+      if (cleanLine.replace(/\s/g, '') === '##META') { mode = 'meta'; continue; }
+      if (cleanLine.replace(/\s/g, '') === '##END') { flushSec(); break; }
+
+      const ci = cleanLine.indexOf(':');
+      if (ci < 0) {
+        if (curQ && !inTable && mode === 'sec') curQ.text += `\n${cleanLine}`; // Preserve newlines for sub-parts!
+        if (inTable && curQ) {
+          const lastEx = curQ.extra[curQ.extra.length - 1];
+          if (lastEx && lastEx.type === 'table') {
+            const cells = cleanLine.split('|').map(s => s.trim());
+            const emptyRowIdx = lastEx.rows.findIndex(r => r.every(c => !c));
+            if (emptyRowIdx >= 0) lastEx.rows[emptyRowIdx] = cells.slice(0, lastEx.rows[0].length);
+          }
+        }
+        continue;
+      }
+
+      const k = cleanLine.slice(0, ci).trim().toUpperCase();
+      let v = cleanLine.slice(ci + 1).trim();
+
+      // Convert explicit AI [BR] tokens to natural newlines for sub-parts
+      v = v.replace(/\[BR\]/gi, '\n');
+
+      if (mode === 'meta') {
+        if (k === 'TOP_TITLE') newState.topTitle = v;
+        else if (k === 'TEACHER') newState.topTitle = newState.topTitle.replace('Teacher', v) || v;
+        else if (k === 'TEST_NO') { if (newState.topTitle.includes('no. 1')) newState.topTitle = newState.topTitle.replace('1', v); }
+        else if (k === 'CLASS') newState.klass = v;
+        else if (k === 'SUBJECT') newState.subject = v;
+        else if (k === 'TIME') newState.time = parseInt(v) || 30;
+        else if (k === 'FONT_SIZE') newState.fontSize = Math.min(13, Math.max(9, parseFloat(v) || 11));
+        else if (k === 'LINE_HEIGHT') newState.lineHeight = Math.min(1.75, Math.max(0.8, parseFloat(v) || 1.45));
+        else if (k === 'MARGIN') newState.margin = parseFloat(v) || 1.0;
+        else if (k === 'DIVIDER') { if (['dotted', 'dashed', 'solid', 'text'].includes(v)) newState.divider = v; }
+        else if (k === 'PAPER_LANG') { if (['full-bn', 'mixed', 'full-en'].includes(v)) newState.paperLang = v; }
+      } else if (mode === 'sec' && curSec) {
+        if (k === 'TABLE_START' && curQ) {
+          const dims = v.split('x').map(x => parseInt(x.trim()) || 2);
+          const r = Math.min(dims[0], 30);
+          const c = Math.min(dims[1] || dims[0], 12);
+          curQ.extra.push({ type: 'table', rows: Array.from({ length: r }, () => Array(c).fill('')) });
+          inTable = true;
+          continue;
+        }
+        if (k === 'TABLE_END') { inTable = false; continue; }
+        
+        if (inTable && curQ) {
+          const lastEx = curQ.extra[curQ.extra.length - 1];
+          if (lastEx && lastEx.type === 'table') {
+            const origCells = cleanLine.split('|').map(s => s.trim());
+            const emptyRowIdx = lastEx.rows.findIndex(r => r.every(c => !c));
+            if (emptyRowIdx >= 0) lastEx.rows[emptyRowIdx] = origCells.slice(0, lastEx.rows[0].length);
+          }
+          continue;
+        }
+
+        if (k === 'HEADING') curSec.heading = v;
+        else if (k === 'TYPE') {
+          const typeMap = { 'mcq': 'mcq', 'short': 'short', 'descriptive': 'descriptive', 'long': 'long', 'sa': 'short', 'la': 'long', 'desc': 'descriptive' };
+          curSec.type = typeMap[v.toLowerCase()] || 'short';
+        }
+        else if (k === 'MARKS_PER_Q' || k === 'MARKS') curSec.mpq = parseFloat(v) || 1;
+        else if (k === 'OPT_STYLE') curSec.os = v === 'en' ? 'en' : 'bn';
+        else if (k === 'ANSWER_ANY' || k === 'ANSWERANY') { const aVal = parseInt(v); if (aVal > 0) curSec.answerAny = aVal; }
+        else if (k === 'Q') {
+          flushQ();
+          curQ = { id: uid(), text: v, options: ['', '', '', ''], img: null, extra: [], isOrNext: false };
+          inTable = false;
+        }
+        else if (k === 'OR_NEXT') { if(curQ) curQ.isOrNext = (v.toLowerCase() === 'true'); }
+        else if (k === 'Q_IMAGE' || k === 'Q_IMAGE_MCQ') { if (curQ && v.length > 10) curQ.img = v; }
+        else if (k === 'Q_IMAGE_BELOW') { if (curQ && v.length > 10) curQ.extra.push({ type: 'image', data: v }); }
+        else {
+          const OPT_KEYS = {
+            'OP_K': 0, 'OPT_K': 0, 'OPTION_K': 0, 'OP_A': 0, 'OPT_A': 0, 'OP_1': 0, 'OPT_1': 0,
+            'OP_KH': 1, 'OPT_KH': 1, 'OPTION_KH': 1, 'OP_B': 1, 'OPT_B': 1, 'OP_2': 1, 'OPT_2': 1,
+            'OP_G': 2, 'OPT_G': 2, 'OPTION_G': 2, 'OP_C': 2, 'OPT_C': 2, 'OP_3': 2, 'OPT_3': 2,
+            'OP_GH': 3, 'OPT_GH': 3, 'OPTION_GH': 3, 'OP_D': 3, 'OPT_D': 3, 'OP_4': 3, 'OPT_4': 3
+          };
+          if (OPT_KEYS[k] !== undefined && curQ) curQ.options[OPT_KEYS[k]] = v;
+        }
+      }
+    }
+    
+    flushSec();
+
+    if (newState.sections.length === 0) throw new Error("No sections identified. Invalid QPF format.");
+
+    // Clean answer bounds
+    newState.sections.forEach(sec => {
+      let actualCount = 0;
+      for(let i=0; i<sec.questions.length; i++) {
+        actualCount++;
+        if(sec.questions[i].isOrNext) i++; // skip alternate in count
+      }
+      if (sec.answerAny && sec.answerAny >= actualCount) sec.answerAny = null;
+    });
+
+    Object.assign(S, newState);
+    S.autoFit = null;
+
+    syncFields(); 
+    rebuildSecs(); 
+    recalc(); 
+    applyVars(); 
+    sched(100);
+
+  } catch (err) {
+    throw new Error(err.message || "Failed to process QPF text.");
+  }
+}
+
+/* ── EXPORTS ── */
+
+// Centralized safe download handler bypassing Chrome double-block via dynamic _blank elements
+function safeDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; 
+  a.download = filename; 
+  a.target = '_blank'; // Key fix for dual-download blocks
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+}
+
+let _lastQpfUrl = null;
+$('ex-qpf').addEventListener('click', (e) => {
+  e.preventDefault();
+  let o = `// Question Paper Format v1.1\n// Generated by প্রশ্নপত্র Maker\n// ${new Date().toLocaleString()}\n\n##META\n`;
+  o += `TOP_TITLE: ${S.topTitle}\nCLASS: ${S.klass}\nSUBJECT: ${S.subject}\nFULL_MARKS: ${S.fullMarks}\nTIME: ${S.time}\n`;
+  o += `FONT_SIZE: ${S.fontSize}\nLINE_HEIGHT: ${S.lineHeight}\nMARGIN: ${S.margin}\nDIVIDER: ${S.divider}\nPAPER_LANG: ${S.paperLang}\nWATERMARK: default\n\n`;
+  
+  S.sections.forEach((sec, idx) => {
+    const key = SEC_QPF[idx] || `S${idx+1}`;
+    o += `##SECTION_${key}\nHEADING: ${sec.heading}\nTYPE: ${sec.type}\nMARKS_PER_Q: ${sec.mpq}\nOPT_STYLE: ${sec.os}\n`;
+    if (sec.answerAny) o += `ANSWER_ANY: ${sec.answerAny}\n`;
+    o += '\n';
+    
+    sec.questions.forEach(q => {
+      // Restore literal \n with [BR] for safe plain-text transfer
+      const safeText = q.text.replace(/\n/g, ' [BR] ');
+      o += `Q: ${safeText}\n`;
+      if(q.isOrNext) o += `OR_NEXT: true\n`;
+      
+      if (sec.type === 'mcq') {
+        ['OP_K', 'OP_KH', 'OP_G', 'OP_GH'].forEach((opKey, i) => o += `${opKey}: ${q.options[i]||''}\n`);
+        if (q.img) o += `Q_IMAGE_MCQ: [base64_image — ${Math.round(q.img.length/1000)}KB]\n`;
+      }
+      (q.extra || []).forEach(ex => {
+        if (ex.type === 'table') {
+          const colsCount = ex.rows[0] ? ex.rows[0].length : 0;
+          o += `TABLE_START: ${ex.rows.length}x${colsCount}\n`;
+          ex.rows.forEach(r => o += `${r.join(' | ')}\n`);
+          o += `TABLE_END\n`;
+        }
+        if (ex.type === 'image') o += `Q_IMAGE_BELOW: [base64_image — ${Math.round((ex.data||'').length/1000)}KB]\n`;
+        if (ex.type === 'diagram') o += `// DIAGRAM: [embedded PNG — edit in app]\n`;
+      });
+      o += '\n';
+    });
+  });
+  o += `##END\n`;
+  
+  if (_lastQpfUrl) URL.revokeObjectURL(_lastQpfUrl);
+  const blob = new Blob([o], { type: 'text/plain;charset=utf-8' });
+  _lastQpfUrl = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = _lastQpfUrl;
+  a.download = exFname('qpf');
+  a.click();
+  toast('QPF backup saved!', 'success');
+});
+
+// ODT Export
+$('ex-odt').addEventListener('click', async (e) => {
+  e.preventDefault(); 
+  if (typeof JSZip === 'undefined') { toast('JSZip loading, try again in a moment.', 'warn'); return; }
+  toast('Building ODT…', 'info', 6000);
+  
+  const TAB1 = '3.00cm', TAB2 = '6.50cm', TAB3 = '10.00cm';
+  const isBn = S.paperLang !== 'full-en';
+  const xe = s => !s ? '' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g, '<text:line-break/>');
+  const numF = n => isBn ? bn(n) : String(n);
+  
+  const z = new JSZip();
+  z.file('mimetype', 'application/vnd.oasis.opendocument.text');
+  z.folder('META-INF').file('manifest.xml', `<?xml version="1.0" encoding="UTF-8"?><manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.3"><manifest:file-entry manifest:media-type="application/vnd.oasis.opendocument.text" manifest:full-path="/"/><manifest:file-entry manifest:media-type="text/xml" manifest:full-path="content.xml"/><manifest:file-entry manifest:media-type="text/xml" manifest:full-path="styles.xml"/></manifest:manifest>`);
+  z.file('styles.xml', `<?xml version="1.0" encoding="UTF-8"?><office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" office:version="1.3"><office:automatic-styles><style:page-layout style:name="pm1"><style:page-layout-properties fo:page-width="29.7cm" fo:page-height="21cm" style:print-orientation="landscape" fo:margin-top="${S.margin}cm" fo:margin-bottom="${S.margin}cm" fo:margin-left="${S.margin}cm" fo:margin-right="${S.margin}cm"/></style:page-layout></office:automatic-styles><office:master-styles><style:master-page style:name="Standard" style:page-layout-name="pm1"/></office:master-styles></office:document-styles>`);
+  
+  let body = '';
+  const p = (txt, styleName) => `<text:p text:style-name="${styleName}">${txt}</text:p>\n`;
+  const para = txt => p(xe(txt), 'Body');
+  const center = txt => p(xe(txt), 'Center');
+  
+  body += center(S.topTitle);
+  const fmLabel = isBn ? 'পূর্ণমান' : 'Full Marks';
+  const timeLabel = isBn ? 'সময়' : 'Time';
+  const timeUnit = isBn ? 'মিনিট' : 'min';
+  
+  body += p(`<text:span text:style-name="InfoLeft">${xe(fmLabel)}: ${xe(numF(S.fullMarks))}</text:span><text:tab/>${xe(S.klass ? 'শ্রেণি: '+S.klass : '')} — ${xe(S.subject)}<text:tab/>${xe(timeLabel)}: ${xe(numF(S.time))} ${xe(timeUnit)}`, 'InfoRow');
+  
+  if (S.inst) body += p(`<text:span text:style-name="Italic">${xe(S.inst)}</text:span>`, 'Body');
+
+  S.sections.forEach((sec, idx) => {
+    const L = sl(idx);
+    let actualCount = 0;
+    for(let i=0; i<sec.questions.length; i++) {
+        actualCount++;
+        if(sec.questions[i].isOrNext) i++; 
+    }
+    const countedQ = (sec.answerAny && sec.answerAny < actualCount) ? sec.answerAny : actualCount;
+    const tot = (sec.mpq||0)*countedQ;
+    const prefix = isBn ? `বিভাগ '${L}'` : `Section '${L}'`;
+    const mf = isBn ? `${numF(sec.mpq)} × ${numF(countedQ)} = ${numF(tot)}` : `${sec.mpq} × ${countedQ} = ${tot}`;
+    
+    body += center(prefix);
+    body += p(`<text:span text:style-name="BoldSpan">${xe(sec.heading)}</text:span><text:tab/>${xe(mf)}`, 'SecRow');
+    
+    let qCounter = 1;
+    sec.questions.forEach((q, qi) => {
+      const isOrChild = qi > 0 && sec.questions[qi-1].isOrNext;
+      const numStr = isBn ? `${numF(idx+1)}.${numF(qCounter)})` : `${idx+1}.${qCounter})`;
+      
+      const contentStr = isOrChild ? `   ${q.text}` : `${numStr} ${q.text}`; 
+      body += para(contentStr);
+      
+      if (sec.type === 'mcq') {
+        const ls = sec.os === 'en' ? EN_O : BN_O;
+        const opts = q.options.slice(0, 4);
+        const maxLen = Math.max(0, ...opts.map(o => o.length));
+        
+        if (maxLen <= 25) {
+          body += p(opts.map((o,i) => `(${xe(ls[i])}) ${xe(o)}`).join('<text:tab/>'), 'MCQOpts');
+        } else {
+          body += p(`(${xe(ls[0])}) ${xe(opts[0])}<text:tab/>(${xe(ls[1])}) ${xe(opts[1])}`, 'MCQOpts');
+          body += p(`(${xe(ls[2])}) ${xe(opts[2])}<text:tab/>(${xe(ls[3])}) ${xe(opts[3])}`, 'MCQOpts');
+        }
+      }
+
+      if (q.isOrNext && qi < sec.questions.length - 1) {
+          const orText = isBn ? 'অথবা' : 'OR';
+          body += center(orText);
+      }
+      
+      if (!isOrChild && !q.isOrNext) {
+          qCounter++;
+      } else if (isOrChild && !q.isOrNext) {
+          qCounter++;
+      }
+      
+      (q.extra || []).forEach(ex => {
+        if (ex.type === 'table') {
+          body += `<table:table xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" table:name="T${uid()}">`;
+          const colsCount = ex.rows[0] ? ex.rows[0].length : 1;
+          body += `<table:table-column table:number-columns-repeated="${colsCount}"/>`;
+          ex.rows.forEach(row => {
+            body += `<table:table-row>`;
+            row.forEach(cell => {
+              body += `<table:table-cell office:value-type="string" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"><text:p xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">${xe(cell)}</text:p></table:table-cell>`;
+            });
+            body += `</table:table-row>`;
+          });
+          body += `</table:table>`;
+        }
+      });
+    });
+  });
+
+  const TAB_STYLE = `<style:tab-stops><style:tab-stop style:position="${TAB1}" style:type="left"/><style:tab-stop style:position="${TAB2}" style:type="left"/><style:tab-stop style:position="${TAB3}" style:type="left"/></style:tab-stops>`;
+  
+  z.file('content.xml', `<?xml version="1.0" encoding="UTF-8"?><office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" office:version="1.3"><office:automatic-styles><style:style style:name="Center" style:family="paragraph"><style:paragraph-properties fo:text-align="center" fo:margin-bottom="0.08cm"/><style:text-properties fo:font-size="${S.fontSize}pt" fo:font-weight="bold" fo:font-family="DM Serif Text,serif"/></style:style><style:style style:name="InfoRow" style:family="paragraph"><style:paragraph-properties fo:text-align="justify" fo:margin-bottom="0.08cm">${TAB_STYLE}</style:paragraph-properties><style:text-properties fo:font-size="${S.fontSize}pt" fo:font-family="DM Serif Text,serif"/></style:style><style:style style:name="SecHeading" style:family="paragraph"><style:paragraph-properties fo:text-align="center" fo:margin-top="0.12cm" fo:margin-bottom="0.04cm"/><style:text-properties fo:font-size="${S.fontSize}pt" fo:font-weight="bold" fo:font-family="Tiro Bangla,serif"/></style:style><style:style style:name="SecRow" style:family="paragraph"><style:paragraph-properties fo:margin-bottom="0.04cm">${TAB_STYLE}</style:paragraph-properties><style:text-properties fo:font-size="${S.fontSize}pt" fo:font-weight="bold" fo:font-family="Tiro Bangla,serif"/></style:style><style:style style:name="Body" style:family="paragraph"><style:paragraph-properties fo:margin-bottom="0.06cm" fo:text-align="justify" fo:line-height="${Math.round(S.lineHeight*100)}%"/><style:text-properties fo:font-size="${S.fontSize}pt" fo:font-family="Tiro Bangla,serif"/></style:style><style:style style:name="MCQOpts" style:family="paragraph"><style:paragraph-properties fo:text-align="center" fo:margin-bottom="0.05cm">${TAB_STYLE}</style:paragraph-properties><style:text-properties fo:font-size="${S.fontSize}pt" fo:font-family="Tiro Bangla,serif"/></style:style><style:style style:name="Bold" style:family="paragraph"><style:paragraph-properties fo:margin-bottom="0.06cm"/><style:text-properties fo:font-size="${S.fontSize}pt" fo:font-weight="bold" fo:font-family="Tiro Bangla,serif"/></style:style><style:style style:name="Italic" style:family="paragraph"><style:paragraph-properties fo:margin-bottom="0.04cm"/><style:text-properties fo:font-size="${S.fontSize}pt" fo:font-style="italic" fo:font-family="Tiro Bangla,serif"/></style:style><style:style style:name="BoldSpan" style:family="text"><style:text-properties fo:font-weight="bold"/></style:style><style:style style:name="InfoLeft" style:family="text"><style:text-properties fo:font-weight="bold"/></style:style></office:automatic-styles><office:body><office:text>\n${body}</office:text></office:body></office:document-content>`);
+  
+  const blob = await z.generateAsync({type:'blob', mimeType:'application/vnd.oasis.opendocument.text', compression:'DEFLATE'});
+  safeDownload(blob, exFname('odt'));
+  toast('ODT exported! Open with LibreOffice.', 'success', 5000);
+});
+
+function triggerPrint() {
+  const origTitle = document.title;
+  const origMode = S.pvMode; 
+  document.title = exFname('pdf').replace('.pdf', '');
+  S.pvMode = 'both'; 
+  render(); 
+  
+  setTimeout(() => {
+    window.print(); 
+    setTimeout(() => { 
+      document.title = origTitle; 
+      S.pvMode = origMode; 
+      render(); 
+    }, 500);
+  }, 300);
+}
+
+let _origModeBeforePrint = null;
+window.addEventListener('beforeprint', () => {
+  if (S.pvMode !== 'both') {
+    _origModeBeforePrint = S.pvMode;
+    S.pvMode = 'both';
+    requestAnimationFrame(() => render());
+  }
+});
+window.addEventListener('afterprint', () => {
+  if (_origModeBeforePrint !== null) {
+    S.pvMode = _origModeBeforePrint;
+    _origModeBeforePrint = null;
+    render();
+  }
+});
+
+/* ── GLOBAL LISTENERS ── */
+document.addEventListener('click', e => {
+  const h = e.target.closest('.card-hdr[data-tgt]'); 
+  if (!h) return;
+  if (e.target.closest('.move-sec-up, .move-sec-dn, .del-sec')) return;
+  const b = $(h.dataset.tgt); 
+  if (!b) return;
+  const o = !b.classList.contains('hide');
+  b.classList.toggle('hide', o); 
+  h.classList.toggle('open', !o);
+});
+
+function initInfo() {
+  $('info-btn').addEventListener('click', () => { 
+    $('guide').classList.remove('show'); 
+    $('info').classList.add('show'); 
+    $('ov').classList.add('show'); 
+  });
+  
+  $('guide-btn').addEventListener('click', () => { 
+    $('info').classList.remove('show'); 
+    $('guide').classList.add('show'); 
+    $('ov').classList.add('show'); 
+  });
+  
+  $('info-close').addEventListener('click', closePanels);
+  $('guide-close').addEventListener('click', closePanels);
+  $('ov').addEventListener('click', closePanels);
+}
+
+function closePanels() { 
+  $('info').classList.remove('show'); 
+  $('guide').classList.remove('show'); 
+  $('ov').classList.remove('show'); 
+}
+
+function initExports() {
+  $('ex-pdf').addEventListener('click', triggerPrint);
+}
+
+/* ── BOOTSTRAP ── */
+function init() {
+  initTheme();
+  applyVars();
+  initSettings();
+  initExamInfo();
+  initImport();
+  initZoom();
+  initResize();
+  initSliderButtons();
+  initInfo();
+  initExports();
+  
+  // Hidden Glow Trigger Option
+  document.querySelector('.logo').addEventListener('dblclick', (e) => {
+    e.preventDefault();
+    document.body.classList.toggle('glow-mode');
+    toast('Hidden glow mode toggled!', 'success');
+  });
+  
+  $('add-sec').addEventListener('click', () => {
+    if (S.sections.length >= 10) { toast('Maximum 10 sections.', 'warn'); return; }
+    const i = S.sections.length;
+    const hdgs = getHdgs();
+    S.sections.push({
+      id: uid(),
+      heading: hdgs[Math.min(i, 3)],
+      type: ['mcq','short','descriptive','long'][Math.min(i, 3)],
+      mpq: [1,1,2,3][Math.min(i, 3)],
+      os: 'bn',
+      answerAny: null,
+      questions: []
+    });
+    rebuildSecs(); 
+    sched();
+  });
+  
+  S.sections.push({
+    id: uid(),
+    heading: HDGS_BN[0],
+    type: 'mcq',
+    mpq: 1,
+    os: 'bn',
+    answerAny: null,
+    questions: []
+  });
+  
+  rebuildSecs();
+  setTimeout(fitZoom, 250);
+  sched(400);
+  
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fitZoom, 200);
+  });
+  
+  console.log('%cপ্রশ্নপত্র Maker — Ready ✓', 'color:#9d95f7; font-size:13px; font-weight:bold;');
+}
+
+document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
+</script>
+</body>
+</html>
