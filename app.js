@@ -66,38 +66,58 @@ function initAll(){
 function openTool(id){
   document.getElementById('landing').style.display='none';
   document.querySelectorAll('.tool-panel').forEach(p=>p.style.display='none');
-  document.getElementById('tool-'+id).style.display='block';
+  const panel = document.getElementById('tool-'+id);
+  if(panel) panel.style.display='block';
 
-  /* Auto‑refresh session tray for this tool */
-  (function refreshToolSession(id){
-    const toolLoadMap = {
-      'bk': bkLoad,
-      'mg': null,
-      'sp': spLoad,
-      'cp': cpLoad,
-      'nu': nuLoad,
-      'ra': raLoad,
-      'ti': tiLoad,
-      'wa': waLoad,
-      'wr': wrLoad,
-      'un': unLoad,
-      'vf': vfLoad,
-      'ic': null,
-      'ir': null,
-      'pp': null,
-      'sg': null,
-      'exif': null
-    };
-    const loadFn = toolLoadMap[id];
-    if (!loadFn) return;
-    const listId = id + '-slist';
-    const trayId = id + '-sess';
-    const listEl = document.getElementById(listId);
-    const trayEl = document.getElementById(trayId);
-    if (listEl && trayEl) {
-      populateSessUI(listId, trayId, (bytes, name) => loadFn(bytes, name));
+  /* ── Ensure session tray has a list element ── */
+  const trayId = id + '-sess';
+  const listId = id + '-slist';
+  let tray = document.getElementById(trayId);
+  let list = document.getElementById(listId);
+  if (tray && !list) {
+    // The tray exists but the inner list container is missing – create it
+    list = document.createElement('div');
+    list.id = listId;
+    tray.appendChild(list);
+  } else if (!tray) {
+    // Tray doesn't exist at all – create a minimal tray
+    tray = document.createElement('div');
+    tray.id = trayId;
+    tray.className = 'sess-tray';
+    list = document.createElement('div');
+    list.id = listId;
+    tray.appendChild(list);
+    // Insert tray into the tool panel (after the drop zone or as first child)
+    const panel = document.getElementById('tool-'+id);
+    if (panel) {
+      const after = panel.querySelector('.drop-zone') || panel.firstChild;
+      panel.insertBefore(tray, after.nextSibling || panel.firstChild);
     }
-  })(id);
+  }
+
+  /* Auto‑refresh session tray */
+  const toolLoadMap = {
+    'bk': bkLoad,
+    'mg': null,
+    'sp': spLoad,
+    'cp': cpLoad,
+    'nu': nuLoad,
+    'ra': raLoad,
+    'ti': tiLoad,
+    'wa': waLoad,
+    'wr': wrLoad,
+    'un': unLoad,
+    'vf': vfLoad,
+    'ic': null,
+    'ir': null,
+    'pp': null,
+    'sg': null,
+    'exif': null
+  };
+  const loadFn = toolLoadMap[id];
+  if (loadFn && tray && list) {
+    populateSessUI(listId, trayId, (bytes, name) => loadFn(bytes, name));
+  }
 
   window.scrollTo(0,0);
   if(id==='matrix'&&document.getElementById('mx-grid-a'))mxBuildGrid();
