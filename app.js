@@ -1,8 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════
-   Student's Suite -- app.js v4.0.1
-   Changes: session tray refresh on tool open,
-            robust pdf.js loader with preview warning.
-   Original v4.0.0 by author.
+   Student's Suite -- app.js v4.0.3
+   Changes:
+   - Session tray now shows three buttons (Use / Remove / Download) inline
+   - Injected CSS for session row layout (no HTML changes required)
+   - Verified stamp checkmark drawn as vector (WinAnsi fix)
+   - Merge file input reliability improved
+   - Session tray auto‑refreshes on tool open
+   - PDF preview warns if pdf.js missing
 ═══════════════════════════════════════════════════════════════ */
 let PDFDocument,rgb,degrees,StandardFonts,grayscale;
 const MM=72/25.4,CW=277*MM,CH=190*MM;
@@ -64,11 +68,11 @@ function openTool(id){
   document.querySelectorAll('.tool-panel').forEach(p=>p.style.display='none');
   document.getElementById('tool-'+id).style.display='block';
 
-  /* ── Fix 1: refresh session tray for this tool ── */
+  /* Auto‑refresh session tray for this tool */
   (function refreshToolSession(id){
     const toolLoadMap = {
       'bk': bkLoad,
-      'mg': null,        // merge uses its own session logic
+      'mg': null,
       'sp': spLoad,
       'cp': cpLoad,
       'nu': nuLoad,
@@ -78,7 +82,7 @@ function openTool(id){
       'wr': wrLoad,
       'un': unLoad,
       'vf': vfLoad,
-      'ic': null,        // image tools don’t use PDF session tray
+      'ic': null,
       'ir': null,
       'pp': null,
       'sg': null,
@@ -94,7 +98,6 @@ function openTool(id){
       populateSessUI(listId, trayId, (bytes, name) => loadFn(bytes, name));
     }
   })(id);
-  /* ── end session fix ── */
 
   window.scrollTo(0,0);
   if(id==='matrix'&&document.getElementById('mx-grid-a'))mxBuildGrid();
@@ -107,7 +110,56 @@ function saveNote(){localStorage.setItem('ss-notes',document.getElementById('loc
 function addToSession(name,bytes){sessionFiles['sf'+(++sessionIdSeq)]={name,bytes};updateSessionBadge();}
 function updateSessionBadge(){const n=Object.keys(sessionFiles).length;document.getElementById('gBadgeCount').textContent=n;document.getElementById('gBadge').classList.toggle('on',n>0);}
 function showSessionModal(){const keys=Object.keys(sessionFiles);if(!keys.length){alert('No files in session.');return;}const names=Object.values(sessionFiles).map(f=>f.name).join('\n');if(confirm('Session has '+keys.length+' file(s):\n\n'+names+'\n\nPurge all from memory?')){window._activeBlobs.forEach(u=>URL.revokeObjectURL(u));window._activeBlobs=[];sessionFiles={};updateSessionBadge();}}
-function populateSessUI(listId,trayId,onLoad){const tray=document.getElementById(trayId),list=document.getElementById(listId),files=Object.values(sessionFiles);if(!files.length){tray.classList.remove('on');return;}tray.classList.add('on');list.innerHTML='';files.forEach(f=>{const btn=document.createElement('button');btn.className='sess-file-btn';btn.textContent=f.name+' ('+fmtKB(f.bytes.length)+')';btn.onclick=()=>onLoad(f.bytes,f.name);list.appendChild(btn);});}
+
+/* ── Session tray with three buttons ── */
+function populateSessUI(listId,trayId,onLoad){
+  const tray=document.getElementById(trayId),list=document.getElementById(listId),
+        files=Object.values(sessionFiles);
+  if(!files.length){tray.classList.remove('on');return;}
+  tray.classList.add('on');list.innerHTML='';
+  files.forEach((f,i)=>{
+    const wrapper = document.createElement('div');
+    wrapper.className = 'sess-item-row';
+    // file name label
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'sess-file-name';
+    nameSpan.textContent = f.name+' ('+fmtKB(f.bytes.length)+')';
+    wrapper.appendChild(nameSpan);
+    // action buttons
+    const actions = document.createElement('span');
+    actions.className = 'sess-actions';
+    const useBtn = document.createElement('button');
+    useBtn.textContent = 'Use';
+    useBtn.className = 'sess-file-btn';
+    useBtn.onclick = ()=>onLoad(f.bytes,f.name);
+    const remBtn = document.createElement('button');
+    remBtn.textContent = 'Remove';
+    remBtn.className = 'sess-file-btn sess-remove-btn';
+    remBtn.onclick = ()=>{
+      const keys = Object.keys(sessionFiles);
+      delete sessionFiles[keys[i]];
+      updateSessionBadge();
+      populateSessUI(listId,trayId,onLoad);
+    };
+    const dlBtn = document.createElement('button');
+    dlBtn.textContent = 'Download';
+    dlBtn.className = 'sess-file-btn sess-download-btn';
+    dlBtn.onclick = ()=>{
+      const blob = new Blob([f.bytes],{type:'application/pdf'});
+      const url = URL.createObjectURL(blob);
+      window._activeBlobs.push(url);
+      const a = document.createElement('a');
+      a.href = url; a.download = f.name; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),6000);
+    };
+    actions.appendChild(useBtn);
+    actions.appendChild(remBtn);
+    actions.appendChild(dlBtn);
+    wrapper.appendChild(actions);
+    list.appendChild(wrapper);
+  });
+}
+
 const tick=()=>new Promise(r=>setTimeout(r,0));
 function ts(){return new Date().toLocaleTimeString('en-GB',{hour12:false});}
 function fmtKB(b){if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(2)+' MB';}
@@ -125,11 +177,11 @@ function wireDZ(dzId,fiId,onLoad){const dz=document.getElementById(dzId);if(!dz)
 function wireDZImg(dzId,fiId,onLoad){const dz=document.getElementById(dzId);if(!dz)return;const fi=document.getElementById(fiId);if(fi)fi.addEventListener('change',function(){if(this.files[0])onLoad(this.files[0]);this.value='';});dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});dz.addEventListener('dragleave',()=>dz.classList.remove('over'));dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)onLoad(f);});}
 async function loadPDF(bytes,pnameId,pmetaId,pillId,runId,onLoaded){try{const doc=await PDFDocument.load(bytes,{ignoreEncryption:true}),n=doc.getPageCount();document.getElementById(pnameId).textContent='';document.getElementById(pmetaId).textContent=n+' page'+(n!==1?'s':'')+' · '+fmtKB(bytes.length);document.getElementById(pillId).classList.add('on');if(runId)document.getElementById(runId).disabled=false;if(onLoaded)onLoaded(bytes,n,doc);return{bytes,n,doc};}catch(e){alert('Could not read PDF: '+e.message);return null;}}
 
-/* ── Metadata Display (fast, no extra library) ─────────── */
+/* ── Metadata Display ─────────── */
 async function showPDFMeta(bytes,metaId){const el=document.getElementById(metaId);if(!el)return;try{const doc=await PDFDocument.load(bytes,{ignoreEncryption:true}),pg0=doc.getPage(0),{width,height}=pg0.getSize();const info=[['Pages',doc.getPageCount()],['Page size',(width/MM).toFixed(0)+'×'+(height/MM).toFixed(0)+' mm'],['File size',fmtKB(bytes.length)],['Title',doc.getTitle()||'--'],['Author',doc.getAuthor()||'--'],['Creator',doc.getCreator()||'--'],['Producer',doc.getProducer()||'--'],['Created',doc.getCreationDate()?doc.getCreationDate().toLocaleDateString():'--']];el.innerHTML=info.map(([k,v])=>'<div class="meta-row"><span class="meta-k">'+k+'</span><span class="meta-v">'+v+'</span></div>').join('');el.style.display='block';}catch(_){}}
 function showImageMeta(file,img,metaId){const el=document.getElementById(metaId);if(!el)return;const info=[['File',file.name],['Dimensions',img.naturalWidth+' × '+img.naturalHeight+' px'],['File size',fmtKB(file.size)],['Type',file.type||'--']];el.innerHTML=info.map(([k,v])=>'<div class="meta-row"><span class="meta-k">'+k+'</span><span class="meta-v">'+v+'</span></div>').join('');el.style.display='block';}
 
-/* ── PDF.js loader (FIXED) ─────────────────────────────────── */
+/* ── PDF.js loader ─────────── */
 function loadPdfJs(){
   if (window.pdfjsLib) return Promise.resolve(true);
   if (window._pdfjsLoading) return window._pdfjsLoading;
@@ -141,49 +193,41 @@ function loadPdfJs(){
         window.pdfjsLib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.min.js';
         resolve(true);
       } else {
-        // try CDN fallback
         const s2 = document.createElement('script');
         s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
         s2.onload = () => {
           if (window.pdfjsLib) {
             window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             resolve(true);
-          } else {
-            reject(new Error('pdf.js missing after CDN load'));
-          }
+          } else reject(new Error('pdf.js missing'));
         };
-        s2.onerror = () => reject(new Error('pdf.js not found (local or CDN)'));
+        s2.onerror = () => reject(new Error('pdf.js not found'));
         document.head.appendChild(s2);
       }
     };
     s.onerror = () => {
-      // local failed, try CDN
       const s2 = document.createElement('script');
       s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
       s2.onload = () => {
         if (window.pdfjsLib) {
           window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
           resolve(true);
-        } else {
-          reject(new Error('pdf.js missing after CDN fallback'));
-        }
+        } else reject(new Error('pdf.js missing'));
       };
-      s2.onerror = () => reject(new Error('pdf.js not reachable (local or CDN)'));
+      s2.onerror = () => reject(new Error('pdf.js not reachable'));
       document.head.appendChild(s2);
     };
     document.head.appendChild(s);
   });
   return window._pdfjsLoading;
 }
-
 function loadPako(){if(window.pako)return Promise.resolve();return new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
 
-/* ── PDF Output Preview (FIXED) ──────────────────────── */
+/* ── PDF Output Preview (with warning if pdf.js missing) ── */
 const _prvBytes={};
 async function previewOutputPage(toolId){
   const bytes = _prvBytes[toolId];
   if (!bytes) return;
-  // Try to ensure pdf.js is loaded; if it fails, show a clear message
   try {
     await loadPdfJs();
   } catch (e) {
@@ -194,10 +238,10 @@ async function previewOutputPage(toolId){
     }
     return;
   }
-  const pgNum = parseInt(document.getElementById(toolId+'-prv-pg').value) || 1,
+  const pgNum = parseInt(document.getElementById(toolId+'-prv-pg').value)||1,
         cvEl  = document.getElementById(toolId+'-prv-cv'),
         wrap  = document.getElementById(toolId+'-prv-wrap');
-  if (!cvEl || !wrap) return;
+  if(!cvEl || !wrap) return;
   try {
     const pd = await window.pdfjsLib.getDocument({data: bytes}).promise;
     const pg = await pd.getPage(Math.min(pgNum, pd.numPages));
@@ -214,7 +258,7 @@ async function previewOutputPage(toolId){
 }
 function setPDFPreview(toolId,bytes,totalPages){_prvBytes[toolId]=bytes;const area=document.getElementById(toolId+'-prv-area'),pgEl=document.getElementById(toolId+'-prv-pg');if(area)area.style.display='block';if(pgEl)pgEl.max=totalPages||999;}
 
-/* ── Download with inline rename ──────────────────────── */
+/* ── Download with inline rename ── */
 function addDLItemV2(listId,defaultName,title,desc,bytes,mime){const m=mime||'application/pdf',blob=new Blob([bytes],{type:m}),url=URL.createObjectURL(blob);window._activeBlobs.push(url);const item=document.createElement('div');item.className='dl-item';item.innerHTML='<div style="flex:1;min-width:0"><div class="dl-title">'+title+'</div><div class="dl-desc">'+desc+'</div><input class="dl-rename" value="'+defaultName+'" placeholder="filename" title="Edit filename before downloading"/></div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end"><a href="'+url+'" class="dl-btn" onclick="this.download=this.closest(\'.dl-item\').querySelector(\'.dl-rename\').value||\''+escQ(defaultName)+'\'">⬇ Download</a><button class="sess-btn" onclick="addToSession(this.closest(\'.dl-item\').querySelector(\'.dl-rename\').value,this._b)">+ Session</button></div>';item.querySelector('.sess-btn')._b=bytes;document.getElementById(listId).appendChild(item);}
 function addDLItemImgV2(listId,defaultName,title,desc,dataUrl){const item=document.createElement('div');item.className='dl-item';item.innerHTML='<div style="flex:1;min-width:0"><div class="dl-title">'+title+'</div><div class="dl-desc">'+desc+'</div><input class="dl-rename" value="'+defaultName+'" placeholder="filename" title="Edit filename before downloading"/></div><a href="'+dataUrl+'" class="dl-btn" onclick="this.download=this.closest(\'.dl-item\').querySelector(\'.dl-rename\').value||\''+escQ(defaultName)+'\'">⬇ Download</a>';document.getElementById(listId).appendChild(item);}
 function addDLItem(l,f,t,d,b){addDLItemV2(l,f,t,d,b);}
@@ -223,8 +267,6 @@ function addDLItem(l,f,t,d,b){addDLItemV2(l,f,t,d,b);}
 let bkBytes=null;
 async function bkLoad(bytes,name){bkBytes=bytes;document.getElementById('bk-pname').textContent=name||'document.pdf';const info=await loadPDF(bytes,'bk-pname','bk-pmeta','bk-pill','bk-run');if(!info){bkBytes=null;return;}document.getElementById('bk-proc').style.display='block';addLog('bk-log','Loaded: '+info.n+' pages · '+fmtKB(bytes.length),'ok');showPDFMeta(bytes,'bk-meta');populateSessUI('bk-slist','bk-sess',(b,n)=>bkLoad(b,n));}
 function bkUpdatePreview(){const g=+document.getElementById('bk-gap').value,o=+document.getElementById('bk-out').value;document.getElementById('bk-gapV').textContent=g;document.getElementById('bk-outV').textContent=o;document.getElementById('bk-pw').textContent=((277-g-2*o)/2).toFixed(1)+' × 190 mm';}
-
-/* Binding sequence -- verified against Revised.ipynb Python output */
 function bkBindSeq(total,n){const g=4*n,seq=[];for(let k=1;k<=total/g;k++){const base=(k-1)*g;for(let sheet=0;sheet<n;sheet++){seq.push(base+g-sheet*2);seq.push(base+sheet*2+1);seq.push(base+sheet*2+2);seq.push(base+g-sheet*2-1);}}return seq;}
 function bkPad(total,cap){const need=(cap-(total%cap))%cap;let front=0,back=0;if(need===1)back=1;else if(need>1&&need%2===0)front=back=need/2;else if(need>1){front=(need>>1)+1;back=need>>1;}return{need,front,back};}
 async function bkRun(){
@@ -280,7 +322,7 @@ async function bkRun(){
 
 /* ═══════════════════ TOOL 2: MERGE ═══════════════════════ */
 let mgQueue=[],mgSel=-1;
-function mgAdd(){document.getElementById('mg-fi').click();}
+function mgAdd(){const fi=document.getElementById('mg-fi');if(fi){fi.style.display='block';fi.click();setTimeout(()=>{fi.style.display='none';},100);}}
 async function mgHandleFiles(files){for(const f of files){const bytes=new Uint8Array(await f.arrayBuffer());try{const doc=await PDFDocument.load(bytes,{ignoreEncryption:true});mgQueue.push({name:f.name,bytes,pages:doc.getPageCount()});}catch(e){alert('Could not load '+f.name+': '+e.message);}}mgRender();}
 function mgRender(){const box=document.getElementById('mg-list');if(!mgQueue.length){box.innerHTML='<div style="padding:10px;color:var(--muted);font-size:.75rem">Queue empty.</div>';document.getElementById('mg-run').disabled=true;document.getElementById('mg-stats').textContent='';return;}box.innerHTML='';mgQueue.forEach((f,i)=>{const d=document.createElement('div');d.className='fl-item'+(i===mgSel?' sel':'');d.innerHTML='<span class="fl-num">'+(i+1)+'</span><span class="fl-name">'+f.name+'</span><span class="fl-meta">'+f.pages+' pp · '+fmtKB(f.bytes.length)+'</span>';d.onclick=()=>{mgSel=i;mgRender();};box.appendChild(d);});const total=mgQueue.reduce((a,f)=>a+f.pages,0);document.getElementById('mg-stats').textContent=mgQueue.length+' files · '+total+' total pages';document.getElementById('mg-run').disabled=false;}
 function mgMove(dir){if(mgSel<0||mgSel>=mgQueue.length)return;const to=mgSel+dir;if(to<0||to>=mgQueue.length)return;[mgQueue[mgSel],mgQueue[to]]=[mgQueue[to],mgQueue[mgSel]];mgSel=to;mgRender();}
@@ -326,14 +368,7 @@ let tiBytes=null;
 async function tiLoad(bytes,name){tiBytes=bytes;document.getElementById('ti-pname').textContent=name||'document.pdf';document.getElementById('ti-pmeta').textContent=fmtKB(bytes.length);document.getElementById('ti-pill').classList.add('on');document.getElementById('ti-run').disabled=false;document.getElementById('ti-proc').style.display='block';showPDFMeta(bytes,'ti-meta');populateSessUI('ti-slist','ti-sess',(b,n)=>tiLoad(b,n));}
 async function tiRun(){if(!tiBytes)return;document.getElementById('ti-run').disabled=true;document.getElementById('ti-dlist').innerHTML='';document.getElementById('ti-proc').style.display='block';setP('ti-pf',0);addLog('ti-log','Loading pdf.js…','st');try{await loadPdfJs();const dpi=parseInt(document.querySelector('input[name="ti-dpi"]:checked').value),fmt=document.querySelector('input[name="ti-fmt"]:checked').value,ext=fmt==='jpeg'?'jpg':'png',scale=dpi/72;const pdfDoc=await window.pdfjsLib.getDocument({data:tiBytes}).promise,total=pdfDoc.numPages;const pageStr=document.getElementById('ti-pages').value;const pageIdxs=pageStr.trim()?parsePageStr(pageStr,total):[...Array(total).keys()];addLog('ti-log','Rendering '+pageIdxs.length+' page(s) at '+dpi+' DPI…','st');for(let i=0;i<pageIdxs.length;i++){const pg=await pdfDoc.getPage(pageIdxs[i]+1),vp=pg.getViewport({scale});const cv=document.createElement('canvas');cv.width=Math.round(vp.width);cv.height=Math.round(vp.height);await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;const dataUrl=cv.toDataURL('image/'+fmt,fmt==='jpeg'?0.92:undefined),fname='page_'+(pageIdxs[i]+1)+'.'+ext;addDLItemImgV2('ti-dlist',fname,fname,cv.width+'×'+cv.height+' px',dataUrl);addLog('ti-log','✓ Page '+(pageIdxs[i]+1),'ok');setP('ti-pf',Math.round((i+1)/pageIdxs.length*100));await tick();}showDL('ti-dlab','ti-dsect');incOp();}catch(e){addLog('ti-log','ERROR: '+e.message,'er');console.error(e);}document.getElementById('ti-run').disabled=false;}
 
-/* ═══════════════════ TOOL 8: ADD WATERMARK ══════════════
-   FIX: Trig-corrected anchor for diagonal text.
-   In pdf-lib, drawText rotates around (x,y). To visually centre
-   rotated text at page centre, compute the anchor as:
-     x = pageCentreX − (textWidth/2)*cos(θ) + (fontSize/2)*sin(θ)
-     y = pageCentreY − (textWidth/2)*sin(θ) − (fontSize/2)*cos(θ)
-   This places the text's visual midpoint exactly at page centre.
-═══════════════════════════════════════════════════════════ */
+/* ═══════════════════ TOOL 8: ADD WATERMARK ══════════════ */
 let waBytes=null,waImgBytes=null,waImgType=null;
 async function waLoad(bytes,name){waBytes=bytes;document.getElementById('wa-pname').textContent=name||'document.pdf';const info=await loadPDF(bytes,'wa-pname','wa-pmeta','wa-pill','wa-run');if(!info)return;document.getElementById('wa-proc').style.display='block';showPDFMeta(bytes,'wa-meta');populateSessUI('wa-slist','wa-sess',(b,n)=>waLoad(b,n));}
 function waLoadImg(file){waImgType=file.type;const reader=new FileReader();reader.onload=e=>{waImgBytes=new Uint8Array(e.target.result);const p=document.getElementById('wa-img-pill');if(p){p.querySelector('.pill-name').textContent=file.name;p.querySelector('.pill-meta').textContent=fmtKB(file.size);p.classList.add('on');}};reader.readAsArrayBuffer(file);}
@@ -360,7 +395,6 @@ async function waRun(){
         const{width,height}=pg.getSize(),tW=font.widthOfTextAtSize(text,fsize);
         let x,y,rot=rotDeg;const pad=18;
         if(pos==='diag'||pos==='center'){
-          /* TRIG-CORRECTED CENTRE: anchor point adjusted so text midpoint lands at page centre */
           const rad=(pos==='center'?0:rotDeg)*Math.PI/180,cos=Math.cos(rad),sin=Math.sin(rad);
           x=width/2-(tW/2)*cos+(fsize/2)*sin;
           y=height/2-(tW/2)*sin-(fsize/2)*cos;
@@ -377,13 +411,7 @@ async function waRun(){
   document.getElementById('wa-run').disabled=false;
 }
 
-/* ═══════════════════ TOOL 9: REMOVE WATERMARK ══════════
-   4 strategies ported from Watermark_removal_.ipynb:
-   S1: Strip annotation layer (handles Acrobat stamps)
-   S2: Text-search redaction (pdf.js + white rect)
-   S3: Overdraw large background raster images
-   S4: Grey-vector neutralization (pako DEFLATE decompress)
-═══════════════════════════════════════════════════════════ */
+/* ═══════════════════ TOOL 9: REMOVE WATERMARK ══════════ */
 let wrBytes=null,wrCleanBytes=null;
 async function wrLoad(bytes,name){wrBytes=bytes;wrCleanBytes=null;document.getElementById('wr-pname').textContent=name||'document.pdf';const info=await loadPDF(bytes,'wr-pname','wr-pmeta','wr-pill','wr-run');if(!info)return;document.getElementById('wr-proc').style.display='block';showPDFMeta(bytes,'wr-meta');populateSessUI('wr-slist','wr-sess',(b,n)=>wrLoad(b,n));}
 async function wrScan(){
@@ -405,7 +433,6 @@ async function wrScan(){
 async function wrNeutralizeVectors(doc,logId){
   await loadPako().catch(()=>null);
   if(!window.pako){addLog(logId,'⚠ pako unavailable -- skipping Strategy 4','wn');return 0;}
-  /* Grey range: 0.60–0.99 (same as Python obliterate_remaining_watermark) */
   const rgbRE=/(?:0\.[6-9]\d*)\s+(?:0\.[6-9]\d*)\s+(?:0\.[6-9]\d*)\s+(rg|RG)\b/g;
   const grayRE=/(?:0\.[6-9]\d*)\s+(g|G)\b/g;
   let count=0;
@@ -471,7 +498,21 @@ async function unRun(){if(!unBytes)return;document.getElementById('un-run').disa
 /* ═══════════════════ TOOL 11: VERIFIED STAMP ════════════ */
 let vfBytes=null;
 async function vfLoad(bytes,name){vfBytes=bytes;document.getElementById('vf-pname').textContent=name||'document.pdf';const info=await loadPDF(bytes,'vf-pname','vf-pmeta','vf-pill','vf-run');if(!info)return;document.getElementById('vf-proc').style.display='block';showPDFMeta(bytes,'vf-meta');populateSessUI('vf-slist','vf-sess',(b,n)=>vfLoad(b,n));}
-async function vfRun(){if(!vfBytes)return;document.getElementById('vf-run').disabled=true;document.getElementById('vf-dlist').innerHTML='';document.getElementById('vf-proc').style.display='block';setP('vf-pf',5);try{const stampText=document.getElementById('vf-txt').value,colKey=document.getElementById('vf-col').value,posKey=document.getElementById('vf-pos').value;const pagesInput=document.getElementById('vf-pages').value.trim().toLowerCase(),addDate=document.getElementById('vf-date').checked;const colMap={green:[0.05,0.55,0.2],blue:[0.1,0.3,0.8],red:[0.7,0.1,0.1]},cv=colMap[colKey]||colMap.green,sc=rgb(cv[0],cv[1],cv[2]);const dateStr=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});const doc=await PDFDocument.load(vfBytes,{ignoreEncryption:true}),font=await doc.embedFont(StandardFonts.HelveticaBold),fontR=await doc.embedFont(StandardFonts.Helvetica);const pages=doc.getPages(),total=pages.length;const tgPgs=pagesInput==='all'?[...Array(total).keys()]:parsePageStr(pagesInput,total);addLog('vf-log','Stamping '+tgPgs.length+' page(s)…','st');tgPgs.forEach(idx=>{const pg=pages[idx],{width,height}=pg.getSize();const bW=120,bH=addDate?50:38,pad=14;let bX,bY;if(posKey==='br'){bX=width-bW-pad;bY=pad;}else if(posKey==='bl'){bX=pad;bY=pad;}else if(posKey==='tr'){bX=width-bW-pad;bY=height-bH-pad;}else{bX=pad;bY=height-bH-pad;}pg.drawRectangle({x:bX,y:bY,width:bW,height:bH,borderColor:sc,borderWidth:2.5,opacity:0.85});pg.drawRectangle({x:bX+3,y:bY+3,width:bW-6,height:bH-6,borderColor:sc,borderWidth:1,opacity:0.5});pg.drawText('✓',{x:bX+7,y:bY+bH/2-6,size:13,font,color:sc,opacity:0.9});const tSize=11,tW2=font.widthOfTextAtSize(stampText,tSize);pg.drawText(stampText,{x:bX+(bW-tW2)/2,y:bY+(addDate?bH/2:bH/2-tSize/2+2),size:tSize,font,color:sc,opacity:0.9});if(addDate){const dSize=8,dW=fontR.widthOfTextAtSize(dateStr,dSize);pg.drawText(dateStr,{x:bX+(bW-dW)/2,y:bY+6,size:dSize,font:fontR,color:sc,opacity:0.75});}});const bytes=await doc.save();setP('vf-pf',100);addLog('vf-log','✓ Stamp applied to '+tgPgs.length+' page(s)','ok');addDLItemV2('vf-dlist','Verified.pdf','Stamped PDF','"'+stampText+'" on '+tgPgs.length+' page(s)',bytes);setPDFPreview('vf',bytes,total);showDL('vf-dlab','vf-dsect');incOp();}catch(e){addLog('vf-log','ERROR: '+e.message,'er');}document.getElementById('vf-run').disabled=false;}
+
+/* ── Helper to draw a checkmark as vector ── */
+function drawCheckMark(pg, x, y, size, color, opacity){
+  const w = size, h = size * 0.6;
+  const pts = [
+    {x: x + w*0.2, y: y + h*0.5},
+    {x: x + w*0.5, y: y + h*0.8},
+    {x: x + w*0.8, y: y + h*0.2}
+  ];
+  for(let i=0;i<pts.length-1;i++){
+    pg.drawLine({start:pts[i],end:pts[i+1],thickness:2.5,color,opacity});
+  }
+}
+
+async function vfRun(){if(!vfBytes)return;document.getElementById('vf-run').disabled=true;document.getElementById('vf-dlist').innerHTML='';document.getElementById('vf-proc').style.display='block';setP('vf-pf',5);try{const stampText=document.getElementById('vf-txt').value,colKey=document.getElementById('vf-col').value,posKey=document.getElementById('vf-pos').value;const pagesInput=document.getElementById('vf-pages').value.trim().toLowerCase(),addDate=document.getElementById('vf-date').checked;const colMap={green:[0.05,0.55,0.2],blue:[0.1,0.3,0.8],red:[0.7,0.1,0.1]},cv=colMap[colKey]||colMap.green,sc=rgb(cv[0],cv[1],cv[2]);const dateStr=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});const doc=await PDFDocument.load(vfBytes,{ignoreEncryption:true}),font=await doc.embedFont(StandardFonts.HelveticaBold),fontR=await doc.embedFont(StandardFonts.Helvetica);const pages=doc.getPages(),total=pages.length;const tgPgs=pagesInput==='all'?[...Array(total).keys()]:parsePageStr(pagesInput,total);addLog('vf-log','Stamping '+tgPgs.length+' page(s)…','st');tgPgs.forEach(idx=>{const pg=pages[idx],{width,height}=pg.getSize();const bW=120,bH=addDate?50:38,pad=14;let bX,bY;if(posKey==='br'){bX=width-bW-pad;bY=pad;}else if(posKey==='bl'){bX=pad;bY=pad;}else if(posKey==='tr'){bX=width-bW-pad;bY=height-bH-pad;}else{bX=pad;bY=height-bH-pad;}pg.drawRectangle({x:bX,y:bY,width:bW,height:bH,borderColor:sc,borderWidth:2.5,opacity:0.85});pg.drawRectangle({x:bX+3,y:bY+3,width:bW-6,height:bH-6,borderColor:sc,borderWidth:1,opacity:0.5});drawCheckMark(pg, bX+7, bY+bH/2-8, 13, sc, 0.9);const tSize=11,tW2=font.widthOfTextAtSize(stampText,tSize);pg.drawText(stampText,{x:bX+(bW-tW2)/2,y:bY+(addDate?bH/2:bH/2-tSize/2+2),size:tSize,font,color:sc,opacity:0.9});if(addDate){const dSize=8,dW=fontR.widthOfTextAtSize(dateStr,dSize);pg.drawText(dateStr,{x:bX+(bW-dW)/2,y:bY+6,size:dSize,font:fontR,color:sc,opacity:0.75});}});const bytes=await doc.save();setP('vf-pf',100);addLog('vf-log','✓ Stamp applied to '+tgPgs.length+' page(s)','ok');addDLItemV2('vf-dlist','Verified.pdf','Stamped PDF','"'+stampText+'" on '+tgPgs.length+' page(s)',bytes);setPDFPreview('vf',bytes,total);showDL('vf-dlab','vf-dsect');incOp();}catch(e){addLog('vf-log','ERROR: '+e.message,'er');}document.getElementById('vf-run').disabled=false;}
 
 /* ═══════════════════ TOOL 12: IMAGE COMPRESS ════════════ */
 let icImg=null,icOrigFile=null,icOutDataUrl=null;
@@ -501,7 +542,7 @@ function sgLoad(file){const reader=new FileReader();reader.onload=e=>{const img=
 function sgProcess(){if(!sgImg)return;const thresh=parseInt(document.getElementById('sg-th').value),br=parseInt(document.getElementById('sg-br').value),con=parseInt(document.getElementById('sg-con').value);document.getElementById('sg-thV').textContent=thresh;document.getElementById('sg-brV').textContent=br;document.getElementById('sg-conV').textContent=con;const src=sgImg,mx=240,sc=Math.min(1,mx/src.naturalWidth);const cv=document.getElementById('sg-out');cv.width=Math.round(src.naturalWidth*sc);cv.height=Math.round(src.naturalHeight*sc);const ctx=cv.getContext('2d');ctx.drawImage(src,0,0,cv.width,cv.height);const id=ctx.getImageData(0,0,cv.width,cv.height),dat=id.data;const brf=br/255,conf=(con+100)/100;for(let i=0;i<dat.length;i+=4){let r=dat[i]/255,g=dat[i+1]/255,b=dat[i+2]/255;r+=brf;g+=brf;b+=brf;r=(r-.5)*conf+.5;g=(g-.5)*conf+.5;b=(b-.5)*conf+.5;const lum=(Math.max(0,Math.min(1,r))+Math.max(0,Math.min(1,g))+Math.max(0,Math.min(1,b)))/3;if(lum*255>thresh)dat[i+3]=0;else{dat[i]=Math.max(0,Math.min(255,r*255));dat[i+1]=Math.max(0,Math.min(255,g*255));dat[i+2]=Math.max(0,Math.min(255,b*255));}}ctx.putImageData(id,0,0);}
 function sgDownload(){if(!sgImg)return;const thresh=parseInt(document.getElementById('sg-th').value),br=parseInt(document.getElementById('sg-br').value),con=parseInt(document.getElementById('sg-con').value);const cv=document.createElement('canvas');cv.width=sgImg.naturalWidth;cv.height=sgImg.naturalHeight;const ctx=cv.getContext('2d');ctx.drawImage(sgImg,0,0);const id=ctx.getImageData(0,0,cv.width,cv.height),dat=id.data;const brf=br/255,conf=(con+100)/100;for(let i=0;i<dat.length;i+=4){let r=dat[i]/255,g=dat[i+1]/255,b=dat[i+2]/255;r+=brf;g+=brf;b+=brf;r=(r-.5)*conf+.5;g=(g-.5)*conf+.5;b=(b-.5)*conf+.5;const lum=(Math.max(0,Math.min(1,r))+Math.max(0,Math.min(1,g))+Math.max(0,Math.min(1,b)))/3;if(lum*255>thresh)dat[i+3]=0;else{dat[i]=Math.max(0,Math.min(255,r*255));dat[i+1]=Math.max(0,Math.min(255,g*255));dat[i+2]=Math.max(0,Math.min(255,b*255));}}ctx.putImageData(id,0,0);const a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='signature_transparent.png';a.click();incOp();}
 
-/* ═══════════════════ TOOL 17: EXIF CLEANER (NEW) ════════ */
+/* ═══════════════════ TOOL 17: EXIF CLEANER ════════ */
 let exifFile=null,exifBytes=null,exifType=null;
 function exifLoad(file){
   exifFile=file;const ext=(file.name||'').split('.').pop().toLowerCase();
@@ -609,6 +650,6 @@ function mxToggleSteps(){const b=document.getElementById('mx-steps-body');b.styl
 /* ═══ MERGE DZ ══════════════════════════════════════════ */
 (function(){const dz=document.getElementById('mg-dz');if(!dz)return;dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});dz.addEventListener('dragleave',()=>dz.classList.remove('over'));dz.addEventListener('drop',async e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files.length)mgHandleFiles(e.dataTransfer.files);});})();
 
-/* ═══ CSS injection ══════════════════════════════════════ */
-function injectMetaCSS(){const s=document.createElement('style');s.textContent='.file-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 9px;margin-top:6px;display:none}.meta-row{display:flex;gap:6px;align-items:baseline;padding:2px 0;border-bottom:1px solid var(--border)}.meta-row:last-child{border-bottom:none}.meta-k{font-size:.63rem;color:var(--muted);font-family:var(--mono);min-width:72px;flex-shrink:0}.meta-v{font-size:.72rem;color:var(--text);word-break:break-all}.dl-rename{margin-top:5px!important;width:100%!important;font-size:.7rem!important;padding:4px 7px!important;background:var(--surface)!important;border:1px solid var(--border2)!important;border-radius:4px!important;color:var(--text)!important;font-family:var(--mono)!important;outline:none!important}.dl-rename:focus{border-color:var(--gold)!important}';document.head.appendChild(s);}
+/* ═══ CSS injection (added session row styles) ═════════ */
+function injectMetaCSS(){const s=document.createElement('style');s.textContent='.file-meta{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 9px;margin-top:6px;display:none}.meta-row{display:flex;gap:6px;align-items:baseline;padding:2px 0;border-bottom:1px solid var(--border)}.meta-row:last-child{border-bottom:none}.meta-k{font-size:.63rem;color:var(--muted);font-family:var(--mono);min-width:72px;flex-shrink:0}.meta-v{font-size:.72rem;color:var(--text);word-break:break-all}.dl-rename{margin-top:5px!important;width:100%!important;font-size:.7rem!important;padding:4px 7px!important;background:var(--surface)!important;border:1px solid var(--border2)!important;border-radius:4px!important;color:var(--text)!important;font-family:var(--mono)!important;outline:none!important}.dl-rename:focus{border-color:var(--gold)!important}.sess-item-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}.sess-file-name{flex:1;min-width:120px;font-size:.78rem;color:var(--text)}.sess-actions{display:flex;gap:4px}.sess-actions .sess-file-btn{padding:2px 8px;font-size:.7rem;line-height:1.4;border-radius:4px;background:var(--card);border:1px solid var(--border2);color:var(--text);cursor:pointer}.sess-actions .sess-file-btn:hover{background:var(--gold);color:#000}.sess-remove-btn{color:var(--red)!important}.sess-download-btn{color:var(--blue)!important}';document.head.appendChild(s);}
 /* END */
